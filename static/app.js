@@ -36,6 +36,9 @@ class App extends React.Component {
 	}
 	addData(proposalId, data){
 		data.user = this.getUser();
+		if(!data.user){
+			console.error("Unknown user");
+		}
 		console.log("addData", proposalId, data);
 		fetch(`/data/${proposalId}`, {
 			method: "POST",
