@@ -7,7 +7,7 @@ var auth = require('basic-auth');
 program
 	.option("--user [user]", "Basic Auth Username")
 	.option("--pass [pass]", "Basic Auth Password")
-	.option("--port [p]", "Port", (x) => parseInt(x), 3000)
+	.option("--port [p]", "Port", function(x){return parseInt(x)}, 3000)
 	.option("--host [a]", "Host")
 	.parse(process.argv);
 
