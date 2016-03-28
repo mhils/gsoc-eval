@@ -1,4 +1,4 @@
-# GSoC Mentor Evaluation Tool
+# GSoC Student Assessment Tool
 
 A simple application for initial GSoC proposal assessment.
 
