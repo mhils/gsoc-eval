@@ -19,7 +19,8 @@ class App extends React.Component {
 	componentWillMount() {
 		fetch("/proposals.json", {credentials: 'same-origin'}).then(response => {
 			response.json().then(v => {
-				this.setState({proposals: v.results});
+				let proposals = v.results.filter(p => !p.ignored);
+				this.setState({proposals});
 			})
 		});
 		fetch("/data", {credentials: 'same-origin'}).then(this.updateData);

@@ -34648,7 +34648,10 @@ var App = function (_React$Component) {
 
 			fetch("/proposals.json", { credentials: 'same-origin' }).then(function (response) {
 				response.json().then(function (v) {
-					_this2.setState({ proposals: v.results });
+					var proposals = v.results.filter(function (p) {
+						return !p.ignored;
+					});
+					_this2.setState({ proposals: proposals });
 				});
 			});
 			fetch("/data", { credentials: 'same-origin' }).then(this.updateData);
