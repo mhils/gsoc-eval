@@ -17,12 +17,12 @@ class App extends React.Component {
 		this.addData = this.addData.bind(this);
 	}
 	componentWillMount() {
-		fetch("/proposals.json").then(response => {
+		fetch("/proposals.json", {credentials: 'same-origin'}).then(response => {
 			response.json().then(v => {
 				this.setState({proposals: v.results});
 			})
 		});
-		fetch("/data").then(this.updateData);
+		fetch("/data", {credentials: 'same-origin'}).then(this.updateData);
 	}
 	getUser(prompt = true) {
 		if(prompt && !this.state.user){
@@ -42,6 +42,7 @@ class App extends React.Component {
 				"Accept": "application/json",
 				"Content-Type": "application/json"
 			},
+			credentials: 'same-origin',
 			body: JSON.stringify(data)
 		}
 		).then(this.updateData);

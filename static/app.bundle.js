@@ -34646,12 +34646,12 @@ var App = function (_React$Component) {
 		value: function componentWillMount() {
 			var _this2 = this;
 
-			fetch("/proposals.json").then(function (response) {
+			fetch("/proposals.json", { credentials: 'same-origin' }).then(function (response) {
 				response.json().then(function (v) {
 					_this2.setState({ proposals: v.results });
 				});
 			});
-			fetch("/data").then(this.updateData);
+			fetch("/data", { credentials: 'same-origin' }).then(this.updateData);
 		}
 	}, {
 		key: "getUser",
@@ -34677,6 +34677,7 @@ var App = function (_React$Component) {
 					"Accept": "application/json",
 					"Content-Type": "application/json"
 				},
+				credentials: 'same-origin',
 				body: JSON.stringify(data)
 			}).then(this.updateData);
 		}
