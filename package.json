@@ -18,7 +18,9 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "basic-auth": "^1.0.3",
     "body-parser": "^1.15.0",
+    "commander": "^2.9.0",
     "express": "^4.13.4",
     "jsonfile": "^2.2.3"
   }

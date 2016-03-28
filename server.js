@@ -1,6 +1,18 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var jsonfile = require('jsonfile')
+var program = require('commander');
+var auth = require('basic-auth');
+
+program
+	.option("--user [user]", "Basic Auth Username")
+	.option("--pass [pass]", "Basic Auth Password")
+	.option("--port [p]", "Port", (x) => parseInt(x), 3000)
+	.option("--host [a]", "Host")
+	.parse(process.argv);
+
+console.log(program.port);
+
 var proposals = require("./proposals.json");
 
 var DATAFILE = "./data.json";
@@ -10,6 +22,15 @@ var data = jsonfile.readFileSync(DATAFILE);
 var app = express();
 app.use(express.static('static'));
 app.use(bodyParser.json())
+app.use(function(req, res, next) {
+  var user = auth(req);
+  if (!user || user.name !== program.user || user.pass !== program.pass) {
+    res.set('WWW-Authenticate', 'Basic realm="GSoC"');
+    return res.status(401).send();
+  }
+  return next();
+});
+
 
 app.get('/proposals.json', function (req, res) {
   res.send(proposals);
@@ -38,6 +59,8 @@ app.post('/data/:proposalId', function(req, res) {
   res.send(data);
 });
 
-app.listen(3000, function () {
-  console.log('App listening on port 3000!');
+app.listen(program.port, program.host, function () {
+  console.log('App listening on ' + 
+  	(program.host || '') + ':' + program.port + '!'
+  );
 });
