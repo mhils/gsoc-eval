@@ -1,0 +1,53 @@
+{
+  "42": [
+    {
+      "rating": 5,
+      "user": "Max",
+      "timestamp": 1459130526407
+    },
+    {
+      "rating": 3,
+      "user": "Lukas",
+      "timestamp": 1459130565315
+    },
+    {
+      "comment": "The students has a strong understanding of what the project is about, but I'm not so sure about his coding skills. Thomas, can you set up a coding interview?",
+      "user": "Max",
+      "timestamp": 1459130825711
+    },
+    {
+      "comment": "Sent out an email!",
+      "user": "Thomas",
+      "timestamp": 1459130938074
+    }
+  ],
+  "43": [
+    {
+      "rating": 3,
+      "user": "Max",
+      "timestamp": 1459130553069
+    },
+    {
+      "comment": "The proposal isn't too bad, but we got better ones. Communication with the student was a bit difficult as well.",
+      "user": "Max",
+      "timestamp": 1459130892873
+    }
+  ],
+  "44": [
+    {
+      "rating": 1,
+      "user": "Max",
+      "timestamp": 1459130555256
+    },
+    {
+      "comment": "Spam?",
+      "user": "Lukas",
+      "timestamp": 1459130572238
+    },
+    {
+      "comment": "Spam!",
+      "user": "Max",
+      "timestamp": 1459130580083
+    }
+  ]
+}

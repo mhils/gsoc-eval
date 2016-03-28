@@ -1,0 +1,57 @@
+{
+	"count": 3,
+	"next": null,
+	"previous": null,
+	"results": [{
+		"id": 42,
+		"student": {
+			"id": 42,
+			"display_name": "John Doe"
+		},
+		"student_id": 42,
+		"organization": {
+			"id": 42,
+			"name": "The Honeynet Project",
+			"website_url": "http://www.honeynet.org/",
+			"tagline": "The Honeynet Project - R&D for honeypot/honeynet technolgy and infosec research"
+		},
+		"organization_id": 42,
+		"title": "My Awesome Proposal",
+		"abstract": "Hello, here is my proposal. I am looking forward to read your comments.",
+		"subcategory": "mitmproxy"
+	}, {
+		"id": 44,
+		"student": {
+			"id": 42,
+			"display_name": "Foo Bar"
+		},
+		"student_id": 42,
+		"organization": {
+			"id": 42,
+			"name": "The Honeynet Project",
+			"website_url": "http://www.honeynet.org/",
+			"tagline": "The Honeynet Project - R&D for honeypot/honeynet technolgy and infosec research"
+		},
+		"organization_id": 42,
+		"title": "Make Easy Pizza Delivery System",
+		"abstract": "This is one of the few random spam applications! 🎉",
+		"subcategory": ""
+	}, {
+		"id": 43,
+		"student": {
+			"id": 44,
+			"display_name": "Jane Doe"
+		},
+		"student_id": 40,
+		"organization": {
+			"id": 42,
+			"name": "The Honeynet Project",
+			"website_url": "http://www.honeynet.org/",
+			"tagline": "The Honeynet Project - R&D for honeypot/honeynet technolgy and infosec research"
+		},
+		"organization_id": 42,
+		"title": "Proposal for mitmproxy",
+		"abstract": "I'm interested in networking and security, that's why I would like to work with Honeynet!",
+		"subcategory": "mitmproxy"
+	}]
+}

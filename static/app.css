@@ -1,0 +1,17 @@
+/* apply a natural box layout model to all elements, but allowing components to change */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+#main {
+	margin: 0 auto;
+	max-width: 1024px;
+	padding: 10px;
+}
+
+h2 {
+	font-size: 1.5em;
+}
