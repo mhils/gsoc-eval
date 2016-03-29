@@ -16,8 +16,7 @@ A simple application for initial GSoC proposal assessment.
 
 ### Usage:
 
-- `npm start`
-- Hide app behind VPN/basic auth proxy
+- `npm start --help`
 - Share access with mentors.
 
-**:warning: There is no authentication, all operators are assumed to be trusted.**
+**:warning: There is no authentication besides shared basic auth. All operators are assumed to be trusted. **
