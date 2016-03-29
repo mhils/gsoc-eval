@@ -7,12 +7,15 @@ import Textarea from "react-textarea-autosize";
 import IconRating from './IconRating';
 import ReactEmoji from "react-emoji";
 
+
+const no_data = {};
+
 class App extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			proposals: [],
-			data: {},
+			data: no_data,
 			user: this.getUser(false)
 		};
 		this.updateData = this.updateData.bind(this);
@@ -32,14 +35,13 @@ class App extends React.Component {
 			let user = window.prompt("Enter username:");
 			window.localStorage["user"] = user;
 			this.setState({user});
-			return user;
 		}
 		return window.localStorage["user"];
 	}
 	addData(proposalId, data){
 		data.user = this.getUser();
 		if(!data.user){
-			console.error("Unknown user");
+			return console.error("Unknown user");
 		}
 		console.log("addData", proposalId, data);
 		fetch(`/data/${proposalId}`, {
@@ -50,8 +52,7 @@ class App extends React.Component {
 			},
 			credentials: 'same-origin',
 			body: JSON.stringify(data)
-		}
-		).then(this.updateData);
+		}).then(this.updateData);
 	}
 	updateData(response) {
 		response.json().then(v => {
@@ -76,8 +77,8 @@ class App extends React.Component {
 		);
 
 		return <div>
-		<UserDisplay user={user}/>
-		{proposalGroups}
+			<UserDisplay user={user}/>
+			{proposalGroups}
 		</div>;
 	}
 }
@@ -86,7 +87,20 @@ function UserDisplay({user}) {
 	return <span className="pull-right">{user ? `User: ${user}` : null}</span>;
 }
 
+function proposalSortVal(proposal, data){
+	let {id} = proposal,
+	    cache_hit = id in proposalSortVal.cache,
+	    data_fetched = data !== no_data;
+	if (!cache_hit && data_fetched) {
+		let ratings = getRatings(data[id]);
+		proposalSortVal.cache[id] = 0 - _.mean(ratings.map(r => r.rating));
+	}
+	return proposalSortVal.cache[id]
+}
+proposalSortVal.cache = {};
+
 function ProposalGroup({name, addData, proposals, data, user}) {
+	proposals = _.sortBy(proposals, p => proposalSortVal(p, data)); 
 	return <div>
 		<h1>Proposals for {name || "other projects"}</h1>
 		{proposals.map(p => 
@@ -106,7 +120,7 @@ function Proposal(props) {
 		<div className="panel-heading">
 			<strong>{student.display_name}</strong>: {title} 
 			<span className="pull-right">
-				<ViewRating {...props}/>
+				<AverageRating {...props}/>
 				&nbsp;
 				<MelangeLink {...props}/>
 				&nbsp;
@@ -116,31 +130,32 @@ function Proposal(props) {
 		<div className="panel-body">
 			<small>{abstract}</small>
 		</div>
-		<ProposalComments {...props}/>
+		<Comments {...props}/>
 	</div>;
 }
 
-function Comment({user, comment}) {
-	comment = ReactEmoji.emojify(comment);
-	return <li className="list-group-item">
-		<strong>{user}:</strong> {comment}
-	</li>;
+function getRatings(proposalData){
+	return _.chain(proposalData)
+		.filter(d => d.rating !== undefined)
+		// only take last rating per user
+		.reverse()
+		.uniqBy(d => d.user)
+		.value();
 }
 
-function ProposalComments(props) {
+function Comments(props) {
 	let {id, data, user} = props;
-	data = data[id] || [];
 	let i = 0; 
-	let comments = data
+	let comments = (data[id] || [])
 		.filter(d => d.comment)
-		.map(c => <Comment key={i++} {...c}/>);
-	let currentRating = _.chain(data)
+		.map(c => 
+			<li key={i++} className="list-group-item">
+				<Comment {...c}/>
+			</li>
+		);
+	let currentRating = getRatings(data[id])
 		.filter(d => d.user === user)
-		.filter(d => d.rating !== undefined)
-		.unshift({}) // default value
-		.last()
-		.value()
-		.rating;
+		.map(d => d.rating)[0];
 
 	return <ul className="list-group">
 		{comments}
@@ -148,7 +163,14 @@ function ProposalComments(props) {
 	</ul>;
 }
 
-function Rating(props){
+function Comment({user, comment}) {
+	comment = ReactEmoji.emojify(comment);
+	return <span>
+		<strong>{user}:</strong> {comment}
+	</span>;
+}
+
+function StarRating(props){
 	return <IconRating
 		{...props}
 		toggledClassName="text-primary glyphicon glyphicon-star" 
@@ -157,23 +179,15 @@ function Rating(props){
 		/>;
 }
 
-function ViewRating({id, data}){
-	data = data[id] || [];
-	let ratings = _.chain(data)
-		.filter(d => d.rating)
-		// only take last rating per user
-		.reverse()
-		.uniqBy(d => d.user);
-	let average = ratings
-		.map(d => d.rating)
-		.mean().value();
-	let count = ratings.size().value();
-	if(count === 0){ 
+function AverageRating({id, data}){
+	let ratings = getRatings(data[id]);
+	let average = _.mean(ratings.map(r => r.rating));
+	let count = ratings.length;
+	if(count === 0) { 
 		return <span/>;
 	}
 	let users = ratings
 		.map(d => `${d.user} (${d.rating})`)
-		.value()
 		.join(", ");
 	// Dirty: Add pull-left to make it inline...
 	return <div className="pull-left">
@@ -181,7 +195,7 @@ function ViewRating({id, data}){
 			({count}) &nbsp;
 		</span>
 		<span title={"Ø " + average}>
-			<Rating 
+			<StarRating 
 			currentRating={average}
 			viewOnly={true}
 			/>
@@ -190,7 +204,7 @@ function ViewRating({id, data}){
 }
 
 function AddRating({id, addData, currentRating}) {
-	return <Rating 
+	return <StarRating 
 		currentRating={currentRating}
 		onChange={(rating) => addData(id, {rating}) }/>;
 }
@@ -211,10 +225,11 @@ class AddComment extends React.Component {
 	}
 	render(){
 		let content;
-		if(this.state.expand){
+		if (this.state.expand) {
 			content = <form className="form" onSubmit={this.submit.bind(this)}>
 				<div className="form-group">
 				<Textarea 
+					ref="textarea"
 					className="form-control" 
 					minRows={1} 
 					placeholder="Add Comment"
@@ -237,7 +252,7 @@ class AddComment extends React.Component {
 				</div>
 				<button 
 					className="btn btn-xs btn-default"
-					onClick={() => this.setState({expand: true})}>
+					onClick={() => this.setState({expand: true}, () => this.refs.textarea.focus())}>
 					<span className="glyphicon glyphicon-comment"/> Add Comment
 				</button>
 			</div>;
@@ -251,17 +266,17 @@ class AddComment extends React.Component {
 function MelangeLink({organization_id, id}) {
 	let url = `https://summerofcode.withgoogle.com/dashboard/organization/${organization_id}/proposal/${id}/`;
 	return <a
-	title="Open proposal on GSoC site"
-	href={url} 
-	className="glyphicon glyphicon-new-window"></a>;
+		title="Open proposal on GSoC site"
+		href={url} 
+		className="glyphicon glyphicon-new-window"/>;
 }
 
 function ProposalLink({completed_pdf_url}) {
 	let url = `https://summerofcode.withgoogle.com${completed_pdf_url}`;
 	return <a 
-	title="View Proposal PDF"
-	href={url} 
-	className="glyphicon glyphicon-file"></a>;
+		title="View Proposal PDF"
+		href={url} 
+		className="glyphicon glyphicon-file"/>;
 }
 
 document.addEventListener("DOMContentLoaded", () => {

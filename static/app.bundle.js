@@ -41485,6 +41485,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var no_data = {};
+
 var App = function (_React$Component) {
 	_inherits(App, _React$Component);
 
@@ -41495,7 +41497,7 @@ var App = function (_React$Component) {
 
 		_this.state = {
 			proposals: [],
-			data: {},
+			data: no_data,
 			user: _this.getUser(false)
 		};
 		_this.updateData = _this.updateData.bind(_this);
@@ -41527,7 +41529,6 @@ var App = function (_React$Component) {
 				var user = window.prompt("Enter username:");
 				window.localStorage["user"] = user;
 				this.setState({ user: user });
-				return user;
 			}
 			return window.localStorage["user"];
 		}
@@ -41536,7 +41537,7 @@ var App = function (_React$Component) {
 		value: function addData(proposalId, data) {
 			data.user = this.getUser();
 			if (!data.user) {
-				console.error("Unknown user");
+				return console.error("Unknown user");
 			}
 			console.log("addData", proposalId, data);
 			fetch("/data/" + proposalId, {
@@ -41603,6 +41604,20 @@ function UserDisplay(_ref) {
 	);
 }
 
+function proposalSortVal(proposal, data) {
+	var id = proposal.id;
+	var cache_hit = id in proposalSortVal.cache;
+	var data_fetched = data !== no_data;
+	if (!cache_hit && data_fetched) {
+		var ratings = getRatings(data[id]);
+		proposalSortVal.cache[id] = 0 - _lodash2.default.mean(ratings.map(function (r) {
+			return r.rating;
+		}));
+	}
+	return proposalSortVal.cache[id];
+}
+proposalSortVal.cache = {};
+
 function ProposalGroup(_ref2) {
 	var name = _ref2.name;
 	var addData = _ref2.addData;
@@ -41610,6 +41625,9 @@ function ProposalGroup(_ref2) {
 	var data = _ref2.data;
 	var user = _ref2.user;
 
+	proposals = _lodash2.default.sortBy(proposals, function (p) {
+		return proposalSortVal(p, data);
+	});
 	return _react2.default.createElement(
 		"div",
 		null,
@@ -41651,7 +41669,7 @@ function Proposal(props) {
 			_react2.default.createElement(
 				"span",
 				{ className: "pull-right" },
-				_react2.default.createElement(ViewRating, props),
+				_react2.default.createElement(AverageRating, props),
 				" ",
 				_react2.default.createElement(MelangeLink, props),
 				" ",
@@ -41667,7 +41685,46 @@ function Proposal(props) {
 				abstract
 			)
 		),
-		_react2.default.createElement(ProposalComments, props)
+		_react2.default.createElement(Comments, props)
+	);
+}
+
+function getRatings(proposalData) {
+	return _lodash2.default.chain(proposalData).filter(function (d) {
+		return d.rating !== undefined;
+	})
+	// only take last rating per user
+	.reverse().uniqBy(function (d) {
+		return d.user;
+	}).value();
+}
+
+function Comments(props) {
+	var id = props.id;
+	var data = props.data;
+	var user = props.user;
+
+	var i = 0;
+	var comments = (data[id] || []).filter(function (d) {
+		return d.comment;
+	}).map(function (c) {
+		return _react2.default.createElement(
+			"li",
+			{ key: i++, className: "list-group-item" },
+			_react2.default.createElement(Comment, c)
+		);
+	});
+	var currentRating = getRatings(data[id]).filter(function (d) {
+		return d.user === user;
+	}).map(function (d) {
+		return d.rating;
+	})[0];
+
+	return _react2.default.createElement(
+		"ul",
+		{ className: "list-group" },
+		comments,
+		_react2.default.createElement(AddComment, _extends({ currentRating: currentRating }, props))
 	);
 }
 
@@ -41677,8 +41734,8 @@ function Comment(_ref3) {
 
 	comment = _reactEmoji2.default.emojify(comment);
 	return _react2.default.createElement(
-		"li",
-		{ className: "list-group-item" },
+		"span",
+		null,
 		_react2.default.createElement(
 			"strong",
 			null,
@@ -41690,34 +41747,7 @@ function Comment(_ref3) {
 	);
 }
 
-function ProposalComments(props) {
-	var id = props.id;
-	var data = props.data;
-	var user = props.user;
-
-	data = data[id] || [];
-	var i = 0;
-	var comments = data.filter(function (d) {
-		return d.comment;
-	}).map(function (c) {
-		return _react2.default.createElement(Comment, _extends({ key: i++ }, c));
-	});
-	var currentRating = _lodash2.default.chain(data).filter(function (d) {
-		return d.user === user;
-	}).filter(function (d) {
-		return d.rating !== undefined;
-	}).unshift({}) // default value
-	.last().value().rating;
-
-	return _react2.default.createElement(
-		"ul",
-		{ className: "list-group" },
-		comments,
-		_react2.default.createElement(AddComment, _extends({ currentRating: currentRating }, props))
-	);
-}
-
-function Rating(props) {
+function StarRating(props) {
 	return _react2.default.createElement(_IconRating2.default, _extends({}, props, {
 		toggledClassName: "text-primary glyphicon glyphicon-star",
 		untoggledClassName: "glyphicon glyphicon-star-empty",
@@ -41725,28 +41755,21 @@ function Rating(props) {
 	}));
 }
 
-function ViewRating(_ref4) {
+function AverageRating(_ref4) {
 	var id = _ref4.id;
 	var data = _ref4.data;
 
-	data = data[id] || [];
-	var ratings = _lodash2.default.chain(data).filter(function (d) {
-		return d.rating;
-	})
-	// only take last rating per user
-	.reverse().uniqBy(function (d) {
-		return d.user;
-	});
-	var average = ratings.map(function (d) {
-		return d.rating;
-	}).mean().value();
-	var count = ratings.size().value();
+	var ratings = getRatings(data[id]);
+	var average = _lodash2.default.mean(ratings.map(function (r) {
+		return r.rating;
+	}));
+	var count = ratings.length;
 	if (count === 0) {
 		return _react2.default.createElement("span", null);
 	}
 	var users = ratings.map(function (d) {
 		return d.user + " (" + d.rating + ")";
-	}).value().join(", ");
+	}).join(", ");
 	// Dirty: Add pull-left to make it inline...
 	return _react2.default.createElement(
 		"div",
@@ -41761,7 +41784,7 @@ function ViewRating(_ref4) {
 		_react2.default.createElement(
 			"span",
 			{ title: "Ø " + average },
-			_react2.default.createElement(Rating, {
+			_react2.default.createElement(StarRating, {
 				currentRating: average,
 				viewOnly: true
 			})
@@ -41774,7 +41797,7 @@ function AddRating(_ref5) {
 	var addData = _ref5.addData;
 	var currentRating = _ref5.currentRating;
 
-	return _react2.default.createElement(Rating, {
+	return _react2.default.createElement(StarRating, {
 		currentRating: currentRating,
 		onChange: function onChange(rating) {
 			return addData(id, { rating: rating });
@@ -41818,6 +41841,7 @@ var AddComment = function (_React$Component2) {
 						"div",
 						{ className: "form-group" },
 						_react2.default.createElement(_reactTextareaAutosize2.default, {
+							ref: "textarea",
 							className: "form-control",
 							minRows: 1,
 							placeholder: "Add Comment",
@@ -41857,7 +41881,9 @@ var AddComment = function (_React$Component2) {
 						{
 							className: "btn btn-xs btn-default",
 							onClick: function onClick() {
-								return _this6.setState({ expand: true });
+								return _this6.setState({ expand: true }, function () {
+									return _this6.refs.textarea.focus();
+								});
 							} },
 						_react2.default.createElement("span", { className: "glyphicon glyphicon-comment" }),
 						" Add Comment"
