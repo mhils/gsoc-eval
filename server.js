@@ -11,8 +11,6 @@ program
 	.option("--host [a]", "Host")
 	.parse(process.argv);
 
-console.log(program.port);
-
 var proposals = require("./proposals.json");
 
 var DATAFILE = "./data.json";

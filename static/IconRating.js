@@ -2,9 +2,10 @@ var React = require('react');
 
 var Icon = React.createClass({
   render : function(){
-    var iStyle = {
-      cursor : 'pointer'
-    };
+    var iStyle = {};
+    if(!this.props.viewOnly){
+      iStyle.cursor = "pointer";
+    }
     var className = this.props.toggled ? this.props.toggledClassName : this.props.untoggledClassName;
     return (
       <i className={className} onMouseMove={this.props.onMouseEnter} style={iStyle} onClick={this.props.onClickRating}/>
@@ -65,7 +66,14 @@ var IconRating = React.createClass({
           halfClassName = this.props.halfClassName;
       }
       ratings.push(
-          <Icon key={i} toggledClassName={halfClassName || this.props.toggledClassName} untoggledClassName={this.props.untoggledClassName} onMouseEnter={onMouseEnter.bind(this,i)} onClickRating={onClickRating.bind(this,i)} toggled={toggled}/>
+          <Icon
+            key={i} 
+            toggledClassName={halfClassName || this.props.toggledClassName}
+            untoggledClassName={this.props.untoggledClassName}
+            onMouseEnter={onMouseEnter.bind(this,i)}
+            onClickRating={onClickRating.bind(this,i)}
+            toggled={toggled}
+            viewOnly={this.props.viewOnly}/>
       );
     }
     return (

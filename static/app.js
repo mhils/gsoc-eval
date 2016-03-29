@@ -5,7 +5,7 @@ import ReactDOM from "react-dom";
 import _ from "lodash";
 import Textarea from "react-textarea-autosize";
 import IconRating from './IconRating';
-
+import ReactEmoji from "react-emoji";
 
 class App extends React.Component {
 	constructor(props) {
@@ -121,6 +121,7 @@ function Proposal(props) {
 }
 
 function Comment({user, comment}) {
+	comment = ReactEmoji.emojify(comment);
 	return <li className="list-group-item">
 		<strong>{user}:</strong> {comment}
 	</li>;
@@ -136,7 +137,9 @@ function ProposalComments(props) {
 	let currentRating = _.chain(data)
 		.filter(d => d.user === user)
 		.filter(d => d.rating !== undefined)
+		.unshift({}) // default value
 		.last()
+		.value()
 		.rating;
 
 	return <ul className="list-group">
@@ -147,9 +150,11 @@ function ProposalComments(props) {
 
 function Rating(props){
 	return <IconRating
+		{...props}
 		toggledClassName="text-primary glyphicon glyphicon-star" 
 		untoggledClassName="glyphicon glyphicon-star-empty"
-		{...props}/>;
+		className="rating"
+		/>;
 }
 
 function ViewRating({id, data}){
@@ -166,16 +171,22 @@ function ViewRating({id, data}){
 	if(count === 0){ 
 		return <span/>;
 	}
+	let users = ratings
+		.map(d => `${d.user} (${d.rating})`)
+		.value()
+		.join(", ");
 	// Dirty: Add pull-left to make it inline...
-	return <span className="text-muted">
-	<div className="pull-left">
-	({count}) &nbsp;
-	</div>
-	<div className="pull-left" title={"Ø " + average}>
-	<Rating 
-		currentRating={average}
-		viewOnly={true}
-	/></div></span>;
+	return <div className="pull-left">
+		<span title={users}>
+			({count}) &nbsp;
+		</span>
+		<span title={"Ø " + average}>
+			<Rating 
+			currentRating={average}
+			viewOnly={true}
+			/>
+		</span>
+	</div>;
 }
 
 function AddRating({id, addData, currentRating}) {
