@@ -45670,7 +45670,7 @@ function Comment(_ref3) {
 		),
 		" ",
 		comment,
-		removable && _react2.default.createElement("span", { onClick: onRemove, className: "glyphicon glyphicon-trash text-mute pull-right" })
+		removable && _react2.default.createElement("span", { onClick: onRemove, role: "button", className: "glyphicon glyphicon-trash text-mute pull-right" })
 	);
 }
 
@@ -45730,7 +45730,7 @@ function AddRating(_ref5) {
 	return _react2.default.createElement(
 		"span",
 		null,
-		currentRating && _react2.default.createElement("span", { className: "glyphicon glyphicon-remove-circle text-mute", onClick: function onClick() {
+		currentRating && _react2.default.createElement("span", { className: "glyphicon glyphicon-remove-circle text-mute", role: "button", onClick: function onClick() {
 				return addData(id, { rating: false });
 			} }),
 		"\xA0",

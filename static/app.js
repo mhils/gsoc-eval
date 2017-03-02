@@ -189,7 +189,7 @@ function Comment({user, comment, removable, onRemove}) {
 	comment = ReactEmoji.emojify(comment);
 	return <span>
 		<strong>{user}:</strong> {comment}
-		{removable && <span onClick={onRemove} className="glyphicon glyphicon-trash text-mute pull-right"></span>}
+		{removable && <span onClick={onRemove} role="button" className="glyphicon glyphicon-trash text-mute pull-right"></span>}
 	</span>;
 }
 
@@ -232,7 +232,7 @@ function AddRating({id, addData, data, user}) {
 	return <span>
 		{
 				currentRating &&
-				<span className="glyphicon glyphicon-remove-circle text-mute" onClick={() => addData(id, {rating: false})}></span>
+				<span className="glyphicon glyphicon-remove-circle text-mute" role="button" onClick={() => addData(id, {rating: false})}></span>
 			}
 			&nbsp;
 			<StarRating
