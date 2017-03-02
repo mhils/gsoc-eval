@@ -1,49 +1,42 @@
-import "babel-polyfill";
-import "whatwg-fetch";
-import React from "react";
-import ReactDOM from "react-dom";
-import _ from "lodash";
-import Textarea from "react-textarea-autosize";
-import IconRating from './IconRating';
-import ReactEmoji from "react-emoji";
-
-
-const no_data = {};
+import "babel-polyfill"
+import "whatwg-fetch"
+import React from "react"
+import ReactDOM from "react-dom"
+import _ from "lodash"
+import Textarea from "react-textarea-autosize"
+import IconRating from './IconRating'
+import ReactEmoji from "react-emoji"
 
 class App extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			proposals: [],
-			data: no_data,
-			user: this.getUser(false)
+			proposals: false,
+			dataByProposal: false,
+			user: false,
 		};
 		this.updateData = this.updateData.bind(this);
 		this.addData = this.addData.bind(this);
 	}
 	componentWillMount() {
-		fetch("/proposals.json", {credentials: 'same-origin'}).then(response => {
-			response.json().then(v => {
-				let proposals = v.results.filter(p => !p.ignored);
+		fetch("/proposals.json", {credentials: 'same-origin'})
+			.then(r => r.json())
+			.then(x => {
+				let proposals = x.results.filter(p => !p.ignored);
+				console.debug("updateProposals", proposals);
 				this.setState({proposals});
 			})
-		});
-		fetch("/data", {credentials: 'same-origin'}).then(this.updateData);
-	}
-	getUser(prompt = true) {
-		if(prompt && !this.state.user){
-			let user = window.prompt("Enter username:");
-			window.localStorage["user"] = user;
-			this.setState({user});
-		}
-		return window.localStorage["user"];
+		fetch("/user.json", {credentials: 'same-origin'})
+			.then(r => r.json())
+			.then(x => {
+				console.debug("updateUser", x);
+				this.setState({user: x.user})
+			})
+		fetch("/data.json", {credentials: 'same-origin'})
+			.then(this.updateData);
 	}
 	addData(proposalId, data){
-		data.user = this.getUser();
-		if(!data.user){
-			return console.error("Unknown user");
-		}
-		console.log("addData", proposalId, data);
+		console.debug("addData", proposalId, data);
 		fetch(`/data/${proposalId}`, {
 			method: "POST",
 			headers:{
@@ -55,25 +48,30 @@ class App extends React.Component {
 		}).then(this.updateData);
 	}
 	updateData(response) {
-		response.json().then(v => {
-			console.debug("updateData", v);
-			this.setState({data: v});
+		response.json().then(dataByProposal => {
+			console.debug("updateData", dataByProposal);
+			this.setState({dataByProposal});
 		});
 	}	
 	render() {
-		let {proposals, user} = this.state;
+		let {proposals, dataByProposal, user} = this.state;
+		if(!proposals || !dataByProposal || !user){
+			return <div>Loading...</div>;
+		}
 		let groups = _.groupBy(
 			proposals,
 			(p) => p.subcategory
 		);
-		console.debug(groups, groups.mitmproxy);
-		let proposalGroups = Object.keys(groups).map((group) => 
-			<ProposalGroup 
+		console.debug("render", {groups, proposals, dataByProposal});
+		let proposalGroups = Object.keys(groups).map((group) =>
+			<ProposalGroup
 				key={group}
 				name={group}
 				addData={this.addData}
-				{...this.state}
-				proposals={groups[group]}/>
+				dataByProposal={dataByProposal}
+				proposals={groups[group]}
+				user={user}
+			/>
 		);
 
 		return <div>
@@ -87,28 +85,32 @@ function UserDisplay({user}) {
 	return <span className="pull-right">{user ? `User: ${user}` : null}</span>;
 }
 
-function proposalSortVal(proposal, data){
-	let {id} = proposal,
-	    cache_hit = id in proposalSortVal.cache,
-	    data_fetched = data !== no_data;
-	if (!cache_hit && data_fetched) {
-		let ratings = getRatings(data[id]);
-		proposalSortVal.cache[id] = 0 - _.mean(ratings.map(r => r.rating));
+function sortProposals(proposal, dataByProposal){
+	/*
+	We cache the sorting so that rating does not change order until page reload.
+	*/
+	let {id} = proposal
+	if (!(id in sortProposals.cache)) {
+		sortProposals.cache[id] = 0 - meanRating(dataByProposal[id] || []);
 	}
-	return proposalSortVal.cache[id]
+	return sortProposals.cache[id]
 }
-proposalSortVal.cache = {};
+sortProposals.cache = {};
 
-function ProposalGroup({name, addData, proposals, data, user}) {
-	proposals = _.sortBy(proposals, p => proposalSortVal(p, data)); 
+
+function ProposalGroup({name, addData, proposals, dataByProposal, user}) {
+	proposals = _.sortBy(
+		proposals,
+		x => sortProposals(x, dataByProposal)
+	);
 	return <div>
 		<h1>Proposals for {name || "other projects"}</h1>
 		{proposals.map(p => 
 			<Proposal 
 				key={p.id}
-				data={data}
-				user={user}
+				data={dataByProposal[p.id] || []}
 				addData={addData}
+				user={user}
 				{...p} />
 		)}
 	</div>;
@@ -134,39 +136,60 @@ function Proposal(props) {
 	</div>;
 }
 
-function getRatings(proposalData){
-	return _.chain(proposalData)
+function allRatings(data) {
+	return _.chain(data)
 		.filter(d => d.rating !== undefined)
 		// only take last rating per user
 		.reverse()
 		.uniqBy(d => d.user)
+		.filter(d => d.rating !== false)
 		.value();
+}
+function meanRating(data){
+	return _.mean(
+		allRatings(data).map(r => r.rating)
+	);
+}
+
+
+function allComments(data){
+	let all = [];
+	for(let i=0; i<data.length; i++) {
+		let d = data[i];
+		if(d.comment) {
+			all.push(d)
+		}
+		if(d.deleteComment && d.user == all[all.length-1].user) {
+			all.pop()
+		}
+	}
+	return all;
 }
 
 function Comments(props) {
-	let {id, data, user} = props;
+	let {id, data, user, addData} = props;
 	let i = 0; 
-	let comments = (data[id] || [])
-		.filter(d => d.comment)
-		.map(c => 
-			<li key={i++} className="list-group-item">
-				<Comment {...c}/>
-			</li>
+	let comments = allComments(data);
+	comments = comments.map(c => {
+		let removable = (
+			i==comments.length-1 &&
+			c.user == user
 		);
-	let currentRating = getRatings(data[id])
-		.filter(d => d.user === user)
-		.map(d => d.rating)[0];
-
+		return <li key={i++} className="list-group-item">
+			<Comment {...c} removable={removable} onRemove={() => addData(id, {deleteComment: true})} />
+		</li>
+	});
 	return <ul className="list-group">
 		{comments}
-		<AddComment currentRating={currentRating} {...props}/>
+		<AddComment {...props}/>
 	</ul>;
 }
 
-function Comment({user, comment}) {
+function Comment({user, comment, removable, onRemove}) {
 	comment = ReactEmoji.emojify(comment);
 	return <span>
 		<strong>{user}:</strong> {comment}
+		{removable && <span onClick={onRemove} className="glyphicon glyphicon-trash text-mute pull-right"></span>}
 	</span>;
 }
 
@@ -180,19 +203,18 @@ function StarRating(props){
 }
 
 function AverageRating({id, data}){
-	let ratings = getRatings(data[id]);
-	let average = _.mean(ratings.map(r => r.rating));
-	let count = ratings.length;
-	if(count === 0) { 
-		return <span/>;
+	let ratings = allRatings(data)
+	let average = meanRating(data)
+	if(isNaN(average)) {
+		return <span/>
 	}
 	let users = ratings
 		.map(d => `${d.user} (${d.rating})`)
-		.join(", ");
+		.join(", ")
 	// Dirty: Add pull-left to make it inline...
 	return <div className="pull-left">
 		<span title={users}>
-			({count}) &nbsp;
+			({ratings.length}) &nbsp;
 		</span>
 		<span title={"Ø " + average}>
 			<StarRating 
@@ -203,10 +225,21 @@ function AverageRating({id, data}){
 	</div>;
 }
 
-function AddRating({id, addData, currentRating}) {
-	return <StarRating 
-		currentRating={currentRating}
-		onChange={(rating) => addData(id, {rating}) }/>;
+function AddRating({id, addData, data, user}) {
+	let currentRating = allRatings(data)
+		.filter(d => d.user === user)
+		.map(d => d.rating)[0]
+	return <span>
+		{
+				currentRating &&
+				<span className="glyphicon glyphicon-remove-circle text-mute" onClick={() => addData(id, {rating: false})}></span>
+			}
+			&nbsp;
+			<StarRating
+				currentRating={currentRating}
+				onChange={(rating) => addData(id, {rating}) }/>
+
+		</span>;
 }
 
 class AddComment extends React.Component {
@@ -218,7 +251,7 @@ class AddComment extends React.Component {
 		};
 	}
 	submit(e){
-		console.log("submit", this.state.value, e);
+		console.debug("submit", this.state.value, e);
 		e.preventDefault();
 		this.props.addData(this.props.id, {comment: this.state.value});
 		this.setState({expand: false, value: ""});

@@ -1,0 +1,24 @@
+{
+  "42": [
+    {
+      "rating": 5,
+      "user": "Max",
+      "timestamp": 1459130526407
+    },
+    {
+      "rating": 3,
+      "user": "Lukas",
+      "timestamp": 1459130565315
+    },
+    {
+      "comment": "The students has a strong understanding of what the project is about, but I'm not so sure about his coding skills. Thomas, can you set up a coding interview?",
+      "user": "Max",
+      "timestamp": 1459130825711
+    },
+    {
+      "comment": "Sent out an email!",
+      "user": "Thomas",
+      "timestamp": 1459130938074
+    }
+  ]
+}

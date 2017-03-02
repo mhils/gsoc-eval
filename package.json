@@ -13,17 +13,16 @@
     "babel-preset-react": "^6.5.0",
     "babelify": "^7.2.0",
     "lodash": "^4.6.1",
-    "react": "^0.14.7",
-    "react-dom": "^0.14.7",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
     "react-emoji": "^0.4.4",
-    "react-textarea-autosize": "^3.3.1",
+    "react-textarea-autosize": "^4.0.5",
     "watchify": "^3.7.0",
-    "whatwg-fetch": "^0.11.0"
+    "whatwg-fetch": "^2.0.3"
   },
   "dependencies": {
     "basic-auth": "^1.0.3",
     "body-parser": "^1.15.0",
-    "commander": "^2.9.0",
     "express": "^4.13.4",
     "jsonfile": "^2.2.3"
   }
