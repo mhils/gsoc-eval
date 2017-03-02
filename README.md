@@ -11,12 +11,12 @@ A simple application for initial GSoC proposal assessment.
 
 ### Installation:
 
-- `npm install`
-- Copy contents of https://summerofcode.withgoogle.com/api/om/program/current/proposal/?page_size=1000 to proposals.json (requires authentication). (I'm unable to check if page_size > 100 actually works)
+- `npm install` / `yarn install`
+- Copy contents of https://summerofcode.withgoogle.com/api/om/program/current/proposal/?page_size=1000 to `data/proposals.json` (requires authentication). (I'm unable to check if page_size > 100 actually works)
+- Adjust `data/config.js` to your needs.
+- Replace contents of `data.json` with `{}`.
 
 ### Usage:
 
 - `npm start --help`
 - Share access with mentors.
-
-**:warning: There is no authentication besides shared basic auth. All operators are assumed to be trusted. **
