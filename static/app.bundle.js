@@ -45403,11 +45403,11 @@ var App = function (_React$Component) {
 
 		_this.state = {
 			proposals: false,
-			dataByProposal: false,
+			proposalData: false,
 			user: false
 		};
-		_this.updateData = _this.updateData.bind(_this);
-		_this.addData = _this.addData.bind(_this);
+		_this.updateProposalData = _this.updateProposalData.bind(_this);
+		_this.addProposalData = _this.addProposalData.bind(_this);
 		return _this;
 	}
 
@@ -45431,12 +45431,12 @@ var App = function (_React$Component) {
 				console.debug("updateUser", x);
 				_this2.setState({ user: x.user });
 			});
-			fetch("/data.json", { credentials: 'same-origin' }).then(this.updateData);
+			fetch("/data.json", { credentials: 'same-origin' }).then(this.updateProposalData);
 		}
 	}, {
-		key: "addData",
-		value: function addData(proposalId, data) {
-			console.debug("addData", proposalId, data);
+		key: "addProposalData",
+		value: function addProposalData(proposalId, data) {
+			console.debug("addProposalData", proposalId, data);
 			fetch("/data/" + proposalId, {
 				method: "POST",
 				headers: {
@@ -45445,16 +45445,16 @@ var App = function (_React$Component) {
 				},
 				credentials: 'same-origin',
 				body: JSON.stringify(data)
-			}).then(this.updateData);
+			}).then(this.updateProposalData);
 		}
 	}, {
-		key: "updateData",
-		value: function updateData(response) {
+		key: "updateProposalData",
+		value: function updateProposalData(response) {
 			var _this3 = this;
 
-			response.json().then(function (dataByProposal) {
-				console.debug("updateData", dataByProposal);
-				_this3.setState({ dataByProposal: dataByProposal });
+			response.json().then(function (proposalData) {
+				console.debug("updateProposalData", proposalData);
+				_this3.setState({ proposalData: proposalData });
 			});
 		}
 	}, {
@@ -45464,10 +45464,10 @@ var App = function (_React$Component) {
 
 			var _state = this.state,
 			    proposals = _state.proposals,
-			    dataByProposal = _state.dataByProposal,
+			    proposalData = _state.proposalData,
 			    user = _state.user;
 
-			if (!proposals || !dataByProposal || !user) {
+			if (!proposals || !proposalData || !user) {
 				return _react2.default.createElement(
 					"div",
 					null,
@@ -45477,13 +45477,13 @@ var App = function (_React$Component) {
 			var groups = _lodash2.default.groupBy(proposals, function (p) {
 				return p.subcategory;
 			});
-			console.debug("render", { groups: groups, proposals: proposals, dataByProposal: dataByProposal });
-			var proposalGroups = Object.keys(groups).map(function (group) {
+			console.debug("render", { groups: groups, proposals: proposals, proposalData: proposalData });
+			var proposalGroups = Object.keys(groups).sort().map(function (group) {
 				return _react2.default.createElement(ProposalGroup, {
 					key: group,
 					name: group,
-					addData: _this4.addData,
-					dataByProposal: dataByProposal,
+					addProposalData: _this4.addProposalData,
+					proposalData: proposalData,
 					proposals: groups[group],
 					user: user
 				});
@@ -45510,15 +45510,18 @@ function UserDisplay(_ref) {
 		user ? "User: " + user : null
 	);
 }
+UserDisplay.propTypes = {
+	user: _react2.default.PropTypes.string.isRequired
+};
 
-function sortProposals(proposal, dataByProposal) {
+function sortProposals(proposal, proposalData) {
 	/*
  We cache the sorting so that rating does not change order until page reload.
  */
 	var id = proposal.id;
 
 	if (!(id in sortProposals.cache)) {
-		sortProposals.cache[id] = 0 - meanRating(dataByProposal[id] || []);
+		sortProposals.cache[id] = 0 - meanRating(proposalData[id] || []);
 	}
 	return sortProposals.cache[id];
 }
@@ -45526,13 +45529,13 @@ sortProposals.cache = {};
 
 function ProposalGroup(_ref2) {
 	var name = _ref2.name,
-	    addData = _ref2.addData,
+	    user = _ref2.user,
 	    proposals = _ref2.proposals,
-	    dataByProposal = _ref2.dataByProposal,
-	    user = _ref2.user;
+	    proposalData = _ref2.proposalData,
+	    addProposalData = _ref2.addProposalData;
 
 	proposals = _lodash2.default.sortBy(proposals, function (x) {
-		return sortProposals(x, dataByProposal);
+		return sortProposals(x, proposalData);
 	});
 	return _react2.default.createElement(
 		"div",
@@ -45541,23 +45544,36 @@ function ProposalGroup(_ref2) {
 			"h1",
 			null,
 			"Proposals for ",
-			name || "other projects"
+			name || "other projects",
+			" (",
+			proposals.length,
+			")"
 		),
-		proposals.map(function (p) {
-			return _react2.default.createElement(Proposal, _extends({
-				key: p.id,
-				data: dataByProposal[p.id] || [],
-				addData: addData,
-				user: user
-			}, p));
+		proposals.map(function (proposal) {
+			return _react2.default.createElement(Proposal, {
+				key: proposal.id,
+				data: proposalData[proposal.id] || [],
+				addData: function addData(d) {
+					return addProposalData(proposal.id, d);
+				},
+				user: user,
+				proposal: proposal });
 		})
 	);
 }
+ProposalGroup.propTypes = {
+	name: _react2.default.PropTypes.string.isRequired,
+	user: _react2.default.PropTypes.string.isRequired,
+	proposals: _react2.default.PropTypes.array.isRequired,
+	proposalData: _react2.default.PropTypes.object.isRequired,
+	addProposalData: _react2.default.PropTypes.func.isRequired
+};
 
-function Proposal(props) {
-	var title = props.title,
-	    student = props.student,
-	    abstract = props.abstract;
+function Proposal(_ref3) {
+	var user = _ref3.user,
+	    data = _ref3.data,
+	    proposal = _ref3.proposal,
+	    addData = _ref3.addData;
 
 	return _react2.default.createElement(
 		"div",
@@ -45568,18 +45584,18 @@ function Proposal(props) {
 			_react2.default.createElement(
 				"strong",
 				null,
-				student.display_name
+				proposal.student.display_name
 			),
 			": ",
-			title,
+			proposal.title,
 			_react2.default.createElement(
 				"span",
 				{ className: "pull-right" },
-				_react2.default.createElement(AverageRating, props),
+				_react2.default.createElement(AverageRating, { data: data }),
 				"\xA0",
-				_react2.default.createElement(MelangeLink, props),
+				_react2.default.createElement(MelangeLink, { proposal: proposal }),
 				"\xA0",
-				_react2.default.createElement(ProposalLink, props)
+				_react2.default.createElement(ProposalLink, { proposal: proposal })
 			)
 		),
 		_react2.default.createElement(
@@ -45588,12 +45604,22 @@ function Proposal(props) {
 			_react2.default.createElement(
 				"small",
 				null,
-				abstract
+				proposal.abstract
 			)
 		),
-		_react2.default.createElement(Comments, props)
+		_react2.default.createElement(Comments, {
+			user: user,
+			data: data,
+			addData: addData
+		})
 	);
 }
+Proposal.propTypes = {
+	user: _react2.default.PropTypes.string.isRequired,
+	data: _react2.default.PropTypes.array.isRequired,
+	proposal: _react2.default.PropTypes.object.isRequired,
+	addData: _react2.default.PropTypes.func.isRequired
+};
 
 function allRatings(data) {
 	return _lodash2.default.chain(data).filter(function (d) {
@@ -45626,11 +45652,10 @@ function allComments(data) {
 	return all;
 }
 
-function Comments(props) {
-	var id = props.id,
-	    data = props.data,
-	    user = props.user,
-	    addData = props.addData;
+function Comments(_ref4) {
+	var user = _ref4.user,
+	    data = _ref4.data,
+	    addData = _ref4.addData;
 
 	var i = 0;
 	var comments = allComments(data);
@@ -45639,26 +45664,39 @@ function Comments(props) {
 		return _react2.default.createElement(
 			"li",
 			{ key: i++, className: "list-group-item" },
-			_react2.default.createElement(Comment, _extends({}, c, { removable: removable, onRemove: function onRemove() {
-					return addData(id, { deleteComment: true });
-				} }))
+			_react2.default.createElement(Comment, {
+				user: c.user,
+				text: c.comment,
+				removable: removable,
+				onRemove: function onRemove() {
+					return addData({ deleteComment: true });
+				} })
 		);
 	});
 	return _react2.default.createElement(
 		"ul",
 		{ className: "list-group" },
 		comments,
-		_react2.default.createElement(AddComment, props)
+		_react2.default.createElement(AddComment, {
+			user: user,
+			data: data,
+			addData: addData
+		})
 	);
 }
+Comments.propTypes = {
+	user: _react2.default.PropTypes.string.isRequired,
+	data: _react2.default.PropTypes.array.isRequired,
+	addData: _react2.default.PropTypes.func.isRequired
+};
 
-function Comment(_ref3) {
-	var user = _ref3.user,
-	    comment = _ref3.comment,
-	    removable = _ref3.removable,
-	    onRemove = _ref3.onRemove;
+function Comment(_ref5) {
+	var user = _ref5.user,
+	    text = _ref5.text,
+	    removable = _ref5.removable,
+	    onRemove = _ref5.onRemove;
 
-	comment = _reactEmoji2.default.emojify(comment);
+	text = _reactEmoji2.default.emojify(text);
 	return _react2.default.createElement(
 		"span",
 		null,
@@ -45669,10 +45707,16 @@ function Comment(_ref3) {
 			":"
 		),
 		" ",
-		comment,
+		text,
 		removable && _react2.default.createElement("span", { onClick: onRemove, role: "button", className: "glyphicon glyphicon-trash text-mute pull-right" })
 	);
 }
+Comment.propTypes = {
+	user: _react2.default.PropTypes.string.isRequired,
+	text: _react2.default.PropTypes.string.isRequired,
+	removable: _react2.default.PropTypes.bool.isRequired,
+	onRemove: _react2.default.PropTypes.func.isRequired
+};
 
 function StarRating(props) {
 	return _react2.default.createElement(_IconRating2.default, _extends({}, props, {
@@ -45682,9 +45726,8 @@ function StarRating(props) {
 	}));
 }
 
-function AverageRating(_ref4) {
-	var id = _ref4.id,
-	    data = _ref4.data;
+function AverageRating(_ref6) {
+	var data = _ref6.data;
 
 	var ratings = allRatings(data);
 	var average = meanRating(data);
@@ -45715,12 +45758,14 @@ function AverageRating(_ref4) {
 		)
 	);
 }
+AverageRating.propTypes = {
+	data: _react2.default.PropTypes.array.isRequired
+};
 
-function AddRating(_ref5) {
-	var id = _ref5.id,
-	    addData = _ref5.addData,
-	    data = _ref5.data,
-	    user = _ref5.user;
+function AddRating(_ref7) {
+	var user = _ref7.user,
+	    data = _ref7.data,
+	    addData = _ref7.addData;
 
 	var currentRating = allRatings(data).filter(function (d) {
 		return d.user === user;
@@ -45730,17 +45775,25 @@ function AddRating(_ref5) {
 	return _react2.default.createElement(
 		"span",
 		null,
-		currentRating && _react2.default.createElement("span", { className: "glyphicon glyphicon-remove-circle text-mute", role: "button", onClick: function onClick() {
-				return addData(id, { rating: false });
+		currentRating && _react2.default.createElement("span", {
+			className: "glyphicon glyphicon-remove-circle text-mute",
+			role: "button",
+			onClick: function onClick() {
+				return addData({ rating: false });
 			} }),
 		"\xA0",
 		_react2.default.createElement(StarRating, {
 			currentRating: currentRating,
 			onChange: function onChange(rating) {
-				return addData(id, { rating: rating });
+				return addData({ rating: rating });
 			} })
 	);
 }
+AddRating.propTypes = {
+	user: _react2.default.PropTypes.string.isRequired,
+	data: _react2.default.PropTypes.array.isRequired,
+	addData: _react2.default.PropTypes.func.isRequired
+};
 
 var AddComment = function (_React$Component2) {
 	_inherits(AddComment, _React$Component2);
@@ -45762,7 +45815,7 @@ var AddComment = function (_React$Component2) {
 		value: function submit(e) {
 			console.debug("submit", this.state.value, e);
 			e.preventDefault();
-			this.props.addData(this.props.id, { comment: this.state.value });
+			this.props.addData({ comment: this.state.value });
 			this.setState({ expand: false, value: "" });
 		}
 	}, {
@@ -45812,7 +45865,7 @@ var AddComment = function (_React$Component2) {
 					_react2.default.createElement(
 						"div",
 						{ className: "pull-right" },
-						_react2.default.createElement(AddRating, this.props)
+						_react2.default.createElement(AddRating, { user: this.props.user, data: this.props.data, addData: this.props.addData })
 					),
 					_react2.default.createElement(
 						"button",
@@ -45822,7 +45875,8 @@ var AddComment = function (_React$Component2) {
 								return _this6.setState({ expand: true }, function () {
 									return _this6.refs.textarea.focus();
 								});
-							} },
+							}
+						},
 						_react2.default.createElement("span", { className: "glyphicon glyphicon-comment" }),
 						" Add Comment"
 					)
@@ -45839,26 +45893,40 @@ var AddComment = function (_React$Component2) {
 	return AddComment;
 }(_react2.default.Component);
 
-function MelangeLink(_ref6) {
-	var organization_id = _ref6.organization_id,
-	    id = _ref6.id;
+AddComment.propTypes = {
+	user: _react2.default.PropTypes.string.isRequired,
+	data: _react2.default.PropTypes.array.isRequired,
+	addData: _react2.default.PropTypes.func.isRequired
+};
 
-	var url = "https://summerofcode.withgoogle.com/dashboard/organization/" + organization_id + "/proposal/" + id + "/";
+function MelangeLink(_ref8) {
+	var proposal = _ref8.proposal;
+
+	var url = "https://summerofcode.withgoogle.com/dashboard" + ("/organization/" + proposal.organization.id) + ("/proposal/" + proposal.id + "/");
 	return _react2.default.createElement("a", {
 		title: "Open proposal on GSoC site",
 		href: url,
 		className: "glyphicon glyphicon-new-window" });
 }
+MelangeLink.propTypes = {
+	proposal: _react2.default.PropTypes.object.isRequired
+};
 
-function ProposalLink(_ref7) {
-	var completed_pdf_url = _ref7.completed_pdf_url;
+function ProposalLink(_ref9) {
+	var proposal = _ref9.proposal;
 
-	var url = "https://summerofcode.withgoogle.com" + completed_pdf_url;
+	if (!proposal.completed_pdf_url) {
+		return _react2.default.createElement("i", { className: "glyphicon glyphicon-file text-muted", title: "Final PDF unavailable" });
+	}
+	var url = "https://summerofcode.withgoogle.com" + proposal.completed_pdf_url;
 	return _react2.default.createElement("a", {
 		title: "View Proposal PDF",
 		href: url,
 		className: "glyphicon glyphicon-file" });
 }
+ProposalLink.propTypes = {
+	proposal: _react2.default.PropTypes.object.isRequired
+};
 
 document.addEventListener("DOMContentLoaded", function () {
 	_reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById("main"));

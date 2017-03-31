@@ -12,11 +12,11 @@ class App extends React.Component {
 		super(props);
 		this.state = {
 			proposals: false,
-			dataByProposal: false,
+			proposalData: false,
 			user: false,
 		};
-		this.updateData = this.updateData.bind(this);
-		this.addData = this.addData.bind(this);
+		this.updateProposalData = this.updateProposalData.bind(this);
+		this.addProposalData = this.addProposalData.bind(this);
 	}
 	componentWillMount() {
 		fetch("/proposals.json", {credentials: 'same-origin'})
@@ -33,10 +33,10 @@ class App extends React.Component {
 				this.setState({user: x.user})
 			})
 		fetch("/data.json", {credentials: 'same-origin'})
-			.then(this.updateData);
+			.then(this.updateProposalData);
 	}
-	addData(proposalId, data){
-		console.debug("addData", proposalId, data);
+	addProposalData(proposalId, data){
+		console.debug("addProposalData", proposalId, data);
 		fetch(`/data/${proposalId}`, {
 			method: "POST",
 			headers:{
@@ -45,30 +45,30 @@ class App extends React.Component {
 			},
 			credentials: 'same-origin',
 			body: JSON.stringify(data)
-		}).then(this.updateData);
+		}).then(this.updateProposalData);
 	}
-	updateData(response) {
-		response.json().then(dataByProposal => {
-			console.debug("updateData", dataByProposal);
-			this.setState({dataByProposal});
+	updateProposalData(response) {
+		response.json().then(proposalData => {
+			console.debug("updateProposalData", proposalData);
+			this.setState({proposalData});
 		});
 	}	
 	render() {
-		let {proposals, dataByProposal, user} = this.state;
-		if(!proposals || !dataByProposal || !user){
+		let {proposals, proposalData, user} = this.state;
+		if(!proposals || !proposalData || !user){
 			return <div>Loading...</div>;
 		}
 		let groups = _.groupBy(
 			proposals,
 			(p) => p.subcategory
 		);
-		console.debug("render", {groups, proposals, dataByProposal});
-		let proposalGroups = Object.keys(groups).map((group) =>
+		console.debug("render", {groups, proposals, proposalData});
+		let proposalGroups = Object.keys(groups).sort().map((group) =>
 			<ProposalGroup
 				key={group}
 				name={group}
-				addData={this.addData}
-				dataByProposal={dataByProposal}
+				addProposalData={this.addProposalData}
+				proposalData={proposalData}
 				proposals={groups[group]}
 				user={user}
 			/>
@@ -84,56 +84,75 @@ class App extends React.Component {
 function UserDisplay({user}) {
 	return <span className="pull-right">{user ? `User: ${user}` : null}</span>;
 }
+UserDisplay.propTypes = {
+	user: React.PropTypes.string.isRequired,
+}
 
-function sortProposals(proposal, dataByProposal){
+function sortProposals(proposal, proposalData){
 	/*
 	We cache the sorting so that rating does not change order until page reload.
 	*/
 	let {id} = proposal
 	if (!(id in sortProposals.cache)) {
-		sortProposals.cache[id] = 0 - meanRating(dataByProposal[id] || []);
+		sortProposals.cache[id] = 0 - meanRating(proposalData[id] || []);
 	}
 	return sortProposals.cache[id]
 }
 sortProposals.cache = {};
 
 
-function ProposalGroup({name, addData, proposals, dataByProposal, user}) {
+function ProposalGroup({name, user, proposals, proposalData, addProposalData}) {
 	proposals = _.sortBy(
 		proposals,
-		x => sortProposals(x, dataByProposal)
+		x => sortProposals(x, proposalData)
 	);
 	return <div>
-		<h1>Proposals for {name || "other projects"}</h1>
-		{proposals.map(p => 
+		<h1>Proposals for {name || "other projects"} ({proposals.length})</h1>
+		{proposals.map(proposal =>
 			<Proposal 
-				key={p.id}
-				data={dataByProposal[p.id] || []}
-				addData={addData}
+				key={proposal.id}
+				data={proposalData[proposal.id] || []}
+				addData={(d) => addProposalData(proposal.id, d)}
 				user={user}
-				{...p} />
+				proposal={proposal} />
 		)}
 	</div>;
 }
+ProposalGroup.propTypes = {
+	name: React.PropTypes.string.isRequired,
+	user: React.PropTypes.string.isRequired,
+	proposals: React.PropTypes.array.isRequired,
+	proposalData: React.PropTypes.object.isRequired,
+	addProposalData: React.PropTypes.func.isRequired,
+}
 
-function Proposal(props) {
-	let {title, student, abstract} = props;
+function Proposal({user, data, proposal, addData}) {
 	return <div className="panel panel-default">
 		<div className="panel-heading">
-			<strong>{student.display_name}</strong>: {title} 
+			<strong>{proposal.student.display_name}</strong>: {proposal.title}
 			<span className="pull-right">
-				<AverageRating {...props}/>
+				<AverageRating data={data} />
 				&nbsp;
-				<MelangeLink {...props}/>
+				<MelangeLink proposal={proposal}/>
 				&nbsp;
-				<ProposalLink {...props}/>
+				<ProposalLink proposal={proposal}/>
 			</span>
 		</div>
 		<div className="panel-body">
-			<small>{abstract}</small>
+			<small>{proposal.abstract}</small>
 		</div>
-		<Comments {...props}/>
+		<Comments
+			user={user}
+			data={data}
+			addData={addData}
+			/>
 	</div>;
+}
+Proposal.propTypes = {
+	user: React.PropTypes.string.isRequired,
+	data: React.PropTypes.array.isRequired,
+	proposal: React.PropTypes.object.isRequired,
+	addData: React.PropTypes.func.isRequired,
 }
 
 function allRatings(data) {
@@ -166,8 +185,7 @@ function allComments(data){
 	return all;
 }
 
-function Comments(props) {
-	let {id, data, user, addData} = props;
+function Comments({user, data, addData}) {
 	let i = 0; 
 	let comments = allComments(data);
 	comments = comments.map(c => {
@@ -176,21 +194,40 @@ function Comments(props) {
 			c.user == user
 		);
 		return <li key={i++} className="list-group-item">
-			<Comment {...c} removable={removable} onRemove={() => addData(id, {deleteComment: true})} />
+			<Comment
+				user={c.user}
+				text={c.comment}
+				removable={removable}
+				onRemove={() => addData({deleteComment: true})} />
 		</li>
 	});
 	return <ul className="list-group">
 		{comments}
-		<AddComment {...props}/>
+		<AddComment
+			user={user}
+			data={data}
+			addData={addData}
+		/>
 	</ul>;
 }
+Comments.propTypes = {
+	user: React.PropTypes.string.isRequired,
+	data: React.PropTypes.array.isRequired,
+	addData: React.PropTypes.func.isRequired,
+}
 
-function Comment({user, comment, removable, onRemove}) {
-	comment = ReactEmoji.emojify(comment);
+function Comment({user, text, removable, onRemove}) {
+	text = ReactEmoji.emojify(text);
 	return <span>
-		<strong>{user}:</strong> {comment}
+		<strong>{user}:</strong> {text}
 		{removable && <span onClick={onRemove} role="button" className="glyphicon glyphicon-trash text-mute pull-right"></span>}
 	</span>;
+}
+Comment.propTypes = {
+	user: React.PropTypes.string.isRequired,
+	text: React.PropTypes.string.isRequired,
+	removable: React.PropTypes.bool.isRequired,
+	onRemove: React.PropTypes.func.isRequired,
 }
 
 function StarRating(props){
@@ -202,7 +239,7 @@ function StarRating(props){
 		/>;
 }
 
-function AverageRating({id, data}){
+function AverageRating({data}){
 	let ratings = allRatings(data)
 	let average = meanRating(data)
 	if(isNaN(average)) {
@@ -224,22 +261,30 @@ function AverageRating({id, data}){
 		</span>
 	</div>;
 }
+AverageRating.propTypes = {
+	data: React.PropTypes.array.isRequired
+}
 
-function AddRating({id, addData, data, user}) {
+function AddRating({user, data, addData}) {
 	let currentRating = allRatings(data)
 		.filter(d => d.user === user)
 		.map(d => d.rating)[0]
 	return <span>
-		{
-				currentRating &&
-				<span className="glyphicon glyphicon-remove-circle text-mute" role="button" onClick={() => addData(id, {rating: false})}></span>
-			}
-			&nbsp;
-			<StarRating
-				currentRating={currentRating}
-				onChange={(rating) => addData(id, {rating}) }/>
-
+		{currentRating &&
+		<span
+			className="glyphicon glyphicon-remove-circle text-mute"
+			role="button"
+			onClick={() => addData({rating: false})}/>}
+		&nbsp;
+		<StarRating
+			currentRating={currentRating}
+			onChange={(rating) => addData({rating}) }/>
 		</span>;
+}
+AddRating.propTypes = {
+	user: React.PropTypes.string.isRequired,
+	data: React.PropTypes.array.isRequired,
+	addData: React.PropTypes.func.isRequired,
 }
 
 class AddComment extends React.Component {
@@ -253,7 +298,7 @@ class AddComment extends React.Component {
 	submit(e){
 		console.debug("submit", this.state.value, e);
 		e.preventDefault();
-		this.props.addData(this.props.id, {comment: this.state.value});
+		this.props.addData({comment: this.state.value});
 		this.setState({expand: false, value: ""});
 	}
 	render(){
@@ -281,11 +326,12 @@ class AddComment extends React.Component {
 		} else {
 			content = <div>
 				<div className="pull-right">
-					<AddRating {...this.props}/>
+					<AddRating user={this.props.user} data={this.props.data} addData={this.props.addData}/>
 				</div>
 				<button 
 					className="btn btn-xs btn-default"
-					onClick={() => this.setState({expand: true}, () => this.refs.textarea.focus())}>
+					onClick={() => this.setState({expand: true}, () => this.refs.textarea.focus())}
+				>
 					<span className="glyphicon glyphicon-comment"/> Add Comment
 				</button>
 			</div>;
@@ -295,21 +341,39 @@ class AddComment extends React.Component {
 		</li>;
 	}
 }
+AddComment.propTypes = {
+	user: React.PropTypes.string.isRequired,
+	data: React.PropTypes.array.isRequired,
+	addData: React.PropTypes.func.isRequired,
+}
 
-function MelangeLink({organization_id, id}) {
-	let url = `https://summerofcode.withgoogle.com/dashboard/organization/${organization_id}/proposal/${id}/`;
+function MelangeLink({proposal}) {
+	let url = (
+		`https://summerofcode.withgoogle.com/dashboard` +
+		`/organization/${proposal.organization.id}` +
+		`/proposal/${proposal.id}/`
+	)
 	return <a
 		title="Open proposal on GSoC site"
 		href={url} 
 		className="glyphicon glyphicon-new-window"/>;
 }
+MelangeLink.propTypes = {
+	proposal: React.PropTypes.object.isRequired,
+}
 
-function ProposalLink({completed_pdf_url}) {
-	let url = `https://summerofcode.withgoogle.com${completed_pdf_url}`;
+function ProposalLink({proposal}) {
+	if(!proposal.completed_pdf_url){
+		return <i className="glyphicon glyphicon-file text-muted" title="Final PDF unavailable"/>;
+	}
+	let url = `https://summerofcode.withgoogle.com${proposal.completed_pdf_url}`;
 	return <a 
 		title="View Proposal PDF"
 		href={url} 
 		className="glyphicon glyphicon-file"/>;
+}
+ProposalLink.propTypes = {
+	proposal: React.PropTypes.object.isRequired,
 }
 
 document.addEventListener("DOMContentLoaded", () => {
