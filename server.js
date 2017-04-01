@@ -41,6 +41,13 @@ app.post('/data/:proposalId', function(req, res) {
   }
   action.timestamp = Date.now();
   action.user = req.user;
+
+  console.log(
+    req.connection.remoteAddress,
+    `Update proposal ${proposalId}:`,
+    action
+  );
+
   data[proposalId] = data[proposalId] || [];
   data[proposalId].push(action);
 
