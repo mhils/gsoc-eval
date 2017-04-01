@@ -45264,88 +45264,74 @@ var _react2 = _interopRequireDefault(_react);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Icon = _react2.default.createClass({
-  displayName: "Icon",
+    displayName: "Icon",
 
-  render: function render() {
-    var iStyle = {};
-    if (!this.props.viewOnly) {
-      iStyle.cursor = "pointer";
+    render: function render() {
+        var iStyle = {};
+        if (!this.props.viewOnly) {
+            iStyle.cursor = "pointer";
+        }
+        var className = this.props.toggled ? this.props.toggledClassName : this.props.untoggledClassName;
+        return _react2.default.createElement("i", { className: className, onMouseMove: this.props.onMouseEnter, style: iStyle, onClick: this.props.onClickRating });
     }
-    var className = this.props.toggled ? this.props.toggledClassName : this.props.untoggledClassName;
-    return _react2.default.createElement("i", { className: className, onMouseMove: this.props.onMouseEnter, style: iStyle, onClick: this.props.onClickRating });
-  }
 });
 
 var IconRating = _react2.default.createClass({
-  displayName: "IconRating",
+    displayName: "IconRating",
 
-  getInitialState: function getInitialState() {
-    return {
-      currentRating: this.props.currentRating || 0,
-      max: this.props.max || 5,
-      currentRating_hover: 0,
-      hovering: false
-    };
-  },
-  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-    if (this.props.currentRating !== nextProps.currentRating) {
-      this.setState({ currentRating: nextProps.currentRating });
-    }
-  },
+    getInitialState: function getInitialState() {
+        return {
+            currentRating: this.props.currentRating || 0,
+            max: this.props.max || 5,
+            currentRating_hover: 0,
+            hovering: false
+        };
+    },
+    componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+        if (this.props.currentRating !== nextProps.currentRating) {
+            this.setState({ currentRating: nextProps.currentRating });
+        }
+    },
 
-  onMouseEnter: function onMouseEnter(currentRating, e, id) {
-    var rating = currentRating;
-    if (e.nativeEvent.clientX < e.target.offsetLeft + e.target.offsetWidth / 2) {
-      rating -= .5;
+    onMouseEnter: function onMouseEnter(currentRating, e, id) {
+        var rating = currentRating;
+        if (e.nativeEvent.clientX < e.target.offsetLeft + e.target.offsetWidth / 2) {
+            rating -= 0.5;
+        }
+        this.setState({ currentRating_hover: rating, hovering: true });
+    },
+    onMouseLeave: function onMouseLeave(currentRating, e, id) {
+        this.setState({ hovering: false });
+    },
+    onClickRating: function onClickRating(currentRating, e, id) {
+        this.setState({ currentRating: this.state.currentRating_hover });
+        if (this.props.onChange) {
+            this.props.onChange(currentRating);
+        }
+    },
+    render: function render() {
+        var ratings = [];
+        var toggled = false,
+            rating,
+            halfClassName,
+            f = function f() {},
+            onMouseEnter = this.props.viewOnly ? f : this.onMouseEnter,
+            onClickRating = this.props.viewOnly ? f : this.onClickRating;
+        for (var i = 1; i <= this.state.max; ++i) {
+            rating = this.state["currentRating" + (this.state.hovering ? "_hover" : "")];
+            toggled = i <= Math.round(rating) ? true : false;
+            halfClassName = null;
+            if (this.props.halfClassName && Math.round(rating) == i && Math.floor(rating) != rating) {
+                halfClassName = this.props.halfClassName;
+            }
+            ratings.push(_react2.default.createElement(Icon, { key: i, toggledClassName: halfClassName || this.props.toggledClassName, untoggledClassName: this.props.untoggledClassName, onMouseEnter: onMouseEnter.bind(this, i), onClickRating: onClickRating.bind(this, i), toggled: toggled, viewOnly: this.props.viewOnly }));
+        }
+        return _react2.default.createElement(
+            "div",
+            { className: this.props.className, onMouseLeave: this.onMouseLeave },
+            ratings
+        );
     }
-    this.setState({
-      currentRating_hover: rating,
-      hovering: true
-    });
-  },
-  onMouseLeave: function onMouseLeave(currentRating, e, id) {
-    this.setState({
-      hovering: false
-    });
-  },
-  onClickRating: function onClickRating(currentRating, e, id) {
-    this.setState({
-      currentRating: this.state.currentRating_hover
-    });
-    if (this.props.onChange) {
-      this.props.onChange(currentRating);
-    }
-  },
-  render: function render() {
-    var ratings = [];
-    var toggled = false,
-        rating,
-        halfClassName,
-        f = function f() {},
-        onMouseEnter = this.props.viewOnly ? f : this.onMouseEnter,
-        onClickRating = this.props.viewOnly ? f : this.onClickRating;
-    for (var i = 1; i <= this.state.max; ++i) {
-      rating = this.state['currentRating' + (this.state.hovering ? '_hover' : '')];
-      toggled = i <= Math.round(rating) ? true : false;
-      halfClassName = null;
-      if (this.props.halfClassName && Math.round(rating) == i && Math.floor(rating) != rating) {
-        halfClassName = this.props.halfClassName;
-      }
-      ratings.push(_react2.default.createElement(Icon, {
-        key: i,
-        toggledClassName: halfClassName || this.props.toggledClassName,
-        untoggledClassName: this.props.untoggledClassName,
-        onMouseEnter: onMouseEnter.bind(this, i),
-        onClickRating: onClickRating.bind(this, i),
-        toggled: toggled,
-        viewOnly: this.props.viewOnly }));
-    }
-    return _react2.default.createElement(
-      "div",
-      { className: this.props.className, onMouseLeave: this.onMouseLeave },
-      ratings
-    );
-  }
 });
 
 module.exports = IconRating;
@@ -45394,542 +45380,467 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var App = function (_React$Component) {
-	_inherits(App, _React$Component);
+    _inherits(App, _React$Component);
 
-	function App(props) {
-		_classCallCheck(this, App);
+    function App(props) {
+        _classCallCheck(this, App);
 
-		var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
+        var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
-		_this.state = {
-			proposals: false,
-			proposalData: false,
-			user: false
-		};
-		_this.updateProposalData = _this.updateProposalData.bind(_this);
-		_this.addProposalData = _this.addProposalData.bind(_this);
-		return _this;
-	}
+        _this.state = { proposals: false, proposalData: false, user: false };
+        _this.updateProposalData = _this.updateProposalData.bind(_this);
+        _this.addProposalData = _this.addProposalData.bind(_this);
+        return _this;
+    }
 
-	_createClass(App, [{
-		key: "componentWillMount",
-		value: function componentWillMount() {
-			var _this2 = this;
+    _createClass(App, [{
+        key: "componentWillMount",
+        value: function componentWillMount() {
+            var _this2 = this;
 
-			fetch("/proposals.json", { credentials: 'same-origin' }).then(function (r) {
-				return r.json();
-			}).then(function (x) {
-				var proposals = x.results.filter(function (p) {
-					return !p.ignored;
-				});
-				console.debug("updateProposals", proposals);
-				_this2.setState({ proposals: proposals });
-			});
-			fetch("/user.json", { credentials: 'same-origin' }).then(function (r) {
-				return r.json();
-			}).then(function (x) {
-				console.debug("updateUser", x);
-				_this2.setState({ user: x.user });
-			});
-			fetch("/data.json", { credentials: 'same-origin' }).then(this.updateProposalData);
-		}
-	}, {
-		key: "addProposalData",
-		value: function addProposalData(proposalId, data) {
-			console.debug("addProposalData", proposalId, data);
-			fetch("/data/" + proposalId, {
-				method: "POST",
-				headers: {
-					"Accept": "application/json",
-					"Content-Type": "application/json"
-				},
-				credentials: 'same-origin',
-				body: JSON.stringify(data)
-			}).then(this.updateProposalData);
-		}
-	}, {
-		key: "updateProposalData",
-		value: function updateProposalData(response) {
-			var _this3 = this;
+            fetch("/proposals.json", { credentials: "same-origin" }).then(function (r) {
+                return r.json();
+            }).then(function (x) {
+                var proposals = x.results.filter(function (p) {
+                    return !p.ignored;
+                });
+                console.debug("updateProposals", proposals);
+                _this2.setState({ proposals: proposals });
+            });
+            fetch("/user.json", { credentials: "same-origin" }).then(function (r) {
+                return r.json();
+            }).then(function (x) {
+                console.debug("updateUser", x);
+                _this2.setState({ user: x.user });
+            });
+            fetch("/data.json", { credentials: "same-origin" }).then(this.updateProposalData);
+        }
+    }, {
+        key: "addProposalData",
+        value: function addProposalData(proposalId, data) {
+            console.debug("addProposalData", proposalId, data);
+            fetch("/data/" + proposalId, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                credentials: "same-origin",
+                body: JSON.stringify(data)
+            }).then(this.updateProposalData);
+        }
+    }, {
+        key: "updateProposalData",
+        value: function updateProposalData(response) {
+            var _this3 = this;
 
-			response.json().then(function (proposalData) {
-				console.debug("updateProposalData", proposalData);
-				_this3.setState({ proposalData: proposalData });
-			});
-		}
-	}, {
-		key: "render",
-		value: function render() {
-			var _this4 = this;
+            response.json().then(function (proposalData) {
+                console.debug("updateProposalData", proposalData);
+                _this3.setState({ proposalData: proposalData });
+            });
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            var _this4 = this;
 
-			var _state = this.state,
-			    proposals = _state.proposals,
-			    proposalData = _state.proposalData,
-			    user = _state.user;
+            var _state = this.state,
+                proposals = _state.proposals,
+                proposalData = _state.proposalData,
+                user = _state.user;
 
-			if (!proposals || !proposalData || !user) {
-				return _react2.default.createElement(
-					"div",
-					null,
-					"Loading..."
-				);
-			}
-			var groups = _lodash2.default.groupBy(proposals, function (p) {
-				return p.subcategory;
-			});
-			console.debug("render", { groups: groups, proposals: proposals, proposalData: proposalData });
-			var proposalGroups = Object.keys(groups).sort().map(function (group) {
-				return _react2.default.createElement(ProposalGroup, {
-					key: group,
-					name: group,
-					addProposalData: _this4.addProposalData,
-					proposalData: proposalData,
-					proposals: groups[group],
-					user: user
-				});
-			});
+            if (!proposals || !proposalData || !user) {
+                return _react2.default.createElement(
+                    "div",
+                    null,
+                    "Loading..."
+                );
+            }
+            var groups = _lodash2.default.groupBy(proposals, function (p) {
+                return p.subcategory;
+            });
+            console.debug("render", { groups: groups, proposals: proposals, proposalData: proposalData });
+            var proposalGroups = Object.keys(groups).sort().map(function (group) {
+                return _react2.default.createElement(ProposalGroup, { key: group, name: group, addProposalData: _this4.addProposalData, proposalData: proposalData, proposals: groups[group], user: user });
+            });
 
-			return _react2.default.createElement(
-				"div",
-				null,
-				_react2.default.createElement(UserDisplay, { user: user }),
-				proposalGroups
-			);
-		}
-	}]);
+            return _react2.default.createElement(
+                "div",
+                null,
+                _react2.default.createElement(UserDisplay, { user: user }),
+                proposalGroups
+            );
+        }
+    }]);
 
-	return App;
+    return App;
 }(_react2.default.Component);
 
 function UserDisplay(_ref) {
-	var user = _ref.user;
+    var user = _ref.user;
 
-	return _react2.default.createElement(
-		"span",
-		{ className: "pull-right" },
-		user ? "User: " + user : null
-	);
+    return _react2.default.createElement(
+        "span",
+        { className: "pull-right" },
+        user ? "User: " + user : null
+    );
 }
-UserDisplay.propTypes = {
-	user: _react2.default.PropTypes.string.isRequired
-};
+UserDisplay.propTypes = { user: _react2.default.PropTypes.string.isRequired };
 
 function sortProposals(proposal, proposalData) {
-	/*
- We cache the sorting so that rating does not change order until page reload.
- */
-	var id = proposal.id;
+    /*
+    We cache the sorting so that rating does not change order until page reload.
+    */
+    var id = proposal.id;
 
-	if (!(id in sortProposals.cache)) {
-		sortProposals.cache[id] = 0 - meanRating(proposalData[id] || []);
-	}
-	return sortProposals.cache[id];
+    if (!(id in sortProposals.cache)) {
+        sortProposals.cache[id] = 0 - meanRating(proposalData[id] || []);
+    }
+    return sortProposals.cache[id];
 }
 sortProposals.cache = {};
 
 function ProposalGroup(_ref2) {
-	var name = _ref2.name,
-	    user = _ref2.user,
-	    proposals = _ref2.proposals,
-	    proposalData = _ref2.proposalData,
-	    addProposalData = _ref2.addProposalData;
+    var name = _ref2.name,
+        user = _ref2.user,
+        proposals = _ref2.proposals,
+        proposalData = _ref2.proposalData,
+        addProposalData = _ref2.addProposalData;
 
-	proposals = _lodash2.default.sortBy(proposals, function (x) {
-		return sortProposals(x, proposalData);
-	});
-	return _react2.default.createElement(
-		"div",
-		null,
-		_react2.default.createElement(
-			"h1",
-			null,
-			"Proposals for ",
-			name || "other projects",
-			" (",
-			proposals.length,
-			")"
-		),
-		proposals.map(function (proposal) {
-			return _react2.default.createElement(Proposal, {
-				key: proposal.id,
-				data: proposalData[proposal.id] || [],
-				addData: function addData(d) {
-					return addProposalData(proposal.id, d);
-				},
-				user: user,
-				proposal: proposal });
-		})
-	);
+    proposals = _lodash2.default.sortBy(proposals, function (x) {
+        return sortProposals(x, proposalData);
+    });
+    return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(
+            "h1",
+            null,
+            "Proposals for",
+            name || "other projects",
+            "(",
+            proposals.length,
+            ")"
+        ),
+        proposals.map(function (proposal) {
+            return _react2.default.createElement(Proposal, { key: proposal.id, data: proposalData[proposal.id] || [], addData: function addData(d) {
+                    return addProposalData(proposal.id, d);
+                }, user: user, proposal: proposal });
+        })
+    );
 }
 ProposalGroup.propTypes = {
-	name: _react2.default.PropTypes.string.isRequired,
-	user: _react2.default.PropTypes.string.isRequired,
-	proposals: _react2.default.PropTypes.array.isRequired,
-	proposalData: _react2.default.PropTypes.object.isRequired,
-	addProposalData: _react2.default.PropTypes.func.isRequired
+    name: _react2.default.PropTypes.string.isRequired,
+    user: _react2.default.PropTypes.string.isRequired,
+    proposals: _react2.default.PropTypes.array.isRequired,
+    proposalData: _react2.default.PropTypes.object.isRequired,
+    addProposalData: _react2.default.PropTypes.func.isRequired
 };
 
 function Proposal(_ref3) {
-	var user = _ref3.user,
-	    data = _ref3.data,
-	    proposal = _ref3.proposal,
-	    addData = _ref3.addData;
+    var user = _ref3.user,
+        data = _ref3.data,
+        proposal = _ref3.proposal,
+        addData = _ref3.addData;
 
-	return _react2.default.createElement(
-		"div",
-		{ className: "panel panel-default" },
-		_react2.default.createElement(
-			"div",
-			{ className: "panel-heading" },
-			_react2.default.createElement(
-				"strong",
-				null,
-				proposal.student.display_name
-			),
-			": ",
-			proposal.title,
-			_react2.default.createElement(
-				"span",
-				{ className: "pull-right" },
-				_react2.default.createElement(AverageRating, { data: data }),
-				"\xA0",
-				_react2.default.createElement(MelangeLink, { proposal: proposal }),
-				"\xA0",
-				_react2.default.createElement(ProposalLink, { proposal: proposal })
-			)
-		),
-		_react2.default.createElement(
-			"div",
-			{ className: "panel-body" },
-			_react2.default.createElement(
-				"small",
-				null,
-				proposal.abstract
-			)
-		),
-		_react2.default.createElement(Comments, {
-			user: user,
-			data: data,
-			addData: addData
-		})
-	);
+    return _react2.default.createElement(
+        "div",
+        { className: "panel panel-default" },
+        _react2.default.createElement(
+            "div",
+            { className: "panel-heading" },
+            _react2.default.createElement(
+                "strong",
+                null,
+                proposal.student.display_name
+            ),
+            ":",
+            proposal.title,
+            _react2.default.createElement(
+                "span",
+                { className: "pull-right" },
+                _react2.default.createElement(AverageRating, { data: data }),
+                _react2.default.createElement(MelangeLink, { proposal: proposal }),
+                _react2.default.createElement(ProposalLink, { proposal: proposal })
+            )
+        ),
+        _react2.default.createElement(
+            "div",
+            { className: "panel-body" },
+            _react2.default.createElement(
+                "small",
+                null,
+                proposal.abstract
+            )
+        ),
+        _react2.default.createElement(Comments, { user: user, data: data, addData: addData })
+    );
 }
 Proposal.propTypes = {
-	user: _react2.default.PropTypes.string.isRequired,
-	data: _react2.default.PropTypes.array.isRequired,
-	proposal: _react2.default.PropTypes.object.isRequired,
-	addData: _react2.default.PropTypes.func.isRequired
+    user: _react2.default.PropTypes.string.isRequired,
+    data: _react2.default.PropTypes.array.isRequired,
+    proposal: _react2.default.PropTypes.object.isRequired,
+    addData: _react2.default.PropTypes.func.isRequired
 };
 
 function allRatings(data) {
-	return _lodash2.default.chain(data).filter(function (d) {
-		return d.rating !== undefined;
-	})
-	// only take last rating per user
-	.reverse().uniqBy(function (d) {
-		return d.user;
-	}).filter(function (d) {
-		return d.rating !== false;
-	}).value();
+    return _lodash2.default.chain(data).filter(function (d) {
+        return d.rating !== undefined;
+    }).reverse().uniqBy(function (d) {
+        return d.user;
+    }).filter(function (d) {
+        return d.rating !== false;
+    }).value();
 }
 function meanRating(data) {
-	return _lodash2.default.mean(allRatings(data).map(function (r) {
-		return r.rating;
-	}));
+    return _lodash2.default.mean(allRatings(data).map(function (r) {
+        return r.rating;
+    }));
 }
 
 function allComments(data) {
-	var all = [];
-	for (var i = 0; i < data.length; i++) {
-		var d = data[i];
-		if (d.comment) {
-			all.push(d);
-		}
-		if (d.deleteComment && d.user == all[all.length - 1].user) {
-			all.pop();
-		}
-	}
-	return all;
+    var all = [];
+    for (var i = 0; i < data.length; i++) {
+        var d = data[i];
+        if (d.comment) {
+            all.push(d);
+        }
+        if (d.deleteComment && d.user == all[all.length - 1].user) {
+            all.pop();
+        }
+    }
+    return all;
 }
 
 function Comments(_ref4) {
-	var user = _ref4.user,
-	    data = _ref4.data,
-	    addData = _ref4.addData;
+    var user = _ref4.user,
+        data = _ref4.data,
+        addData = _ref4.addData;
 
-	var i = 0;
-	var comments = allComments(data);
-	comments = comments.map(function (c) {
-		var removable = i == comments.length - 1 && c.user == user;
-		return _react2.default.createElement(
-			"li",
-			{ key: i++, className: "list-group-item" },
-			_react2.default.createElement(Comment, {
-				user: c.user,
-				text: c.comment,
-				removable: removable,
-				onRemove: function onRemove() {
-					return addData({ deleteComment: true });
-				} })
-		);
-	});
-	return _react2.default.createElement(
-		"ul",
-		{ className: "list-group" },
-		comments,
-		_react2.default.createElement(AddComment, {
-			user: user,
-			data: data,
-			addData: addData
-		})
-	);
+    var i = 0;
+
+    var comments = allComments(data);
+    comments = comments.map(function (c) {
+        var removable = i == comments.length - 1 && c.user == user;
+        return _react2.default.createElement(
+            "li",
+            { key: i++, className: "list-group-item" },
+            _react2.default.createElement(Comment, { user: c.user, text: c.comment, removable: removable, onRemove: function onRemove() {
+                    return addData({ deleteComment: true });
+                } })
+        );
+    });
+    return _react2.default.createElement(
+        "ul",
+        { className: "list-group" },
+        comments,
+        _react2.default.createElement(AddComment, { user: user, data: data, addData: addData })
+    );
 }
 Comments.propTypes = {
-	user: _react2.default.PropTypes.string.isRequired,
-	data: _react2.default.PropTypes.array.isRequired,
-	addData: _react2.default.PropTypes.func.isRequired
+    user: _react2.default.PropTypes.string.isRequired,
+    data: _react2.default.PropTypes.array.isRequired,
+    addData: _react2.default.PropTypes.func.isRequired
 };
 
 function Comment(_ref5) {
-	var user = _ref5.user,
-	    text = _ref5.text,
-	    removable = _ref5.removable,
-	    onRemove = _ref5.onRemove;
+    var user = _ref5.user,
+        text = _ref5.text,
+        removable = _ref5.removable,
+        onRemove = _ref5.onRemove;
 
-	text = _reactEmoji2.default.emojify(text);
-	return _react2.default.createElement(
-		"span",
-		null,
-		_react2.default.createElement(
-			"strong",
-			null,
-			user,
-			":"
-		),
-		" ",
-		text,
-		removable && _react2.default.createElement("span", { onClick: onRemove, role: "button", className: "glyphicon glyphicon-trash text-mute pull-right" })
-	);
+    text = _reactEmoji2.default.emojify(text);
+    return _react2.default.createElement(
+        "span",
+        null,
+        _react2.default.createElement(
+            "strong",
+            null,
+            user,
+            ":"
+        ),
+        text,
+        removable && _react2.default.createElement("span", { onClick: onRemove, role: "button", className: "glyphicon glyphicon-trash text-mute pull-right" })
+    );
 }
 Comment.propTypes = {
-	user: _react2.default.PropTypes.string.isRequired,
-	text: _react2.default.PropTypes.string.isRequired,
-	removable: _react2.default.PropTypes.bool.isRequired,
-	onRemove: _react2.default.PropTypes.func.isRequired
+    user: _react2.default.PropTypes.string.isRequired,
+    text: _react2.default.PropTypes.string.isRequired,
+    removable: _react2.default.PropTypes.bool.isRequired,
+    onRemove: _react2.default.PropTypes.func.isRequired
 };
 
 function StarRating(props) {
-	return _react2.default.createElement(_IconRating2.default, _extends({}, props, {
-		toggledClassName: "text-primary glyphicon glyphicon-star",
-		untoggledClassName: "glyphicon glyphicon-star-empty",
-		className: "rating"
-	}));
+    return _react2.default.createElement(_IconRating2.default, _extends({}, props, { toggledClassName: "text-primary glyphicon glyphicon-star", untoggledClassName: "glyphicon glyphicon-star-empty", className: "rating" }));
 }
 
 function AverageRating(_ref6) {
-	var data = _ref6.data;
+    var data = _ref6.data;
 
-	var ratings = allRatings(data);
-	var average = meanRating(data);
-	if (isNaN(average)) {
-		return _react2.default.createElement("span", null);
-	}
-	var users = ratings.map(function (d) {
-		return d.user + " (" + d.rating + ")";
-	}).join(", ");
-	// Dirty: Add pull-left to make it inline...
-	return _react2.default.createElement(
-		"div",
-		{ className: "pull-left" },
-		_react2.default.createElement(
-			"span",
-			{ title: users },
-			"(",
-			ratings.length,
-			") \xA0"
-		),
-		_react2.default.createElement(
-			"span",
-			{ title: "Ø " + average },
-			_react2.default.createElement(StarRating, {
-				currentRating: average,
-				viewOnly: true
-			})
-		)
-	);
+    var ratings = allRatings(data);
+    var average = meanRating(data);
+    if (isNaN(average)) {
+        return _react2.default.createElement("span", null);
+    }
+    var users = ratings.map(function (d) {
+        return d.user + " (" + d.rating + ")";
+    }).join(", ");
+    // Dirty: Add pull-left to make it inline...
+    return _react2.default.createElement(
+        "div",
+        { className: "pull-left" },
+        _react2.default.createElement(
+            "span",
+            { title: users },
+            "(",
+            ratings.length,
+            ")"
+        ),
+        _react2.default.createElement(
+            "span",
+            { title: "Ø " + average },
+            _react2.default.createElement(StarRating, { currentRating: average, viewOnly: true })
+        )
+    );
 }
-AverageRating.propTypes = {
-	data: _react2.default.PropTypes.array.isRequired
-};
+AverageRating.propTypes = { data: _react2.default.PropTypes.array.isRequired };
 
 function AddRating(_ref7) {
-	var user = _ref7.user,
-	    data = _ref7.data,
-	    addData = _ref7.addData;
+    var user = _ref7.user,
+        data = _ref7.data,
+        addData = _ref7.addData;
 
-	var currentRating = allRatings(data).filter(function (d) {
-		return d.user === user;
-	}).map(function (d) {
-		return d.rating;
-	})[0];
-	return _react2.default.createElement(
-		"span",
-		null,
-		currentRating && _react2.default.createElement("span", {
-			className: "glyphicon glyphicon-remove-circle text-mute",
-			role: "button",
-			onClick: function onClick() {
-				return addData({ rating: false });
-			} }),
-		"\xA0",
-		_react2.default.createElement(StarRating, {
-			currentRating: currentRating,
-			onChange: function onChange(rating) {
-				return addData({ rating: rating });
-			} })
-	);
+    var currentRating = allRatings(data).filter(function (d) {
+        return d.user === user;
+    }).map(function (d) {
+        return d.rating;
+    })[0];
+    return _react2.default.createElement(
+        "span",
+        null,
+        currentRating && _react2.default.createElement("span", { className: "glyphicon glyphicon-remove-circle text-mute", role: "button", onClick: function onClick() {
+                return addData({ rating: false });
+            } }),
+        _react2.default.createElement(StarRating, { currentRating: currentRating, onChange: function onChange(rating) {
+                return addData({ rating: rating });
+            } })
+    );
 }
 AddRating.propTypes = {
-	user: _react2.default.PropTypes.string.isRequired,
-	data: _react2.default.PropTypes.array.isRequired,
-	addData: _react2.default.PropTypes.func.isRequired
+    user: _react2.default.PropTypes.string.isRequired,
+    data: _react2.default.PropTypes.array.isRequired,
+    addData: _react2.default.PropTypes.func.isRequired
 };
 
 var AddComment = function (_React$Component2) {
-	_inherits(AddComment, _React$Component2);
+    _inherits(AddComment, _React$Component2);
 
-	function AddComment(props) {
-		_classCallCheck(this, AddComment);
+    function AddComment(props) {
+        _classCallCheck(this, AddComment);
 
-		var _this5 = _possibleConstructorReturn(this, (AddComment.__proto__ || Object.getPrototypeOf(AddComment)).call(this, props));
+        var _this5 = _possibleConstructorReturn(this, (AddComment.__proto__ || Object.getPrototypeOf(AddComment)).call(this, props));
 
-		_this5.state = {
-			value: "",
-			expand: false
-		};
-		return _this5;
-	}
+        _this5.state = { value: "", expand: false };
+        return _this5;
+    }
 
-	_createClass(AddComment, [{
-		key: "submit",
-		value: function submit(e) {
-			console.debug("submit", this.state.value, e);
-			e.preventDefault();
-			this.props.addData({ comment: this.state.value });
-			this.setState({ expand: false, value: "" });
-		}
-	}, {
-		key: "render",
-		value: function render() {
-			var _this6 = this;
+    _createClass(AddComment, [{
+        key: "submit",
+        value: function submit(e) {
+            console.debug("submit", this.state.value, e);
+            e.preventDefault();
+            this.props.addData({ comment: this.state.value });
+            this.setState({ expand: false, value: "" });
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            var _this6 = this;
 
-			var content = void 0;
-			if (this.state.expand) {
-				content = _react2.default.createElement(
-					"form",
-					{ className: "form", onSubmit: this.submit.bind(this) },
-					_react2.default.createElement(
-						"div",
-						{ className: "form-group" },
-						_react2.default.createElement(_reactTextareaAutosize2.default, {
-							ref: "textarea",
-							className: "form-control",
-							minRows: 1,
-							placeholder: "Add Comment",
-							value: this.state.value,
-							onChange: function onChange(e) {
-								return _this6.setState({ value: e.target.value });
-							}
-						})
-					),
-					_react2.default.createElement(
-						"button",
-						{ type: "submit", className: "btn btn-xs btn-default" },
-						"Submit"
-					),
-					"\xA0",
-					_react2.default.createElement(
-						"button",
-						{
-							className: "btn btn-xs btn-default",
-							onClick: function onClick(e) {
-								return e.preventDefault() & _this6.setState({ expand: false });
-							} },
-						"Cancel"
-					)
-				);
-			} else {
-				content = _react2.default.createElement(
-					"div",
-					null,
-					_react2.default.createElement(
-						"div",
-						{ className: "pull-right" },
-						_react2.default.createElement(AddRating, { user: this.props.user, data: this.props.data, addData: this.props.addData })
-					),
-					_react2.default.createElement(
-						"button",
-						{
-							className: "btn btn-xs btn-default",
-							onClick: function onClick() {
-								return _this6.setState({ expand: true }, function () {
-									return _this6.refs.textarea.focus();
-								});
-							}
-						},
-						_react2.default.createElement("span", { className: "glyphicon glyphicon-comment" }),
-						" Add Comment"
-					)
-				);
-			}
-			return _react2.default.createElement(
-				"li",
-				{ className: "list-group-item" },
-				content
-			);
-		}
-	}]);
+            var content = void 0;
+            if (this.state.expand) {
+                content = _react2.default.createElement(
+                    "form",
+                    { className: "form", onSubmit: this.submit.bind(this) },
+                    _react2.default.createElement(
+                        "div",
+                        { className: "form-group" },
+                        _react2.default.createElement(_reactTextareaAutosize2.default, { ref: "textarea", className: "form-control", minRows: 1, placeholder: "Add Comment", value: this.state.value, onChange: function onChange(e) {
+                                return _this6.setState({ value: e.target.value });
+                            } })
+                    ),
+                    _react2.default.createElement(
+                        "button",
+                        { type: "submit", className: "btn btn-xs btn-default" },
+                        "Submit"
+                    ),
+                    _react2.default.createElement(
+                        "button",
+                        { className: "btn btn-xs btn-default", onClick: function onClick(e) {
+                                return e.preventDefault() & _this6.setState({ expand: false });
+                            } },
+                        "Cancel"
+                    )
+                );
+            } else {
+                content = _react2.default.createElement(
+                    "div",
+                    null,
+                    _react2.default.createElement(
+                        "div",
+                        { className: "pull-right" },
+                        _react2.default.createElement(AddRating, { user: this.props.user, data: this.props.data, addData: this.props.addData })
+                    ),
+                    _react2.default.createElement(
+                        "button",
+                        { className: "btn btn-xs btn-default", onClick: function onClick() {
+                                return _this6.setState({ expand: true }, function () {
+                                    return _this6.refs.textarea.focus();
+                                });
+                            } },
+                        _react2.default.createElement("span", { className: "glyphicon glyphicon-comment" }),
+                        "Add Comment"
+                    )
+                );
+            }
+            return _react2.default.createElement(
+                "li",
+                { className: "list-group-item" },
+                content
+            );
+        }
+    }]);
 
-	return AddComment;
+    return AddComment;
 }(_react2.default.Component);
 
 AddComment.propTypes = {
-	user: _react2.default.PropTypes.string.isRequired,
-	data: _react2.default.PropTypes.array.isRequired,
-	addData: _react2.default.PropTypes.func.isRequired
+    user: _react2.default.PropTypes.string.isRequired,
+    data: _react2.default.PropTypes.array.isRequired,
+    addData: _react2.default.PropTypes.func.isRequired
 };
 
 function MelangeLink(_ref8) {
-	var proposal = _ref8.proposal;
+    var proposal = _ref8.proposal;
 
-	var url = "https://summerofcode.withgoogle.com/dashboard" + ("/organization/" + proposal.organization.id) + ("/proposal/" + proposal.id + "/");
-	return _react2.default.createElement("a", {
-		title: "Open proposal on GSoC site",
-		href: url,
-		className: "glyphicon glyphicon-new-window" });
+    var url = "https://summerofcode.withgoogle.com/dashboard" + ("/organization/" + proposal.organization.id) + ("/proposal/" + proposal.id + "/");
+    return _react2.default.createElement("a", { title: "Open proposal on GSoC site", href: url, className: "glyphicon glyphicon-new-window" });
 }
-MelangeLink.propTypes = {
-	proposal: _react2.default.PropTypes.object.isRequired
-};
+MelangeLink.propTypes = { proposal: _react2.default.PropTypes.object.isRequired };
 
 function ProposalLink(_ref9) {
-	var proposal = _ref9.proposal;
+    var proposal = _ref9.proposal;
 
-	if (!proposal.completed_pdf_url) {
-		return _react2.default.createElement("i", { className: "glyphicon glyphicon-file text-muted", title: "Final PDF unavailable" });
-	}
-	var url = "https://summerofcode.withgoogle.com" + proposal.completed_pdf_url;
-	return _react2.default.createElement("a", {
-		title: "View Proposal PDF",
-		href: url,
-		className: "glyphicon glyphicon-file" });
+    if (!proposal.completed_pdf_url) {
+        return _react2.default.createElement("i", { className: "glyphicon glyphicon-file text-muted", title: "Final PDF unavailable" });
+    }
+    var url = "https://summerofcode.withgoogle.com" + proposal.completed_pdf_url;
+    return _react2.default.createElement("a", { title: "View Proposal PDF", href: url, className: "glyphicon glyphicon-file" });
 }
-ProposalLink.propTypes = {
-	proposal: _react2.default.PropTypes.object.isRequired
-};
+ProposalLink.propTypes = { proposal: _react2.default.PropTypes.object.isRequired };
 
 document.addEventListener("DOMContentLoaded", function () {
-	_reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById("main"));
+    _reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById("main"));
 });
 
 },{"./IconRating":480,"babel-polyfill":1,"lodash":319,"react":477,"react-dom":321,"react-emoji":449,"react-textarea-autosize":450,"whatwg-fetch":479}]},{},[481]);
