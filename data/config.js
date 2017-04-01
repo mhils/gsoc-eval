@@ -1,4 +1,5 @@
 // address the server is listening on
+// docker users: change this in docker-compose.yml instead.
 exports.host = "";
 exports.port = 3000;
 
