@@ -101,7 +101,7 @@ function ProposalGroup(
     proposals = _.sortBy(proposals, x => sortProposals(x, proposalData));
     return (
         <div>
-            <h1>Proposals for{name || "other projects"}({proposals.length})</h1>
+            <h1>Proposals for {name || "other projects"}({proposals.length})</h1>
             {
                 proposals.map(
                     proposal => <Proposal key={proposal.id} data={
