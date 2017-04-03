@@ -45420,7 +45420,7 @@ var App = function (_React$Component) {
 				return r.json();
 			}).then(function (x) {
 				var proposals = x.results.filter(function (p) {
-					return !p.ignored;
+					return !p.ignored && p.is_complete;
 				});
 				console.debug("updateProposals", proposals);
 				_this2.setState({ proposals: proposals });

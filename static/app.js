@@ -22,7 +22,7 @@ class App extends React.Component {
 		fetch("/proposals.json", {credentials: 'same-origin'})
 			.then(r => r.json())
 			.then(x => {
-				let proposals = x.results.filter(p => !p.ignored);
+				let proposals = x.results.filter(p => !p.ignored && p.is_complete);
 				console.debug("updateProposals", proposals);
 				this.setState({proposals});
 			})
