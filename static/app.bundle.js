@@ -45593,9 +45593,7 @@ function Proposal(_ref3) {
 				{ className: "pull-right" },
 				_react2.default.createElement(AverageRating, { data: data }),
 				"\xA0",
-				_react2.default.createElement(MelangeLink, { proposal: proposal }),
-				"\xA0",
-				_react2.default.createElement(ProposalLink, { proposal: proposal })
+				_react2.default.createElement(MelangeLink, { proposal: proposal })
 			)
 		),
 		_react2.default.createElement(
@@ -45909,22 +45907,6 @@ function MelangeLink(_ref8) {
 		className: "glyphicon glyphicon-new-window" });
 }
 MelangeLink.propTypes = {
-	proposal: _react2.default.PropTypes.object.isRequired
-};
-
-function ProposalLink(_ref9) {
-	var proposal = _ref9.proposal;
-
-	if (!proposal.completed_pdf_url) {
-		return _react2.default.createElement("i", { className: "glyphicon glyphicon-file text-muted", title: "Final PDF unavailable" });
-	}
-	var url = "https://summerofcode.withgoogle.com" + proposal.completed_pdf_url;
-	return _react2.default.createElement("a", {
-		title: "View Proposal PDF",
-		href: url,
-		className: "glyphicon glyphicon-file" });
-}
-ProposalLink.propTypes = {
 	proposal: _react2.default.PropTypes.object.isRequired
 };
 

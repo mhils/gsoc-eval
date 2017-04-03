@@ -134,8 +134,6 @@ function Proposal({user, data, proposal, addData}) {
 				<AverageRating data={data} />
 				&nbsp;
 				<MelangeLink proposal={proposal}/>
-				&nbsp;
-				<ProposalLink proposal={proposal}/>
 			</span>
 		</div>
 		<div className="panel-body">
@@ -359,20 +357,6 @@ function MelangeLink({proposal}) {
 		className="glyphicon glyphicon-new-window"/>;
 }
 MelangeLink.propTypes = {
-	proposal: React.PropTypes.object.isRequired,
-}
-
-function ProposalLink({proposal}) {
-	if(!proposal.completed_pdf_url){
-		return <i className="glyphicon glyphicon-file text-muted" title="Final PDF unavailable"/>;
-	}
-	let url = `https://summerofcode.withgoogle.com${proposal.completed_pdf_url}`;
-	return <a 
-		title="View Proposal PDF"
-		href={url} 
-		className="glyphicon glyphicon-file"/>;
-}
-ProposalLink.propTypes = {
 	proposal: React.PropTypes.object.isRequired,
 }
 
