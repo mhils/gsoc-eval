@@ -94,7 +94,8 @@ function sortProposals(proposal, proposalData){
 	*/
 	let {id} = proposal
 	if (!(id in sortProposals.cache)) {
-		sortProposals.cache[id] = 0 - meanRating(proposalData[id] || []);
+		// meanRating(...) == NaN -> no ratings yet -> move to top.
+		sortProposals.cache[id] = 0 - (meanRating(proposalData[id] || []) || 6);
 	}
 	return sortProposals.cache[id]
 }

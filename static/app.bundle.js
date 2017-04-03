@@ -45521,7 +45521,8 @@ function sortProposals(proposal, proposalData) {
 	var id = proposal.id;
 
 	if (!(id in sortProposals.cache)) {
-		sortProposals.cache[id] = 0 - meanRating(proposalData[id] || []);
+		// meanRating(...) == NaN -> no ratings yet -> move to top.
+		sortProposals.cache[id] = 0 - (meanRating(proposalData[id] || []) || 6);
 	}
 	return sortProposals.cache[id];
 }
