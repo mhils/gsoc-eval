@@ -45404,10 +45404,12 @@ var App = function (_React$Component) {
 		_this.state = {
 			proposals: false,
 			proposalData: false,
-			user: false
+			user: false,
+			hideWeak: localStorage["hideWeak"] === "true"
 		};
 		_this.updateProposalData = _this.updateProposalData.bind(_this);
 		_this.addProposalData = _this.addProposalData.bind(_this);
+		_this.setHideWeak = _this.setHideWeak.bind(_this);
 		return _this;
 	}
 
@@ -45458,6 +45460,14 @@ var App = function (_React$Component) {
 			});
 		}
 	}, {
+		key: "setHideWeak",
+		value: function setHideWeak(val) {
+			this.setState({
+				hideWeak: val
+			});
+			localStorage["hideWeak"] = val;
+		}
+	}, {
 		key: "render",
 		value: function render() {
 			var _this4 = this;
@@ -45465,7 +45475,8 @@ var App = function (_React$Component) {
 			var _state = this.state,
 			    proposals = _state.proposals,
 			    proposalData = _state.proposalData,
-			    user = _state.user;
+			    user = _state.user,
+			    hideWeak = _state.hideWeak;
 
 			if (!proposals || !proposalData || !user) {
 				return _react2.default.createElement(
@@ -45491,8 +45502,8 @@ var App = function (_React$Component) {
 
 			return _react2.default.createElement(
 				"div",
-				null,
-				_react2.default.createElement(UserDisplay, { user: user }),
+				{ className: hideWeak ? "hide-weak" : "" },
+				_react2.default.createElement(Menu, { user: user, hideWeak: hideWeak, setHideWeak: this.setHideWeak }),
 				proposalGroups
 			);
 		}
@@ -45501,17 +45512,37 @@ var App = function (_React$Component) {
 	return App;
 }(_react2.default.Component);
 
-function UserDisplay(_ref) {
-	var user = _ref.user;
+function Menu(_ref) {
+	var user = _ref.user,
+	    hideWeak = _ref.hideWeak,
+	    setHideWeak = _ref.setHideWeak;
 
 	return _react2.default.createElement(
-		"span",
-		{ className: "pull-right" },
-		user ? "User: " + user : null
+		"div",
+		{ className: "pull-right text-right" },
+		_react2.default.createElement(
+			"strong",
+			null,
+			user ? "User: " + user : null
+		),
+		_react2.default.createElement("br", null),
+		_react2.default.createElement(
+			"label",
+			{ className: "checkbox-inline" },
+			_react2.default.createElement("input", {
+				type: "checkbox",
+				checked: hideWeak,
+				onChange: function onChange() {
+					return setHideWeak(!hideWeak);
+				} }),
+			"Hide weak proposals"
+		)
 	);
 }
-UserDisplay.propTypes = {
-	user: _react2.default.PropTypes.string.isRequired
+Menu.propTypes = {
+	user: _react2.default.PropTypes.string.isRequired,
+	hideWeak: _react2.default.PropTypes.bool.isRequired,
+	setHideWeak: _react2.default.PropTypes.func.isRequired
 };
 
 function sortProposals(proposal, proposalData) {
@@ -45576,9 +45607,10 @@ function Proposal(_ref3) {
 	    proposal = _ref3.proposal,
 	    addData = _ref3.addData;
 
+	var weak = meanRating(data) <= 3 ? "weak" : "";
 	return _react2.default.createElement(
 		"div",
-		{ className: "panel panel-default" },
+		{ className: "panel panel-default " + weak },
 		_react2.default.createElement(
 			"div",
 			{ className: "panel-heading" },

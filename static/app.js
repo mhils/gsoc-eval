@@ -14,9 +14,11 @@ class App extends React.Component {
 			proposals: false,
 			proposalData: false,
 			user: false,
+			hideWeak: localStorage["hideWeak"] === "true",
 		};
 		this.updateProposalData = this.updateProposalData.bind(this);
 		this.addProposalData = this.addProposalData.bind(this);
+		this.setHideWeak = this.setHideWeak.bind(this);
 	}
 	componentWillMount() {
 		fetch("/proposals.json", {credentials: 'same-origin'})
@@ -52,9 +54,15 @@ class App extends React.Component {
 			console.debug("updateProposalData", proposalData);
 			this.setState({proposalData});
 		});
-	}	
+	}
+	setHideWeak(val) {
+		this.setState({
+			hideWeak: val
+		});
+		localStorage["hideWeak"] = val;
+	}
 	render() {
-		let {proposals, proposalData, user} = this.state;
+		let {proposals, proposalData, user, hideWeak} = this.state;
 		if(!proposals || !proposalData || !user){
 			return <div>Loading...</div>;
 		}
@@ -74,18 +82,30 @@ class App extends React.Component {
 			/>
 		);
 
-		return <div>
-			<UserDisplay user={user}/>
+		return <div className={hideWeak ? "hide-weak" : ""}>
+			<Menu user={user} hideWeak={hideWeak} setHideWeak={this.setHideWeak} />
 			{proposalGroups}
 		</div>;
 	}
 }
 
-function UserDisplay({user}) {
-	return <span className="pull-right">{user ? `User: ${user}` : null}</span>;
+function Menu({user, hideWeak, setHideWeak}) {
+	return <div className="pull-right text-right">
+		<strong>{user ? `User: ${user}` : null}</strong>
+		<br/>
+		<label className="checkbox-inline">
+			<input
+				type="checkbox"
+				checked={hideWeak}
+				onChange={() => setHideWeak(!hideWeak)}/>
+			Hide weak proposals
+		</label>
+	</div>;
 }
-UserDisplay.propTypes = {
+Menu.propTypes = {
 	user: React.PropTypes.string.isRequired,
+	hideWeak: React.PropTypes.bool.isRequired,
+	setHideWeak: React.PropTypes.func.isRequired,
 }
 
 function sortProposals(proposal, proposalData){
@@ -128,7 +148,8 @@ ProposalGroup.propTypes = {
 }
 
 function Proposal({user, data, proposal, addData}) {
-	return <div className="panel panel-default">
+	let weak = meanRating(data) <= 3 ? "weak" : "";
+	return <div className={`panel panel-default ${weak}`}>
 		<div className="panel-heading">
 			<strong>{proposal.student.display_name}</strong>: {proposal.title}
 			<span className="pull-right">

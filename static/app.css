@@ -23,3 +23,15 @@ h2 {
 .comment {
 	white-space: pre-wrap;
 }
+
+.weak {
+	transition: all 0.5s;
+	max-height: 1000px;
+	overflow-y: auto;
+}
+
+.hide-weak .weak {
+	max-height: 40px;
+	overflow-y: hidden;
+	opacity: 0.4;
+}
