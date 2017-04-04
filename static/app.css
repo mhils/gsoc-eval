@@ -19,3 +19,7 @@ h2 {
 .rating {
 	display: inline-block;
 }
+
+.comment {
+	white-space: pre;
+}

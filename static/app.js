@@ -217,7 +217,7 @@ Comments.propTypes = {
 
 function Comment({user, text, removable, onRemove}) {
 	text = ReactEmoji.emojify(text);
-	return <span>
+	return <span className="comment">
 		<strong>{user}:</strong> {text}
 		{removable && <span onClick={onRemove} role="button" className="glyphicon glyphicon-trash text-mute pull-right"></span>}
 	</span>;

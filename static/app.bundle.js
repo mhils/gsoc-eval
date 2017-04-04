@@ -45698,7 +45698,7 @@ function Comment(_ref5) {
 	text = _reactEmoji2.default.emojify(text);
 	return _react2.default.createElement(
 		"span",
-		null,
+		{ className: "comment" },
 		_react2.default.createElement(
 			"strong",
 			null,
