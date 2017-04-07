@@ -5,7 +5,7 @@ import ReactDOM from "react-dom"
 import _ from "lodash"
 import Textarea from "react-textarea-autosize"
 import IconRating from './IconRating'
-import ReactEmoji from "react-emoji"
+import {emojify} from 'react-emojione'
 
 class App extends React.Component {
 	constructor(props) {
@@ -237,7 +237,7 @@ Comments.propTypes = {
 }
 
 function Comment({user, text, removable, onRemove}) {
-	text = ReactEmoji.emojify(text);
+	text = emojify(text, {output: 'unicode'});
 	return <span className="comment">
 		<strong>{user}:</strong> {text}
 		{removable && <span onClick={onRemove} role="button" className="glyphicon glyphicon-trash text-mute pull-right"></span>}

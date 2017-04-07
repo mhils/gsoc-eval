@@ -29,7 +29,7 @@ define(String.prototype, "padRight", "".padEnd);
   [][key] && define(Array, key, Function.call.bind([][key]));
 });
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"core-js/fn/regexp/escape":2,"core-js/shim":295,"regenerator-runtime/runtime":478}],2:[function(require,module,exports){
+},{"core-js/fn/regexp/escape":2,"core-js/shim":295,"regenerator-runtime/runtime":485}],2:[function(require,module,exports){
 require('../../modules/core.regexp.escape');
 module.exports = require('../../modules/_core').RegExp.escape;
 },{"../../modules/_core":23,"../../modules/core.regexp.escape":119}],3:[function(require,module,exports){
@@ -6169,7 +6169,7 @@ var EventListener = {
 
 module.exports = EventListener;
 }).call(this,require('_process'))
-},{"./emptyFunction":303,"_process":320}],297:[function(require,module,exports){
+},{"./emptyFunction":303,"_process":321}],297:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -6446,7 +6446,7 @@ function createArrayFromMixed(obj) {
 
 module.exports = createArrayFromMixed;
 }).call(this,require('_process'))
-},{"./invariant":311,"_process":320}],302:[function(require,module,exports){
+},{"./invariant":311,"_process":321}],302:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -6532,7 +6532,7 @@ function createNodesFromMarkup(markup, handleScript) {
 
 module.exports = createNodesFromMarkup;
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":297,"./createArrayFromMixed":301,"./getMarkupWrap":307,"./invariant":311,"_process":320}],303:[function(require,module,exports){
+},{"./ExecutionEnvironment":297,"./createArrayFromMixed":301,"./getMarkupWrap":307,"./invariant":311,"_process":321}],303:[function(require,module,exports){
 "use strict";
 
 /**
@@ -6593,7 +6593,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = emptyObject;
 }).call(this,require('_process'))
-},{"_process":320}],305:[function(require,module,exports){
+},{"_process":321}],305:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -6752,7 +6752,7 @@ function getMarkupWrap(nodeName) {
 
 module.exports = getMarkupWrap;
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":297,"./invariant":311,"_process":320}],308:[function(require,module,exports){
+},{"./ExecutionEnvironment":297,"./invariant":311,"_process":321}],308:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -6921,7 +6921,7 @@ function invariant(condition, format, a, b, c, d, e, f) {
 
 module.exports = invariant;
 }).call(this,require('_process'))
-},{"_process":320}],312:[function(require,module,exports){
+},{"_process":321}],312:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7193,7 +7193,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = warning;
 }).call(this,require('_process'))
-},{"./emptyFunction":303,"_process":320}],319:[function(require,module,exports){
+},{"./emptyFunction":303,"_process":321}],319:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -24282,6 +24282,98 @@ module.exports = warning;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],320:[function(require,module,exports){
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
+'use strict';
+/* eslint-disable no-unused-vars */
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+function toObject(val) {
+	if (val === null || val === undefined) {
+		throw new TypeError('Object.assign cannot be called with null or undefined');
+	}
+
+	return Object(val);
+}
+
+function shouldUseNative() {
+	try {
+		if (!Object.assign) {
+			return false;
+		}
+
+		// Detect buggy property enumeration order in older V8 versions.
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+		test1[5] = 'de';
+		if (Object.getOwnPropertyNames(test1)[0] === '5') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test2 = {};
+		for (var i = 0; i < 10; i++) {
+			test2['_' + String.fromCharCode(i)] = i;
+		}
+		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+			return test2[n];
+		});
+		if (order2.join('') !== '0123456789') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test3 = {};
+		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+			test3[letter] = letter;
+		});
+		if (Object.keys(Object.assign({}, test3)).join('') !==
+				'abcdefghijklmnopqrst') {
+			return false;
+		}
+
+		return true;
+	} catch (err) {
+		// We don't expect any of the above to throw, but better to be safe.
+		return false;
+	}
+}
+
+module.exports = shouldUseNative() ? Object.assign : function (target, source) {
+	var from;
+	var to = toObject(target);
+	var symbols;
+
+	for (var s = 1; s < arguments.length; s++) {
+		from = Object(arguments[s]);
+
+		for (var key in from) {
+			if (hasOwnProperty.call(from, key)) {
+				to[key] = from[key];
+			}
+		}
+
+		if (getOwnPropertySymbols) {
+			symbols = getOwnPropertySymbols(from);
+			for (var i = 0; i < symbols.length; i++) {
+				if (propIsEnumerable.call(from, symbols[i])) {
+					to[symbols[i]] = from[symbols[i]];
+				}
+			}
+		}
+	}
+
+	return to;
+};
+
+},{}],321:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -24463,12 +24555,12 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],321:[function(require,module,exports){
+},{}],322:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib/ReactDOM');
 
-},{"./lib/ReactDOM":351}],322:[function(require,module,exports){
+},{"./lib/ReactDOM":352}],323:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -24542,7 +24634,7 @@ var ARIADOMPropertyConfig = {
 };
 
 module.exports = ARIADOMPropertyConfig;
-},{}],323:[function(require,module,exports){
+},{}],324:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -24566,7 +24658,7 @@ var AutoFocusUtils = {
 };
 
 module.exports = AutoFocusUtils;
-},{"./ReactDOMComponentTree":354,"fbjs/lib/focusNode":305}],324:[function(require,module,exports){
+},{"./ReactDOMComponentTree":355,"fbjs/lib/focusNode":305}],325:[function(require,module,exports){
 /**
  * Copyright 2013-present Facebook, Inc.
  * All rights reserved.
@@ -24951,7 +25043,7 @@ var BeforeInputEventPlugin = {
 };
 
 module.exports = BeforeInputEventPlugin;
-},{"./EventPropagators":340,"./FallbackCompositionState":341,"./SyntheticCompositionEvent":405,"./SyntheticInputEvent":409,"fbjs/lib/ExecutionEnvironment":297}],325:[function(require,module,exports){
+},{"./EventPropagators":341,"./FallbackCompositionState":342,"./SyntheticCompositionEvent":406,"./SyntheticInputEvent":410,"fbjs/lib/ExecutionEnvironment":297}],326:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -25099,7 +25191,7 @@ var CSSProperty = {
 };
 
 module.exports = CSSProperty;
-},{}],326:[function(require,module,exports){
+},{}],327:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -25310,7 +25402,7 @@ var CSSPropertyOperations = {
 
 module.exports = CSSPropertyOperations;
 }).call(this,require('_process'))
-},{"./CSSProperty":325,"./ReactInstrumentation":383,"./dangerousStyleValue":422,"_process":320,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/camelizeStyleName":299,"fbjs/lib/hyphenateStyleName":310,"fbjs/lib/memoizeStringOnly":314,"fbjs/lib/warning":318}],327:[function(require,module,exports){
+},{"./CSSProperty":326,"./ReactInstrumentation":384,"./dangerousStyleValue":423,"_process":321,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/camelizeStyleName":299,"fbjs/lib/hyphenateStyleName":310,"fbjs/lib/memoizeStringOnly":314,"fbjs/lib/warning":318}],328:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -25431,7 +25523,7 @@ var CallbackQueue = function () {
 
 module.exports = PooledClass.addPoolingTo(CallbackQueue);
 }).call(this,require('_process'))
-},{"./PooledClass":345,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],328:[function(require,module,exports){
+},{"./PooledClass":346,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],329:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -25752,7 +25844,7 @@ var ChangeEventPlugin = {
 };
 
 module.exports = ChangeEventPlugin;
-},{"./EventPluginHub":337,"./EventPropagators":340,"./ReactDOMComponentTree":354,"./ReactUpdates":398,"./SyntheticEvent":407,"./getEventTarget":430,"./isEventSupported":438,"./isTextInputElement":439,"fbjs/lib/ExecutionEnvironment":297}],329:[function(require,module,exports){
+},{"./EventPluginHub":338,"./EventPropagators":341,"./ReactDOMComponentTree":355,"./ReactUpdates":399,"./SyntheticEvent":408,"./getEventTarget":431,"./isEventSupported":439,"./isTextInputElement":440,"fbjs/lib/ExecutionEnvironment":297}],330:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -25979,7 +26071,7 @@ var DOMChildrenOperations = {
 
 module.exports = DOMChildrenOperations;
 }).call(this,require('_process'))
-},{"./DOMLazyTree":330,"./Danger":334,"./ReactDOMComponentTree":354,"./ReactInstrumentation":383,"./createMicrosoftUnsafeLocalFunction":421,"./setInnerHTML":443,"./setTextContent":444,"_process":320}],330:[function(require,module,exports){
+},{"./DOMLazyTree":331,"./Danger":335,"./ReactDOMComponentTree":355,"./ReactInstrumentation":384,"./createMicrosoftUnsafeLocalFunction":422,"./setInnerHTML":444,"./setTextContent":445,"_process":321}],331:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -26097,7 +26189,7 @@ DOMLazyTree.queueHTML = queueHTML;
 DOMLazyTree.queueText = queueText;
 
 module.exports = DOMLazyTree;
-},{"./DOMNamespaces":331,"./createMicrosoftUnsafeLocalFunction":421,"./setInnerHTML":443,"./setTextContent":444}],331:[function(require,module,exports){
+},{"./DOMNamespaces":332,"./createMicrosoftUnsafeLocalFunction":422,"./setInnerHTML":444,"./setTextContent":445}],332:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -26117,7 +26209,7 @@ var DOMNamespaces = {
 };
 
 module.exports = DOMNamespaces;
-},{}],332:[function(require,module,exports){
+},{}],333:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -26329,7 +26421,7 @@ var DOMProperty = {
 
 module.exports = DOMProperty;
 }).call(this,require('_process'))
-},{"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],333:[function(require,module,exports){
+},{"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],334:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -26568,7 +26660,7 @@ var DOMPropertyOperations = {
 
 module.exports = DOMPropertyOperations;
 }).call(this,require('_process'))
-},{"./DOMProperty":332,"./ReactDOMComponentTree":354,"./ReactInstrumentation":383,"./quoteAttributeValueForBrowser":440,"_process":320,"fbjs/lib/warning":318}],334:[function(require,module,exports){
+},{"./DOMProperty":333,"./ReactDOMComponentTree":355,"./ReactInstrumentation":384,"./quoteAttributeValueForBrowser":441,"_process":321,"fbjs/lib/warning":318}],335:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -26618,7 +26710,7 @@ var Danger = {
 
 module.exports = Danger;
 }).call(this,require('_process'))
-},{"./DOMLazyTree":330,"./reactProdInvariant":441,"_process":320,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/createNodesFromMarkup":302,"fbjs/lib/emptyFunction":303,"fbjs/lib/invariant":311}],335:[function(require,module,exports){
+},{"./DOMLazyTree":331,"./reactProdInvariant":442,"_process":321,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/createNodesFromMarkup":302,"fbjs/lib/emptyFunction":303,"fbjs/lib/invariant":311}],336:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -26644,7 +26736,7 @@ module.exports = Danger;
 var DefaultEventPluginOrder = ['ResponderEventPlugin', 'SimpleEventPlugin', 'TapEventPlugin', 'EnterLeaveEventPlugin', 'ChangeEventPlugin', 'SelectEventPlugin', 'BeforeInputEventPlugin'];
 
 module.exports = DefaultEventPluginOrder;
-},{}],336:[function(require,module,exports){
+},{}],337:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -26744,7 +26836,7 @@ var EnterLeaveEventPlugin = {
 };
 
 module.exports = EnterLeaveEventPlugin;
-},{"./EventPropagators":340,"./ReactDOMComponentTree":354,"./SyntheticMouseEvent":411}],337:[function(require,module,exports){
+},{"./EventPropagators":341,"./ReactDOMComponentTree":355,"./SyntheticMouseEvent":412}],338:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -27024,7 +27116,7 @@ var EventPluginHub = {
 
 module.exports = EventPluginHub;
 }).call(this,require('_process'))
-},{"./EventPluginRegistry":338,"./EventPluginUtils":339,"./ReactErrorUtils":374,"./accumulateInto":418,"./forEachAccumulated":426,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],338:[function(require,module,exports){
+},{"./EventPluginRegistry":339,"./EventPluginUtils":340,"./ReactErrorUtils":375,"./accumulateInto":419,"./forEachAccumulated":427,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],339:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -27281,7 +27373,7 @@ var EventPluginRegistry = {
 
 module.exports = EventPluginRegistry;
 }).call(this,require('_process'))
-},{"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],339:[function(require,module,exports){
+},{"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],340:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -27509,7 +27601,7 @@ var EventPluginUtils = {
 
 module.exports = EventPluginUtils;
 }).call(this,require('_process'))
-},{"./ReactErrorUtils":374,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318}],340:[function(require,module,exports){
+},{"./ReactErrorUtils":375,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318}],341:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -27645,7 +27737,7 @@ var EventPropagators = {
 
 module.exports = EventPropagators;
 }).call(this,require('_process'))
-},{"./EventPluginHub":337,"./EventPluginUtils":339,"./accumulateInto":418,"./forEachAccumulated":426,"_process":320,"fbjs/lib/warning":318}],341:[function(require,module,exports){
+},{"./EventPluginHub":338,"./EventPluginUtils":340,"./accumulateInto":419,"./forEachAccumulated":427,"_process":321,"fbjs/lib/warning":318}],342:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -27740,7 +27832,7 @@ _assign(FallbackCompositionState.prototype, {
 PooledClass.addPoolingTo(FallbackCompositionState);
 
 module.exports = FallbackCompositionState;
-},{"./PooledClass":345,"./getTextContentAccessor":435,"object-assign":448}],342:[function(require,module,exports){
+},{"./PooledClass":346,"./getTextContentAccessor":436,"object-assign":320}],343:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -27952,7 +28044,7 @@ var HTMLDOMPropertyConfig = {
 };
 
 module.exports = HTMLDOMPropertyConfig;
-},{"./DOMProperty":332}],343:[function(require,module,exports){
+},{"./DOMProperty":333}],344:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -28011,7 +28103,7 @@ var KeyEscapeUtils = {
 };
 
 module.exports = KeyEscapeUtils;
-},{}],344:[function(require,module,exports){
+},{}],345:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -28148,7 +28240,7 @@ var LinkedValueUtils = {
 
 module.exports = LinkedValueUtils;
 }).call(this,require('_process'))
-},{"./ReactPropTypesSecret":391,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/React":454}],345:[function(require,module,exports){
+},{"./ReactPropTypesSecret":392,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/React":462}],346:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -28262,7 +28354,7 @@ var PooledClass = {
 
 module.exports = PooledClass;
 }).call(this,require('_process'))
-},{"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],346:[function(require,module,exports){
+},{"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],347:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -28590,7 +28682,7 @@ var ReactBrowserEventEmitter = _assign({}, ReactEventEmitterMixin, {
 });
 
 module.exports = ReactBrowserEventEmitter;
-},{"./EventPluginRegistry":338,"./ReactEventEmitterMixin":375,"./ViewportMetrics":417,"./getVendorPrefixedEventName":436,"./isEventSupported":438,"object-assign":448}],347:[function(require,module,exports){
+},{"./EventPluginRegistry":339,"./ReactEventEmitterMixin":376,"./ViewportMetrics":418,"./getVendorPrefixedEventName":437,"./isEventSupported":439,"object-assign":320}],348:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-present, Facebook, Inc.
@@ -28746,7 +28838,7 @@ var ReactChildReconciler = {
 
 module.exports = ReactChildReconciler;
 }).call(this,require('_process'))
-},{"./KeyEscapeUtils":343,"./ReactReconciler":393,"./instantiateReactComponent":437,"./shouldUpdateReactComponent":445,"./traverseAllChildren":446,"_process":320,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":458}],348:[function(require,module,exports){
+},{"./KeyEscapeUtils":344,"./ReactReconciler":394,"./instantiateReactComponent":438,"./shouldUpdateReactComponent":446,"./traverseAllChildren":447,"_process":321,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":466}],349:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -28776,7 +28868,7 @@ var ReactComponentBrowserEnvironment = {
 };
 
 module.exports = ReactComponentBrowserEnvironment;
-},{"./DOMChildrenOperations":329,"./ReactDOMIDOperations":358}],349:[function(require,module,exports){
+},{"./DOMChildrenOperations":330,"./ReactDOMIDOperations":359}],350:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-present, Facebook, Inc.
@@ -28824,7 +28916,7 @@ var ReactComponentEnvironment = {
 
 module.exports = ReactComponentEnvironment;
 }).call(this,require('_process'))
-},{"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],350:[function(require,module,exports){
+},{"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],351:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -29728,7 +29820,7 @@ var ReactCompositeComponent = {
 
 module.exports = ReactCompositeComponent;
 }).call(this,require('_process'))
-},{"./ReactComponentEnvironment":349,"./ReactErrorUtils":374,"./ReactInstanceMap":382,"./ReactInstrumentation":383,"./ReactNodeTypes":388,"./ReactReconciler":393,"./checkReactTypeSpec":420,"./reactProdInvariant":441,"./shouldUpdateReactComponent":445,"_process":320,"fbjs/lib/emptyObject":304,"fbjs/lib/invariant":311,"fbjs/lib/shallowEqual":317,"fbjs/lib/warning":318,"object-assign":448,"react/lib/React":454,"react/lib/ReactCurrentOwner":459}],351:[function(require,module,exports){
+},{"./ReactComponentEnvironment":350,"./ReactErrorUtils":375,"./ReactInstanceMap":383,"./ReactInstrumentation":384,"./ReactNodeTypes":389,"./ReactReconciler":394,"./checkReactTypeSpec":421,"./reactProdInvariant":442,"./shouldUpdateReactComponent":446,"_process":321,"fbjs/lib/emptyObject":304,"fbjs/lib/invariant":311,"fbjs/lib/shallowEqual":317,"fbjs/lib/warning":318,"object-assign":320,"react/lib/React":462,"react/lib/ReactCurrentOwner":467}],352:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -29841,7 +29933,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = ReactDOM;
 }).call(this,require('_process'))
-},{"./ReactDOMComponentTree":354,"./ReactDOMInvalidARIAHook":360,"./ReactDOMNullInputValuePropHook":361,"./ReactDOMUnknownPropertyHook":368,"./ReactDefaultInjection":371,"./ReactInstrumentation":383,"./ReactMount":386,"./ReactReconciler":393,"./ReactUpdates":398,"./ReactVersion":399,"./findDOMNode":424,"./getHostComponentFromComposite":431,"./renderSubtreeIntoContainer":442,"_process":320,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/warning":318}],352:[function(require,module,exports){
+},{"./ReactDOMComponentTree":355,"./ReactDOMInvalidARIAHook":361,"./ReactDOMNullInputValuePropHook":362,"./ReactDOMUnknownPropertyHook":369,"./ReactDefaultInjection":372,"./ReactInstrumentation":384,"./ReactMount":387,"./ReactReconciler":394,"./ReactUpdates":399,"./ReactVersion":400,"./findDOMNode":425,"./getHostComponentFromComposite":432,"./renderSubtreeIntoContainer":443,"_process":321,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/warning":318}],353:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -30844,7 +30936,7 @@ _assign(ReactDOMComponent.prototype, ReactDOMComponent.Mixin, ReactMultiChild.Mi
 
 module.exports = ReactDOMComponent;
 }).call(this,require('_process'))
-},{"./AutoFocusUtils":323,"./CSSPropertyOperations":326,"./DOMLazyTree":330,"./DOMNamespaces":331,"./DOMProperty":332,"./DOMPropertyOperations":333,"./EventPluginHub":337,"./EventPluginRegistry":338,"./ReactBrowserEventEmitter":346,"./ReactDOMComponentFlags":353,"./ReactDOMComponentTree":354,"./ReactDOMInput":359,"./ReactDOMOption":362,"./ReactDOMSelect":363,"./ReactDOMTextarea":366,"./ReactInstrumentation":383,"./ReactMultiChild":387,"./ReactServerRenderingTransaction":395,"./escapeTextContentForBrowser":423,"./isEventSupported":438,"./reactProdInvariant":441,"./validateDOMNesting":447,"_process":320,"fbjs/lib/emptyFunction":303,"fbjs/lib/invariant":311,"fbjs/lib/shallowEqual":317,"fbjs/lib/warning":318,"object-assign":448}],353:[function(require,module,exports){
+},{"./AutoFocusUtils":324,"./CSSPropertyOperations":327,"./DOMLazyTree":331,"./DOMNamespaces":332,"./DOMProperty":333,"./DOMPropertyOperations":334,"./EventPluginHub":338,"./EventPluginRegistry":339,"./ReactBrowserEventEmitter":347,"./ReactDOMComponentFlags":354,"./ReactDOMComponentTree":355,"./ReactDOMInput":360,"./ReactDOMOption":363,"./ReactDOMSelect":364,"./ReactDOMTextarea":367,"./ReactInstrumentation":384,"./ReactMultiChild":388,"./ReactServerRenderingTransaction":396,"./escapeTextContentForBrowser":424,"./isEventSupported":439,"./reactProdInvariant":442,"./validateDOMNesting":448,"_process":321,"fbjs/lib/emptyFunction":303,"fbjs/lib/invariant":311,"fbjs/lib/shallowEqual":317,"fbjs/lib/warning":318,"object-assign":320}],354:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -30862,7 +30954,7 @@ var ReactDOMComponentFlags = {
 };
 
 module.exports = ReactDOMComponentFlags;
-},{}],354:[function(require,module,exports){
+},{}],355:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -31059,7 +31151,7 @@ var ReactDOMComponentTree = {
 
 module.exports = ReactDOMComponentTree;
 }).call(this,require('_process'))
-},{"./DOMProperty":332,"./ReactDOMComponentFlags":353,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],355:[function(require,module,exports){
+},{"./DOMProperty":333,"./ReactDOMComponentFlags":354,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],356:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -31094,7 +31186,7 @@ function ReactDOMContainerInfo(topLevelWrapper, node) {
 
 module.exports = ReactDOMContainerInfo;
 }).call(this,require('_process'))
-},{"./validateDOMNesting":447,"_process":320}],356:[function(require,module,exports){
+},{"./validateDOMNesting":448,"_process":321}],357:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -31154,7 +31246,7 @@ _assign(ReactDOMEmptyComponent.prototype, {
 });
 
 module.exports = ReactDOMEmptyComponent;
-},{"./DOMLazyTree":330,"./ReactDOMComponentTree":354,"object-assign":448}],357:[function(require,module,exports){
+},{"./DOMLazyTree":331,"./ReactDOMComponentTree":355,"object-assign":320}],358:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -31173,7 +31265,7 @@ var ReactDOMFeatureFlags = {
 };
 
 module.exports = ReactDOMFeatureFlags;
-},{}],358:[function(require,module,exports){
+},{}],359:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -31207,7 +31299,7 @@ var ReactDOMIDOperations = {
 };
 
 module.exports = ReactDOMIDOperations;
-},{"./DOMChildrenOperations":329,"./ReactDOMComponentTree":354}],359:[function(require,module,exports){
+},{"./DOMChildrenOperations":330,"./ReactDOMComponentTree":355}],360:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -31487,7 +31579,7 @@ function _handleChange(event) {
 
 module.exports = ReactDOMInput;
 }).call(this,require('_process'))
-},{"./DOMPropertyOperations":333,"./LinkedValueUtils":344,"./ReactDOMComponentTree":354,"./ReactUpdates":398,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"object-assign":448}],360:[function(require,module,exports){
+},{"./DOMPropertyOperations":334,"./LinkedValueUtils":345,"./ReactDOMComponentTree":355,"./ReactUpdates":399,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"object-assign":320}],361:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -31582,7 +31674,7 @@ var ReactDOMInvalidARIAHook = {
 
 module.exports = ReactDOMInvalidARIAHook;
 }).call(this,require('_process'))
-},{"./DOMProperty":332,"_process":320,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":458}],361:[function(require,module,exports){
+},{"./DOMProperty":333,"_process":321,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":466}],362:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -31627,7 +31719,7 @@ var ReactDOMNullInputValuePropHook = {
 
 module.exports = ReactDOMNullInputValuePropHook;
 }).call(this,require('_process'))
-},{"_process":320,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":458}],362:[function(require,module,exports){
+},{"_process":321,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":466}],363:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -31752,7 +31844,7 @@ var ReactDOMOption = {
 
 module.exports = ReactDOMOption;
 }).call(this,require('_process'))
-},{"./ReactDOMComponentTree":354,"./ReactDOMSelect":363,"_process":320,"fbjs/lib/warning":318,"object-assign":448,"react/lib/React":454}],363:[function(require,module,exports){
+},{"./ReactDOMComponentTree":355,"./ReactDOMSelect":364,"_process":321,"fbjs/lib/warning":318,"object-assign":320,"react/lib/React":462}],364:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -31954,7 +32046,7 @@ function _handleChange(event) {
 
 module.exports = ReactDOMSelect;
 }).call(this,require('_process'))
-},{"./LinkedValueUtils":344,"./ReactDOMComponentTree":354,"./ReactUpdates":398,"_process":320,"fbjs/lib/warning":318,"object-assign":448}],364:[function(require,module,exports){
+},{"./LinkedValueUtils":345,"./ReactDOMComponentTree":355,"./ReactUpdates":399,"_process":321,"fbjs/lib/warning":318,"object-assign":320}],365:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -32166,7 +32258,7 @@ var ReactDOMSelection = {
 };
 
 module.exports = ReactDOMSelection;
-},{"./getNodeForCharacterOffset":434,"./getTextContentAccessor":435,"fbjs/lib/ExecutionEnvironment":297}],365:[function(require,module,exports){
+},{"./getNodeForCharacterOffset":435,"./getTextContentAccessor":436,"fbjs/lib/ExecutionEnvironment":297}],366:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -32332,7 +32424,7 @@ _assign(ReactDOMTextComponent.prototype, {
 
 module.exports = ReactDOMTextComponent;
 }).call(this,require('_process'))
-},{"./DOMChildrenOperations":329,"./DOMLazyTree":330,"./ReactDOMComponentTree":354,"./escapeTextContentForBrowser":423,"./reactProdInvariant":441,"./validateDOMNesting":447,"_process":320,"fbjs/lib/invariant":311,"object-assign":448}],366:[function(require,module,exports){
+},{"./DOMChildrenOperations":330,"./DOMLazyTree":331,"./ReactDOMComponentTree":355,"./escapeTextContentForBrowser":424,"./reactProdInvariant":442,"./validateDOMNesting":448,"_process":321,"fbjs/lib/invariant":311,"object-assign":320}],367:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -32494,7 +32586,7 @@ function _handleChange(event) {
 
 module.exports = ReactDOMTextarea;
 }).call(this,require('_process'))
-},{"./LinkedValueUtils":344,"./ReactDOMComponentTree":354,"./ReactUpdates":398,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"object-assign":448}],367:[function(require,module,exports){
+},{"./LinkedValueUtils":345,"./ReactDOMComponentTree":355,"./ReactUpdates":399,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"object-assign":320}],368:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015-present, Facebook, Inc.
@@ -32632,7 +32724,7 @@ module.exports = {
   traverseEnterLeave: traverseEnterLeave
 };
 }).call(this,require('_process'))
-},{"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],368:[function(require,module,exports){
+},{"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],369:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -32746,7 +32838,7 @@ var ReactDOMUnknownPropertyHook = {
 
 module.exports = ReactDOMUnknownPropertyHook;
 }).call(this,require('_process'))
-},{"./DOMProperty":332,"./EventPluginRegistry":338,"_process":320,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":458}],369:[function(require,module,exports){
+},{"./DOMProperty":333,"./EventPluginRegistry":339,"_process":321,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":466}],370:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2016-present, Facebook, Inc.
@@ -33109,7 +33201,7 @@ if (/[?&]react_perf\b/.test(url)) {
 
 module.exports = ReactDebugTool;
 }).call(this,require('_process'))
-},{"./ReactHostOperationHistoryHook":379,"./ReactInvalidSetStateWarningHook":384,"_process":320,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/performanceNow":316,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":458}],370:[function(require,module,exports){
+},{"./ReactHostOperationHistoryHook":380,"./ReactInvalidSetStateWarningHook":385,"_process":321,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/performanceNow":316,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":466}],371:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -33177,7 +33269,7 @@ var ReactDefaultBatchingStrategy = {
 };
 
 module.exports = ReactDefaultBatchingStrategy;
-},{"./ReactUpdates":398,"./Transaction":416,"fbjs/lib/emptyFunction":303,"object-assign":448}],371:[function(require,module,exports){
+},{"./ReactUpdates":399,"./Transaction":417,"fbjs/lib/emptyFunction":303,"object-assign":320}],372:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -33263,7 +33355,7 @@ function inject() {
 module.exports = {
   inject: inject
 };
-},{"./ARIADOMPropertyConfig":322,"./BeforeInputEventPlugin":324,"./ChangeEventPlugin":328,"./DefaultEventPluginOrder":335,"./EnterLeaveEventPlugin":336,"./HTMLDOMPropertyConfig":342,"./ReactComponentBrowserEnvironment":348,"./ReactDOMComponent":352,"./ReactDOMComponentTree":354,"./ReactDOMEmptyComponent":356,"./ReactDOMTextComponent":365,"./ReactDOMTreeTraversal":367,"./ReactDefaultBatchingStrategy":370,"./ReactEventListener":376,"./ReactInjection":380,"./ReactReconcileTransaction":392,"./SVGDOMPropertyConfig":400,"./SelectEventPlugin":401,"./SimpleEventPlugin":402}],372:[function(require,module,exports){
+},{"./ARIADOMPropertyConfig":323,"./BeforeInputEventPlugin":325,"./ChangeEventPlugin":329,"./DefaultEventPluginOrder":336,"./EnterLeaveEventPlugin":337,"./HTMLDOMPropertyConfig":343,"./ReactComponentBrowserEnvironment":349,"./ReactDOMComponent":353,"./ReactDOMComponentTree":355,"./ReactDOMEmptyComponent":357,"./ReactDOMTextComponent":366,"./ReactDOMTreeTraversal":368,"./ReactDefaultBatchingStrategy":371,"./ReactEventListener":377,"./ReactInjection":381,"./ReactReconcileTransaction":393,"./SVGDOMPropertyConfig":401,"./SelectEventPlugin":402,"./SimpleEventPlugin":403}],373:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -33283,7 +33375,7 @@ module.exports = {
 var REACT_ELEMENT_TYPE = typeof Symbol === 'function' && Symbol['for'] && Symbol['for']('react.element') || 0xeac7;
 
 module.exports = REACT_ELEMENT_TYPE;
-},{}],373:[function(require,module,exports){
+},{}],374:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -33313,7 +33405,7 @@ var ReactEmptyComponent = {
 ReactEmptyComponent.injection = ReactEmptyComponentInjection;
 
 module.exports = ReactEmptyComponent;
-},{}],374:[function(require,module,exports){
+},{}],375:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -33392,7 +33484,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = ReactErrorUtils;
 }).call(this,require('_process'))
-},{"_process":320}],375:[function(require,module,exports){
+},{"_process":321}],376:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -33425,7 +33517,7 @@ var ReactEventEmitterMixin = {
 };
 
 module.exports = ReactEventEmitterMixin;
-},{"./EventPluginHub":337}],376:[function(require,module,exports){
+},{"./EventPluginHub":338}],377:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -33580,7 +33672,7 @@ var ReactEventListener = {
 };
 
 module.exports = ReactEventListener;
-},{"./PooledClass":345,"./ReactDOMComponentTree":354,"./ReactUpdates":398,"./getEventTarget":430,"fbjs/lib/EventListener":296,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/getUnboundedScrollPosition":308,"object-assign":448}],377:[function(require,module,exports){
+},{"./PooledClass":346,"./ReactDOMComponentTree":355,"./ReactUpdates":399,"./getEventTarget":431,"fbjs/lib/EventListener":296,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/getUnboundedScrollPosition":308,"object-assign":320}],378:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -33602,7 +33694,7 @@ var ReactFeatureFlags = {
 };
 
 module.exports = ReactFeatureFlags;
-},{}],378:[function(require,module,exports){
+},{}],379:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-present, Facebook, Inc.
@@ -33672,7 +33764,7 @@ var ReactHostComponent = {
 
 module.exports = ReactHostComponent;
 }).call(this,require('_process'))
-},{"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],379:[function(require,module,exports){
+},{"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],380:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -33706,7 +33798,7 @@ var ReactHostOperationHistoryHook = {
 };
 
 module.exports = ReactHostOperationHistoryHook;
-},{}],380:[function(require,module,exports){
+},{}],381:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -33740,7 +33832,7 @@ var ReactInjection = {
 };
 
 module.exports = ReactInjection;
-},{"./DOMProperty":332,"./EventPluginHub":337,"./EventPluginUtils":339,"./ReactBrowserEventEmitter":346,"./ReactComponentEnvironment":349,"./ReactEmptyComponent":373,"./ReactHostComponent":378,"./ReactUpdates":398}],381:[function(require,module,exports){
+},{"./DOMProperty":333,"./EventPluginHub":338,"./EventPluginUtils":340,"./ReactBrowserEventEmitter":347,"./ReactComponentEnvironment":350,"./ReactEmptyComponent":374,"./ReactHostComponent":379,"./ReactUpdates":399}],382:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -33864,7 +33956,7 @@ var ReactInputSelection = {
 };
 
 module.exports = ReactInputSelection;
-},{"./ReactDOMSelection":364,"fbjs/lib/containsNode":300,"fbjs/lib/focusNode":305,"fbjs/lib/getActiveElement":306}],382:[function(require,module,exports){
+},{"./ReactDOMSelection":365,"fbjs/lib/containsNode":300,"fbjs/lib/focusNode":305,"fbjs/lib/getActiveElement":306}],383:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -33912,7 +34004,7 @@ var ReactInstanceMap = {
 };
 
 module.exports = ReactInstanceMap;
-},{}],383:[function(require,module,exports){
+},{}],384:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2016-present, Facebook, Inc.
@@ -33938,7 +34030,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = { debugTool: debugTool };
 }).call(this,require('_process'))
-},{"./ReactDebugTool":369,"_process":320}],384:[function(require,module,exports){
+},{"./ReactDebugTool":370,"_process":321}],385:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2016-present, Facebook, Inc.
@@ -33977,7 +34069,7 @@ var ReactInvalidSetStateWarningHook = {
 
 module.exports = ReactInvalidSetStateWarningHook;
 }).call(this,require('_process'))
-},{"_process":320,"fbjs/lib/warning":318}],385:[function(require,module,exports){
+},{"_process":321,"fbjs/lib/warning":318}],386:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -34027,7 +34119,7 @@ var ReactMarkupChecksum = {
 };
 
 module.exports = ReactMarkupChecksum;
-},{"./adler32":419}],386:[function(require,module,exports){
+},{"./adler32":420}],387:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -34567,7 +34659,7 @@ var ReactMount = {
 
 module.exports = ReactMount;
 }).call(this,require('_process'))
-},{"./DOMLazyTree":330,"./DOMProperty":332,"./ReactBrowserEventEmitter":346,"./ReactDOMComponentTree":354,"./ReactDOMContainerInfo":355,"./ReactDOMFeatureFlags":357,"./ReactFeatureFlags":377,"./ReactInstanceMap":382,"./ReactInstrumentation":383,"./ReactMarkupChecksum":385,"./ReactReconciler":393,"./ReactUpdateQueue":397,"./ReactUpdates":398,"./instantiateReactComponent":437,"./reactProdInvariant":441,"./setInnerHTML":443,"./shouldUpdateReactComponent":445,"_process":320,"fbjs/lib/emptyObject":304,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/React":454,"react/lib/ReactCurrentOwner":459}],387:[function(require,module,exports){
+},{"./DOMLazyTree":331,"./DOMProperty":333,"./ReactBrowserEventEmitter":347,"./ReactDOMComponentTree":355,"./ReactDOMContainerInfo":356,"./ReactDOMFeatureFlags":358,"./ReactFeatureFlags":378,"./ReactInstanceMap":383,"./ReactInstrumentation":384,"./ReactMarkupChecksum":386,"./ReactReconciler":394,"./ReactUpdateQueue":398,"./ReactUpdates":399,"./instantiateReactComponent":438,"./reactProdInvariant":442,"./setInnerHTML":444,"./shouldUpdateReactComponent":446,"_process":321,"fbjs/lib/emptyObject":304,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/React":462,"react/lib/ReactCurrentOwner":467}],388:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -35019,7 +35111,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 }).call(this,require('_process'))
-},{"./ReactChildReconciler":347,"./ReactComponentEnvironment":349,"./ReactInstanceMap":382,"./ReactInstrumentation":383,"./ReactReconciler":393,"./flattenChildren":425,"./reactProdInvariant":441,"_process":320,"fbjs/lib/emptyFunction":303,"fbjs/lib/invariant":311,"react/lib/ReactCurrentOwner":459}],388:[function(require,module,exports){
+},{"./ReactChildReconciler":348,"./ReactComponentEnvironment":350,"./ReactInstanceMap":383,"./ReactInstrumentation":384,"./ReactReconciler":394,"./flattenChildren":426,"./reactProdInvariant":442,"_process":321,"fbjs/lib/emptyFunction":303,"fbjs/lib/invariant":311,"react/lib/ReactCurrentOwner":467}],389:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -35061,7 +35153,7 @@ var ReactNodeTypes = {
 
 module.exports = ReactNodeTypes;
 }).call(this,require('_process'))
-},{"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"react/lib/React":454}],389:[function(require,module,exports){
+},{"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"react/lib/React":462}],390:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -35157,7 +35249,7 @@ var ReactOwner = {
 
 module.exports = ReactOwner;
 }).call(this,require('_process'))
-},{"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],390:[function(require,module,exports){
+},{"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],391:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -35184,7 +35276,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = ReactPropTypeLocationNames;
 }).call(this,require('_process'))
-},{"_process":320}],391:[function(require,module,exports){
+},{"_process":321}],392:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -35201,7 +35293,7 @@ module.exports = ReactPropTypeLocationNames;
 var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 
 module.exports = ReactPropTypesSecret;
-},{}],392:[function(require,module,exports){
+},{}],393:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -35381,7 +35473,7 @@ PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
 }).call(this,require('_process'))
-},{"./CallbackQueue":327,"./PooledClass":345,"./ReactBrowserEventEmitter":346,"./ReactInputSelection":381,"./ReactInstrumentation":383,"./ReactUpdateQueue":397,"./Transaction":416,"_process":320,"object-assign":448}],393:[function(require,module,exports){
+},{"./CallbackQueue":328,"./PooledClass":346,"./ReactBrowserEventEmitter":347,"./ReactInputSelection":382,"./ReactInstrumentation":384,"./ReactUpdateQueue":398,"./Transaction":417,"_process":321,"object-assign":320}],394:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -35551,7 +35643,7 @@ var ReactReconciler = {
 
 module.exports = ReactReconciler;
 }).call(this,require('_process'))
-},{"./ReactInstrumentation":383,"./ReactRef":394,"_process":320,"fbjs/lib/warning":318}],394:[function(require,module,exports){
+},{"./ReactInstrumentation":384,"./ReactRef":395,"_process":321,"fbjs/lib/warning":318}],395:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -35640,7 +35732,7 @@ ReactRef.detachRefs = function (instance, element) {
 };
 
 module.exports = ReactRef;
-},{"./ReactOwner":389}],395:[function(require,module,exports){
+},{"./ReactOwner":390}],396:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-present, Facebook, Inc.
@@ -35732,7 +35824,7 @@ PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
 }).call(this,require('_process'))
-},{"./PooledClass":345,"./ReactInstrumentation":383,"./ReactServerUpdateQueue":396,"./Transaction":416,"_process":320,"object-assign":448}],396:[function(require,module,exports){
+},{"./PooledClass":346,"./ReactInstrumentation":384,"./ReactServerUpdateQueue":397,"./Transaction":417,"_process":321,"object-assign":320}],397:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015-present, Facebook, Inc.
@@ -35873,7 +35965,7 @@ var ReactServerUpdateQueue = function () {
 
 module.exports = ReactServerUpdateQueue;
 }).call(this,require('_process'))
-},{"./ReactUpdateQueue":397,"_process":320,"fbjs/lib/warning":318}],397:[function(require,module,exports){
+},{"./ReactUpdateQueue":398,"_process":321,"fbjs/lib/warning":318}],398:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015-present, Facebook, Inc.
@@ -36101,7 +36193,7 @@ var ReactUpdateQueue = {
 
 module.exports = ReactUpdateQueue;
 }).call(this,require('_process'))
-},{"./ReactInstanceMap":382,"./ReactInstrumentation":383,"./ReactUpdates":398,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/ReactCurrentOwner":459}],398:[function(require,module,exports){
+},{"./ReactInstanceMap":383,"./ReactInstrumentation":384,"./ReactUpdates":399,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/ReactCurrentOwner":467}],399:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -36354,7 +36446,7 @@ var ReactUpdates = {
 
 module.exports = ReactUpdates;
 }).call(this,require('_process'))
-},{"./CallbackQueue":327,"./PooledClass":345,"./ReactFeatureFlags":377,"./ReactReconciler":393,"./Transaction":416,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"object-assign":448}],399:[function(require,module,exports){
+},{"./CallbackQueue":328,"./PooledClass":346,"./ReactFeatureFlags":378,"./ReactReconciler":394,"./Transaction":417,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"object-assign":320}],400:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -36368,7 +36460,7 @@ module.exports = ReactUpdates;
 'use strict';
 
 module.exports = '15.4.2';
-},{}],400:[function(require,module,exports){
+},{}],401:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -36670,7 +36762,7 @@ Object.keys(ATTRS).forEach(function (key) {
 });
 
 module.exports = SVGDOMPropertyConfig;
-},{}],401:[function(require,module,exports){
+},{}],402:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -36861,7 +36953,7 @@ var SelectEventPlugin = {
 };
 
 module.exports = SelectEventPlugin;
-},{"./EventPropagators":340,"./ReactDOMComponentTree":354,"./ReactInputSelection":381,"./SyntheticEvent":407,"./isTextInputElement":439,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/getActiveElement":306,"fbjs/lib/shallowEqual":317}],402:[function(require,module,exports){
+},{"./EventPropagators":341,"./ReactDOMComponentTree":355,"./ReactInputSelection":382,"./SyntheticEvent":408,"./isTextInputElement":440,"fbjs/lib/ExecutionEnvironment":297,"fbjs/lib/getActiveElement":306,"fbjs/lib/shallowEqual":317}],403:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -37091,7 +37183,7 @@ var SimpleEventPlugin = {
 
 module.exports = SimpleEventPlugin;
 }).call(this,require('_process'))
-},{"./EventPropagators":340,"./ReactDOMComponentTree":354,"./SyntheticAnimationEvent":403,"./SyntheticClipboardEvent":404,"./SyntheticDragEvent":406,"./SyntheticEvent":407,"./SyntheticFocusEvent":408,"./SyntheticKeyboardEvent":410,"./SyntheticMouseEvent":411,"./SyntheticTouchEvent":412,"./SyntheticTransitionEvent":413,"./SyntheticUIEvent":414,"./SyntheticWheelEvent":415,"./getEventCharCode":427,"./reactProdInvariant":441,"_process":320,"fbjs/lib/EventListener":296,"fbjs/lib/emptyFunction":303,"fbjs/lib/invariant":311}],403:[function(require,module,exports){
+},{"./EventPropagators":341,"./ReactDOMComponentTree":355,"./SyntheticAnimationEvent":404,"./SyntheticClipboardEvent":405,"./SyntheticDragEvent":407,"./SyntheticEvent":408,"./SyntheticFocusEvent":409,"./SyntheticKeyboardEvent":411,"./SyntheticMouseEvent":412,"./SyntheticTouchEvent":413,"./SyntheticTransitionEvent":414,"./SyntheticUIEvent":415,"./SyntheticWheelEvent":416,"./getEventCharCode":428,"./reactProdInvariant":442,"_process":321,"fbjs/lib/EventListener":296,"fbjs/lib/emptyFunction":303,"fbjs/lib/invariant":311}],404:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37130,7 +37222,7 @@ function SyntheticAnimationEvent(dispatchConfig, dispatchMarker, nativeEvent, na
 SyntheticEvent.augmentClass(SyntheticAnimationEvent, AnimationEventInterface);
 
 module.exports = SyntheticAnimationEvent;
-},{"./SyntheticEvent":407}],404:[function(require,module,exports){
+},{"./SyntheticEvent":408}],405:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37168,7 +37260,7 @@ function SyntheticClipboardEvent(dispatchConfig, dispatchMarker, nativeEvent, na
 SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 
 module.exports = SyntheticClipboardEvent;
-},{"./SyntheticEvent":407}],405:[function(require,module,exports){
+},{"./SyntheticEvent":408}],406:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37204,7 +37296,7 @@ function SyntheticCompositionEvent(dispatchConfig, dispatchMarker, nativeEvent, 
 SyntheticEvent.augmentClass(SyntheticCompositionEvent, CompositionEventInterface);
 
 module.exports = SyntheticCompositionEvent;
-},{"./SyntheticEvent":407}],406:[function(require,module,exports){
+},{"./SyntheticEvent":408}],407:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37240,7 +37332,7 @@ function SyntheticDragEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeE
 SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
-},{"./SyntheticMouseEvent":411}],407:[function(require,module,exports){
+},{"./SyntheticMouseEvent":412}],408:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -37510,7 +37602,7 @@ function getPooledWarningPropertyDefinition(propName, getVal) {
   }
 }
 }).call(this,require('_process'))
-},{"./PooledClass":345,"_process":320,"fbjs/lib/emptyFunction":303,"fbjs/lib/warning":318,"object-assign":448}],408:[function(require,module,exports){
+},{"./PooledClass":346,"_process":321,"fbjs/lib/emptyFunction":303,"fbjs/lib/warning":318,"object-assign":320}],409:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37546,7 +37638,7 @@ function SyntheticFocusEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
-},{"./SyntheticUIEvent":414}],409:[function(require,module,exports){
+},{"./SyntheticUIEvent":415}],410:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37583,7 +37675,7 @@ function SyntheticInputEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticEvent.augmentClass(SyntheticInputEvent, InputEventInterface);
 
 module.exports = SyntheticInputEvent;
-},{"./SyntheticEvent":407}],410:[function(require,module,exports){
+},{"./SyntheticEvent":408}],411:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37667,7 +37759,7 @@ function SyntheticKeyboardEvent(dispatchConfig, dispatchMarker, nativeEvent, nat
 SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
-},{"./SyntheticUIEvent":414,"./getEventCharCode":427,"./getEventKey":428,"./getEventModifierState":429}],411:[function(require,module,exports){
+},{"./SyntheticUIEvent":415,"./getEventCharCode":428,"./getEventKey":429,"./getEventModifierState":430}],412:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37739,7 +37831,7 @@ function SyntheticMouseEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
-},{"./SyntheticUIEvent":414,"./ViewportMetrics":417,"./getEventModifierState":429}],412:[function(require,module,exports){
+},{"./SyntheticUIEvent":415,"./ViewportMetrics":418,"./getEventModifierState":430}],413:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37784,7 +37876,7 @@ function SyntheticTouchEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
-},{"./SyntheticUIEvent":414,"./getEventModifierState":429}],413:[function(require,module,exports){
+},{"./SyntheticUIEvent":415,"./getEventModifierState":430}],414:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37823,7 +37915,7 @@ function SyntheticTransitionEvent(dispatchConfig, dispatchMarker, nativeEvent, n
 SyntheticEvent.augmentClass(SyntheticTransitionEvent, TransitionEventInterface);
 
 module.exports = SyntheticTransitionEvent;
-},{"./SyntheticEvent":407}],414:[function(require,module,exports){
+},{"./SyntheticEvent":408}],415:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37882,7 +37974,7 @@ function SyntheticUIEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeEve
 SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
-},{"./SyntheticEvent":407,"./getEventTarget":430}],415:[function(require,module,exports){
+},{"./SyntheticEvent":408,"./getEventTarget":431}],416:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -37936,7 +38028,7 @@ function SyntheticWheelEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
-},{"./SyntheticMouseEvent":411}],416:[function(require,module,exports){
+},{"./SyntheticMouseEvent":412}],417:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -38163,7 +38255,7 @@ var TransactionImpl = {
 
 module.exports = TransactionImpl;
 }).call(this,require('_process'))
-},{"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],417:[function(require,module,exports){
+},{"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],418:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -38190,7 +38282,7 @@ var ViewportMetrics = {
 };
 
 module.exports = ViewportMetrics;
-},{}],418:[function(require,module,exports){
+},{}],419:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-present, Facebook, Inc.
@@ -38250,7 +38342,7 @@ function accumulateInto(current, next) {
 
 module.exports = accumulateInto;
 }).call(this,require('_process'))
-},{"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311}],419:[function(require,module,exports){
+},{"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311}],420:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -38294,7 +38386,7 @@ function adler32(data) {
 }
 
 module.exports = adler32;
-},{}],420:[function(require,module,exports){
+},{}],421:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -38383,7 +38475,7 @@ function checkReactTypeSpec(typeSpecs, values, location, componentName, element,
 
 module.exports = checkReactTypeSpec;
 }).call(this,require('_process'))
-},{"./ReactPropTypeLocationNames":390,"./ReactPropTypesSecret":391,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":458}],421:[function(require,module,exports){
+},{"./ReactPropTypeLocationNames":391,"./ReactPropTypesSecret":392,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":466}],422:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -38415,7 +38507,7 @@ var createMicrosoftUnsafeLocalFunction = function (func) {
 };
 
 module.exports = createMicrosoftUnsafeLocalFunction;
-},{}],422:[function(require,module,exports){
+},{}],423:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -38496,7 +38588,7 @@ function dangerousStyleValue(name, value, component) {
 
 module.exports = dangerousStyleValue;
 }).call(this,require('_process'))
-},{"./CSSProperty":325,"_process":320,"fbjs/lib/warning":318}],423:[function(require,module,exports){
+},{"./CSSProperty":326,"_process":321,"fbjs/lib/warning":318}],424:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -38619,7 +38711,7 @@ function escapeTextContentForBrowser(text) {
 }
 
 module.exports = escapeTextContentForBrowser;
-},{}],424:[function(require,module,exports){
+},{}],425:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -38681,7 +38773,7 @@ function findDOMNode(componentOrElement) {
 
 module.exports = findDOMNode;
 }).call(this,require('_process'))
-},{"./ReactDOMComponentTree":354,"./ReactInstanceMap":382,"./getHostComponentFromComposite":431,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/ReactCurrentOwner":459}],425:[function(require,module,exports){
+},{"./ReactDOMComponentTree":355,"./ReactInstanceMap":383,"./getHostComponentFromComposite":432,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/ReactCurrentOwner":467}],426:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -38759,7 +38851,7 @@ function flattenChildren(children, selfDebugID) {
 
 module.exports = flattenChildren;
 }).call(this,require('_process'))
-},{"./KeyEscapeUtils":343,"./traverseAllChildren":446,"_process":320,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":458}],426:[function(require,module,exports){
+},{"./KeyEscapeUtils":344,"./traverseAllChildren":447,"_process":321,"fbjs/lib/warning":318,"react/lib/ReactComponentTreeHook":466}],427:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -38790,7 +38882,7 @@ function forEachAccumulated(arr, cb, scope) {
 }
 
 module.exports = forEachAccumulated;
-},{}],427:[function(require,module,exports){
+},{}],428:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -38840,7 +38932,7 @@ function getEventCharCode(nativeEvent) {
 }
 
 module.exports = getEventCharCode;
-},{}],428:[function(require,module,exports){
+},{}],429:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -38942,7 +39034,7 @@ function getEventKey(nativeEvent) {
 }
 
 module.exports = getEventKey;
-},{"./getEventCharCode":427}],429:[function(require,module,exports){
+},{"./getEventCharCode":428}],430:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -38985,7 +39077,7 @@ function getEventModifierState(nativeEvent) {
 }
 
 module.exports = getEventModifierState;
-},{}],430:[function(require,module,exports){
+},{}],431:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39020,7 +39112,7 @@ function getEventTarget(nativeEvent) {
 }
 
 module.exports = getEventTarget;
-},{}],431:[function(require,module,exports){
+},{}],432:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39050,7 +39142,7 @@ function getHostComponentFromComposite(inst) {
 }
 
 module.exports = getHostComponentFromComposite;
-},{"./ReactNodeTypes":388}],432:[function(require,module,exports){
+},{"./ReactNodeTypes":389}],433:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39091,7 +39183,7 @@ function getIteratorFn(maybeIterable) {
 }
 
 module.exports = getIteratorFn;
-},{}],433:[function(require,module,exports){
+},{}],434:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39112,7 +39204,7 @@ function getNextDebugID() {
 }
 
 module.exports = getNextDebugID;
-},{}],434:[function(require,module,exports){
+},{}],435:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39186,7 +39278,7 @@ function getNodeForCharacterOffset(root, offset) {
 }
 
 module.exports = getNodeForCharacterOffset;
-},{}],435:[function(require,module,exports){
+},{}],436:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39219,7 +39311,7 @@ function getTextContentAccessor() {
 }
 
 module.exports = getTextContentAccessor;
-},{"fbjs/lib/ExecutionEnvironment":297}],436:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":297}],437:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39320,7 +39412,7 @@ function getVendorPrefixedEventName(eventName) {
 }
 
 module.exports = getVendorPrefixedEventName;
-},{"fbjs/lib/ExecutionEnvironment":297}],437:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":297}],438:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -39450,7 +39542,7 @@ function instantiateReactComponent(node, shouldHaveDebugID) {
 
 module.exports = instantiateReactComponent;
 }).call(this,require('_process'))
-},{"./ReactCompositeComponent":350,"./ReactEmptyComponent":373,"./ReactHostComponent":378,"./getNextDebugID":433,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"object-assign":448}],438:[function(require,module,exports){
+},{"./ReactCompositeComponent":351,"./ReactEmptyComponent":374,"./ReactHostComponent":379,"./getNextDebugID":434,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"object-assign":320}],439:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39510,7 +39602,7 @@ function isEventSupported(eventNameSuffix, capture) {
 }
 
 module.exports = isEventSupported;
-},{"fbjs/lib/ExecutionEnvironment":297}],439:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":297}],440:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39561,7 +39653,7 @@ function isTextInputElement(elem) {
 }
 
 module.exports = isTextInputElement;
-},{}],440:[function(require,module,exports){
+},{}],441:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39587,7 +39679,7 @@ function quoteAttributeValueForBrowser(value) {
 }
 
 module.exports = quoteAttributeValueForBrowser;
-},{"./escapeTextContentForBrowser":423}],441:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":424}],442:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39626,7 +39718,7 @@ function reactProdInvariant(code) {
 }
 
 module.exports = reactProdInvariant;
-},{}],442:[function(require,module,exports){
+},{}],443:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39642,7 +39734,7 @@ module.exports = reactProdInvariant;
 var ReactMount = require('./ReactMount');
 
 module.exports = ReactMount.renderSubtreeIntoContainer;
-},{"./ReactMount":386}],443:[function(require,module,exports){
+},{"./ReactMount":387}],444:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39740,7 +39832,7 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 module.exports = setInnerHTML;
-},{"./DOMNamespaces":331,"./createMicrosoftUnsafeLocalFunction":421,"fbjs/lib/ExecutionEnvironment":297}],444:[function(require,module,exports){
+},{"./DOMNamespaces":332,"./createMicrosoftUnsafeLocalFunction":422,"fbjs/lib/ExecutionEnvironment":297}],445:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39792,7 +39884,7 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 module.exports = setTextContent;
-},{"./escapeTextContentForBrowser":423,"./setInnerHTML":443,"fbjs/lib/ExecutionEnvironment":297}],445:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":424,"./setInnerHTML":444,"fbjs/lib/ExecutionEnvironment":297}],446:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -39834,7 +39926,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 }
 
 module.exports = shouldUpdateReactComponent;
-},{}],446:[function(require,module,exports){
+},{}],447:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -40012,7 +40104,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 
 module.exports = traverseAllChildren;
 }).call(this,require('_process'))
-},{"./KeyEscapeUtils":343,"./ReactElementSymbol":372,"./getIteratorFn":432,"./reactProdInvariant":441,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/ReactCurrentOwner":459}],447:[function(require,module,exports){
+},{"./KeyEscapeUtils":344,"./ReactElementSymbol":373,"./getIteratorFn":433,"./reactProdInvariant":442,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"react/lib/ReactCurrentOwner":467}],448:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015-present, Facebook, Inc.
@@ -40396,101 +40488,1696 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = validateDOMNesting;
 }).call(this,require('_process'))
-},{"_process":320,"fbjs/lib/emptyFunction":303,"fbjs/lib/warning":318,"object-assign":448}],448:[function(require,module,exports){
-/*
-object-assign
-(c) Sindre Sorhus
-@license MIT
-*/
-
+},{"_process":321,"fbjs/lib/emptyFunction":303,"fbjs/lib/warning":318,"object-assign":320}],449:[function(require,module,exports){
 'use strict';
-/* eslint-disable no-unused-vars */
-var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 
-function toObject(val) {
-	if (val === null || val === undefined) {
-		throw new TypeError('Object.assign cannot be called with null or undefined');
-	}
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+/**
+ * Ascii smiley to unicode table
+ *
+ * The order is important! O:) must be before :)
+ */
+exports.default = [
+// angry
+['>?:-?\\[', '😡'], // >:[ >:-[ :[ :-[
+['>:-?\\(', '😠'], // >:( >:-(
+['\\]:-?[\\/]', '👿'], // ]:\ ]:/ ]:-\ ]:-/
+// sweat
+['-_+-[uU]', '😓'], // -_-u -__-u ...
+["':-?\\|", '😓'], // ':| ':-|
+["':-?\\[", '😰'], // ':[ ':-[
+["':-?\\(", '😥'], // ':( ':-(
+["':-?\\)", '😅'], // ':) ':-)
+['\\^_*\\^[uU]', '😅'], // ^_^u ^__^U ...
+["'=-?\\)", '😅'], // '=) '=-)
+// cool
+['B-?\\)', '😎'], // B) B-)
+[']:-?\\)', '😈'], [':-?,', '😏'], // :, :-,
+['[oO]:-?\\)', '😇'], // o:) O:) o:-) ...
+// happy
+[':-?\\)', '🙂'], // :) :-)
+[':-?D', '😃'], // :D :-D
+['=-?\\)', '😊'], // =) =-)
+[':-?>', '😁'], // :> :->
+['[xX]-?DD+', '😂'], // xDDD x-DDD
+['[xX]-?D', '😆'], // xD x-D
+['[xX]\'D', '😂'], // x'D
+['\\^_*\\^', '😄'], // ^^ ^_^ ^__^ ...
+// sad
+[':-?\\(', '🙁'], // :( :-(
+// wink
+[';-?\\)', '😉'], // ;) ;-)
+// tonge
+[':-?[pPÞþ]', '😛'], // :p :P :Þ :þ :-p :-P :-Þ :-þ
+[';-?[pPÞþ]', '😜'], // ;p ;P ;Þ ;þ ;-p ;-P ;-Þ ;-þ
+['[:;]-?[d]', '😋'], // :d :-d ;d ;-d
+['[xX]-[pPÞþd]', '😝'], // x-p X-P
+// love
+['<3', '❤'], // <3
+['<[\\\\/]3', '💔'], // <\3 </3
+['=-?\\*', '😙'], //  =* =-*
+[';-?\\*+', '😘'], // ;* ;-* ;** ;-** ...
+[':-?\\*\\*+', '😘'], // :* :-*
+[':-?\\*+', '😗'], // :* :-*
+// cry
+['[:;=][\'_]-?\\(', '😢'], ['[xX][\'_]-?\\(', '😭'], ['T_+T', '😭'], // T_T T__T ...
+// confused / surprise
+[':-?[sS]', '😖'], // :s :-s :S :-S
+[':-?[oO]', '😮'], // :o :O :-o :-O
+// sleep
+['-_+-[zZ]+', '😪'], // -_-zZz ...
+['u_+u[zZ]+', '😴'], // u_uzZz ...
+// scared
+['D-?:', '😦'], // D: D-:
+[':-?[cC]', '😦'], // :c :-c :C :-C
+['D-X', '😫'], // D-X
+['[x]_+[xX]', '😲'], // x_x x__x ...
+['[X]_+[xX]', '😵'], // X_X X__X ...
+['[oO]_+[oO]', '😱'], // o_o o__O O___O ...
+// misc
+['-_+-', '😑'], // -_- -__- -___- ...
+[':-?\\\\', '😕'], // :\ :-\
+[':-?/(?!\\/)', '😕'], // :/ :-/
+[':-?\\|', '😐'], // :| :-|
+['[uv]_+[uv]', '😔'], // u_u v_v u__u v___v ...
+['[xX]-?\\(', '😣'], // x( x-( X( X-(
+['¬_*¬', '😒'] // ¬¬ ¬_¬ ¬__¬ ...
+];
+},{}],450:[function(require,module,exports){
+"use strict";
 
-	return Object(val);
-}
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/*eslint-disable */
+// Do not edit!
+// This file was auto-generated by create-emoji-data.js
+exports.default = [["1F469-1F469-1F467-1F467", "👩👩👧👧", ":family_wwgg:"], ["1F468-1F469-1F467-1F466", "👨👩👧👦", ":family_mwgb:"], ["1F468-1F469-1F466-1F466", "👨👩👦👦", ":family_mwbb:"], ["1F468-1F469-1F467-1F467", "👨👩👧👧", ":family_mwgg:"], ["1F468-1F468-1F467-1F467", "👨👨👧👧", ":family_mmgg:"], ["1F469-1F469-1F467-1F466", "👩👩👧👦", ":family_wwgb:"], ["1F469-1F469-1F466-1F466", "👩👩👦👦", ":family_wwbb:"], ["1F468-1F468-1F466-1F466", "👨👨👦👦", ":family_mmbb:"], ["1F468-1F468-1F467-1F466", "👨👨👧👦", ":family_mmgb:"], ["1F469-2764-1F48B-1F469", "👩❤💋👩", ":kiss_ww:"], ["1F468-2764-1F48B-1F468", "👨❤💋👨", ":kiss_mm:"], ["1F468-1F468-1F467", "👨👨👧", ":family_mmg:"], ["1F468-1F468-1F466", "👨👨👦", ":family_mmb:"], ["1F468-1F469-1F467", "👨👩👧", ":family_mwg:"], ["1F469-1F469-1F467", "👩👩👧", ":family_wwg:"], ["1F469-1F469-1F466", "👩👩👦", ":family_wwb:"], ["1F469-2764-1F469", "👩❤👩", ":couple_ww:"], ["1F468-2764-1F468", "👨❤👨", ":couple_mm:"], ["1F1F0-1F1EA", "🇰🇪", ":flag_ke:"], ["1F1FF-1F1FC", "🇿🇼", ":flag_zw:"], ["1F1FE-1F1EA", "🇾🇪", ":flag_ye:"], ["1F1EA-1F1ED", "🇪🇭", ":flag_eh:"], ["1F1FC-1F1EB", "🇼🇫", ":flag_wf:"], ["1F1FB-1F1EA", "🇻🇪", ":flag_ve:"], ["1F1FB-1F1E6", "🇻🇦", ":flag_va:"], ["1F1FB-1F1FA", "🇻🇺", ":flag_vu:"], ["1F1FA-1F1FF", "🇺🇿", ":flag_uz:"], ["1F1FA-1F1FE", "🇺🇾", ":flag_uy:"], ["1F1FA-1F1E6", "🇺🇦", ":flag_ua:"], ["1F1FA-1F1EC", "🇺🇬", ":flag_ug:"], ["1F1FB-1F1EE", "🇻🇮", ":flag_vi:"], ["1F1F9-1F1FB", "🇹🇻", ":flag_tv:"], ["1F1F9-1F1F2", "🇹🇲", ":flag_tm:"], ["1F1F9-1F1F3", "🇹🇳", ":flag_tn:"], ["1F1F9-1F1F9", "🇹🇹", ":flag_tt:"], ["1F1F9-1F1F4", "🇹🇴", ":flag_to:"], ["1F1F9-1F1EC", "🇹🇬", ":flag_tg:"], ["1F1F9-1F1ED", "🇹🇭", ":flag_th:"], ["1F1F9-1F1FF", "🇹🇿", ":flag_tz:"], ["1F1F9-1F1EF", "🇹🇯", ":flag_tj:"], ["1F1F9-1F1FC", "🇹🇼", ":flag_tw:"], ["1F1F8-1F1FE", "🇸🇾", ":flag_sy:"], ["1F1F8-1F1FF", "🇸🇿", ":flag_sz:"], ["1F1F8-1F1F7", "🇸🇷", ":flag_sr:"], ["1F1F8-1F1E9", "🇸🇩", ":flag_sd:"], ["1F1F1-1F1F0", "🇱🇰", ":flag_lk:"], ["1F1F8-1F1F4", "🇸🇴", ":flag_so:"], ["1F1F8-1F1E7", "🇸🇧", ":flag_sb:"], ["1F1F8-1F1EE", "🇸🇮", ":flag_si:"], ["1F1F8-1F1F0", "🇸🇰", ":flag_sk:"], ["1F1F8-1F1F1", "🇸🇱", ":flag_sl:"], ["1F1F8-1F1E8", "🇸🇨", ":flag_sc:"], ["1F1F7-1F1F8", "🇷🇸", ":flag_rs:"], ["1F1F8-1F1F3", "🇸🇳", ":flag_sn:"], ["1F1F8-1F1F9", "🇸🇹", ":flag_st:"], ["1F1F8-1F1F2", "🇸🇲", ":flag_sm:"], ["1F1FC-1F1F8", "🇼🇸", ":flag_ws:"], ["1F1FB-1F1E8", "🇻🇨", ":flag_vc:"], ["1F1F1-1F1E8", "🇱🇨", ":flag_lc:"], ["1F1F0-1F1F3", "🇰🇳", ":flag_kn:"], ["1F1F8-1F1ED", "🇸🇭", ":flag_sh:"], ["1F1F7-1F1FC", "🇷🇼", ":flag_rw:"], ["1F1F7-1F1F4", "🇷🇴", ":flag_ro:"], ["1F1F6-1F1E6", "🇶🇦", ":flag_qa:"], ["1F1F5-1F1EA", "🇵🇪", ":flag_pe:"], ["1F1F5-1F1FE", "🇵🇾", ":flag_py:"], ["1F1F5-1F1EC", "🇵🇬", ":flag_pg:"], ["1F1F5-1F1E6", "🇵🇦", ":flag_pa:"], ["1F1F5-1F1F8", "🇵🇸", ":flag_ps:"], ["1F1F5-1F1FC", "🇵🇼", ":flag_pw:"], ["1F1F5-1F1F0", "🇵🇰", ":flag_pk:"], ["1F1F4-1F1F2", "🇴🇲", ":flag_om:"], ["1F1F0-1F1F5", "🇰🇵", ":flag_kp:"], ["1F1F3-1F1FA", "🇳🇺", ":flag_nu:"], ["1F1F3-1F1EC", "🇳🇬", ":flag_ng:"], ["1F1F3-1F1EA", "🇳🇪", ":flag_ne:"], ["1F1F3-1F1EE", "🇳🇮", ":flag_ni:"], ["1F1F3-1F1E8", "🇳🇨", ":flag_nc:"], ["1F1F3-1F1F5", "🇳🇵", ":flag_np:"], ["1F1F3-1F1F7", "🇳🇷", ":flag_nr:"], ["1F1F3-1F1E6", "🇳🇦", ":flag_na:"], ["1F1F2-1F1F2", "🇲🇲", ":flag_mm:"], ["1F1F2-1F1FF", "🇲🇿", ":flag_mz:"], ["1F1F2-1F1E6", "🇲🇦", ":flag_ma:"], ["1F1F2-1F1F8", "🇲🇸", ":flag_ms:"], ["1F1F2-1F1EA", "🇲🇪", ":flag_me:"], ["1F1F2-1F1F3", "🇲🇳", ":flag_mn:"], ["1F1F2-1F1E8", "🇲🇨", ":flag_mc:"], ["1F1F2-1F1E9", "🇲🇩", ":flag_md:"], ["1F1EB-1F1EF", "🇫🇯", ":flag_fj:"], ["1F1EB-1F1F4", "🇫🇴", ":flag_fo:"], ["1F1EB-1F1F0", "🇫🇰", ":flag_fk:"], ["1F1EA-1F1F9", "🇪🇹", ":flag_et:"], ["1F1EA-1F1EA", "🇪🇪", ":flag_ee:"], ["1F1EA-1F1F7", "🇪🇷", ":flag_er:"], ["1F1EC-1F1F6", "🇬🇶", ":flag_gq:"], ["1F1F8-1F1FB", "🇸🇻", ":flag_sv:"], ["1F1EA-1F1EC", "🇪🇬", ":flag_eg:"], ["1F1EA-1F1E8", "🇪🇨", ":flag_ec:"], ["1F1F9-1F1F1", "🇹🇱", ":flag_tl:"], ["1F1EB-1F1F2", "🇫🇲", ":flag_fm:"], ["1F1F2-1F1FA", "🇲🇺", ":flag_mu:"], ["1F1F2-1F1F7", "🇲🇷", ":flag_mr:"], ["1F1F2-1F1ED", "🇲🇭", ":flag_mh:"], ["1F1F2-1F1F9", "🇲🇹", ":flag_mt:"], ["1F1F2-1F1F1", "🇲🇱", ":flag_ml:"], ["1F1F2-1F1FB", "🇲🇻", ":flag_mv:"], ["1F1F2-1F1FC", "🇲🇼", ":flag_mw:"], ["1F1F2-1F1EC", "🇲🇬", ":flag_mg:"], ["1F1F2-1F1F0", "🇲🇰", ":flag_mk:"], ["1F1F1-1F1FA", "🇱🇺", ":flag_lu:"], ["1F1F1-1F1F9", "🇱🇹", ":flag_lt:"], ["1F1F1-1F1EE", "🇱🇮", ":flag_li:"], ["1F1F1-1F1FE", "🇱🇾", ":flag_ly:"], ["1F1F1-1F1F7", "🇱🇷", ":flag_lr:"], ["1F1F1-1F1F8", "🇱🇸", ":flag_ls:"], ["1F1F1-1F1E7", "🇱🇧", ":flag_lb:"], ["1F1F1-1F1FB", "🇱🇻", ":flag_lv:"], ["1F1F1-1F1E6", "🇱🇦", ":flag_la:"], ["1F1F0-1F1EC", "🇰🇬", ":flag_kg:"], ["1F1F0-1F1FC", "🇰🇼", ":flag_kw:"], ["1F1FD-1F1F0", "🇽🇰", ":flag_xk:"], ["1F1F0-1F1EE", "🇰🇮", ":flag_ki:"], ["1F1FF-1F1F2", "🇿🇲", ":flag_zm:"], ["1F1F0-1F1FF", "🇰🇿", ":flag_kz:"], ["1F1EF-1F1F4", "🇯🇴", ":flag_jo:"], ["1F1EF-1F1EA", "🇯🇪", ":flag_je:"], ["1F1EF-1F1F2", "🇯🇲", ":flag_jm:"], ["1F1EE-1F1F6", "🇮🇶", ":flag_iq:"], ["1F1EE-1F1F7", "🇮🇷", ":flag_ir:"], ["1F1EE-1F1F8", "🇮🇸", ":flag_is:"], ["1F1ED-1F1FA", "🇭🇺", ":flag_hu:"], ["1F1ED-1F1F3", "🇭🇳", ":flag_hn:"], ["1F1ED-1F1F9", "🇭🇹", ":flag_ht:"], ["1F1EC-1F1FE", "🇬🇾", ":flag_gy:"], ["1F1EC-1F1FC", "🇬🇼", ":flag_gw:"], ["1F1EC-1F1F3", "🇬🇳", ":flag_gn:"], ["1F1EC-1F1F9", "🇬🇹", ":flag_gt:"], ["1F1EC-1F1FA", "🇬🇺", ":flag_gu:"], ["1F1EC-1F1E9", "🇬🇩", ":flag_gd:"], ["1F1EC-1F1F1", "🇬🇱", ":flag_gl:"], ["1F1EC-1F1F7", "🇬🇷", ":flag_gr:"], ["1F1EC-1F1EE", "🇬🇮", ":flag_gi:"], ["1F1EC-1F1ED", "🇬🇭", ":flag_gh:"], ["1F1EC-1F1EA", "🇬🇪", ":flag_ge:"], ["1F1EC-1F1F2", "🇬🇲", ":flag_gm:"], ["1F1EC-1F1E6", "🇬🇦", ":flag_ga:"], ["1F1E6-1F1FA", "🇦🇺", ":flag_au:"], ["1F1E6-1F1F9", "🇦🇹", ":flag_at:"], ["1F1E7-1F1EA", "🇧🇪", ":flag_be:"], ["1F1E7-1F1F7", "🇧🇷", ":flag_br:"], ["1F1E8-1F1E6", "🇨🇦", ":flag_ca:"], ["1F1E8-1F1F1", "🇨🇱", ":flag_cl:"], ["1F1E8-1F1F3", "🇨🇳", ":flag_cn:"], ["1F1E8-1F1F4", "🇨🇴", ":flag_co:"], ["1F1E9-1F1F0", "🇩🇰", ":flag_dk:"], ["1F1EB-1F1EE", "🇫🇮", ":flag_fi:"], ["1F1EB-1F1F7", "🇫🇷", ":flag_fr:"], ["1F1E9-1F1EA", "🇩🇪", ":flag_de:"], ["1F1ED-1F1F0", "🇭🇰", ":flag_hk:"], ["1F1EE-1F1F3", "🇮🇳", ":flag_in:"], ["1F1EE-1F1E9", "🇮🇩", ":flag_id:"], ["1F1EE-1F1EA", "🇮🇪", ":flag_ie:"], ["1F1EE-1F1F1", "🇮🇱", ":flag_il:"], ["1F1EE-1F1F9", "🇮🇹", ":flag_it:"], ["1F1EF-1F1F5", "🇯🇵", ":flag_jp:"], ["1F1F0-1F1F7", "🇰🇷", ":flag_kr:"], ["1F1F2-1F1F4", "🇲🇴", ":flag_mo:"], ["1F1F2-1F1FE", "🇲🇾", ":flag_my:"], ["1F1F2-1F1FD", "🇲🇽", ":flag_mx:"], ["1F1F3-1F1F1", "🇳🇱", ":flag_nl:"], ["1F1F3-1F1FF", "🇳🇿", ":flag_nz:"], ["1F1F3-1F1F4", "🇳🇴", ":flag_no:"], ["1F1F5-1F1ED", "🇵🇭", ":flag_ph:"], ["1F1F5-1F1F1", "🇵🇱", ":flag_pl:"], ["1F1F5-1F1F9", "🇵🇹", ":flag_pt:"], ["1F1F5-1F1F7", "🇵🇷", ":flag_pr:"], ["1F1F7-1F1FA", "🇷🇺", ":flag_ru:"], ["1F1F8-1F1E6", "🇸🇦", ":flag_sa:"], ["1F1F8-1F1EC", "🇸🇬", ":flag_sg:"], ["1F1FF-1F1E6", "🇿🇦", ":flag_za:"], ["1F1EA-1F1F8", "🇪🇸", ":flag_es:"], ["1F1F8-1F1EA", "🇸🇪", ":flag_se:"], ["1F1E8-1F1ED", "🇨🇭", ":flag_ch:"], ["1F1F9-1F1F7", "🇹🇷", ":flag_tr:"], ["1F1EC-1F1E7", "🇬🇧", ":flag_gb:"], ["1F1FA-1F1F8", "🇺🇸", ":flag_us:"], ["1F1E6-1F1EA", "🇦🇪", ":flag_ae:"], ["1F1FB-1F1F3", "🇻🇳", ":flag_vn:"], ["1F1E6-1F1EB", "🇦🇫", ":flag_af:"], ["1F1E6-1F1F1", "🇦🇱", ":flag_al:"], ["1F1E9-1F1FF", "🇩🇿", ":flag_dz:"], ["1F1E6-1F1E9", "🇦🇩", ":flag_ad:"], ["1F1E6-1F1F4", "🇦🇴", ":flag_ao:"], ["1F1E6-1F1EE", "🇦🇮", ":flag_ai:"], ["1F1E6-1F1EC", "🇦🇬", ":flag_ag:"], ["1F1E6-1F1F7", "🇦🇷", ":flag_ar:"], ["1F1E6-1F1F2", "🇦🇲", ":flag_am:"], ["1F1E6-1F1FC", "🇦🇼", ":flag_aw:"], ["1F1E6-1F1E8", "🇦🇨", ":flag_ac:"], ["1F1E6-1F1FF", "🇦🇿", ":flag_az:"], ["1F1E7-1F1F8", "🇧🇸", ":flag_bs:"], ["1F1E7-1F1ED", "🇧🇭", ":flag_bh:"], ["1F1E7-1F1E9", "🇧🇩", ":flag_bd:"], ["1F1E7-1F1E7", "🇧🇧", ":flag_bb:"], ["1F1E7-1F1FE", "🇧🇾", ":flag_by:"], ["1F1E7-1F1FF", "🇧🇿", ":flag_bz:"], ["1F1E7-1F1EF", "🇧🇯", ":flag_bj:"], ["1F1E7-1F1F2", "🇧🇲", ":flag_bm:"], ["1F1E7-1F1F9", "🇧🇹", ":flag_bt:"], ["1F1E7-1F1F4", "🇧🇴", ":flag_bo:"], ["1F1E7-1F1E6", "🇧🇦", ":flag_ba:"], ["1F1E7-1F1FC", "🇧🇼", ":flag_bw:"], ["1F1E7-1F1F3", "🇧🇳", ":flag_bn:"], ["1F1E7-1F1EC", "🇧🇬", ":flag_bg:"], ["1F1E7-1F1EB", "🇧🇫", ":flag_bf:"], ["1F1E7-1F1EE", "🇧🇮", ":flag_bi:"], ["1F1F0-1F1ED", "🇰🇭", ":flag_kh:"], ["1F1E8-1F1F2", "🇨🇲", ":flag_cm:"], ["1F1E8-1F1FB", "🇨🇻", ":flag_cv:"], ["1F1F0-1F1FE", "🇰🇾", ":flag_ky:"], ["1F1E8-1F1EB", "🇨🇫", ":flag_cf:"], ["1F1F0-1F1F2", "🇰🇲", ":flag_km:"], ["1F1E8-1F1E9", "🇨🇩", ":flag_cd:"], ["1F1E8-1F1EC", "🇨🇬", ":flag_cg:"], ["1F1F9-1F1E9", "🇹🇩", ":flag_td:"], ["1F1E8-1F1F7", "🇨🇷", ":flag_cr:"], ["1F1E8-1F1EE", "🇨🇮", ":flag_ci:"], ["1F1ED-1F1F7", "🇭🇷", ":flag_hr:"], ["1F1E8-1F1FA", "🇨🇺", ":flag_cu:"], ["1F1E8-1F1FE", "🇨🇾", ":flag_cy:"], ["1F1E8-1F1FF", "🇨🇿", ":flag_cz:"], ["1F1E9-1F1EF", "🇩🇯", ":flag_dj:"], ["1F1E9-1F1F2", "🇩🇲", ":flag_dm:"], ["1F1E9-1F1F4", "🇩🇴", ":flag_do:"], ["1F1F5-1F1EB", "🇵🇫", ":flag_pf:"], ["0039-20E3", "9⃣", ":nine:"], ["0037-20E3", "7⃣", ":seven:"], ["0036-20E3", "6⃣", ":six:"], ["0035-20E3", "5⃣", ":five:"], ["0034-20E3", "4⃣", ":four:"], ["0038-20E3", "8⃣", ":eight:"], ["0032-20E3", "2⃣", ":two:"], ["0031-20E3", "1⃣", ":one:"], ["0030-20E3", "0⃣", ":zero:"], ["0023-20E3", "#⃣", ":hash:"], ["0033-20E3", "3⃣", ":three:"], ["1F438", "🐸", ":frog:"], ["1F40B", "🐋", ":whale2:"], ["1F433", "🐳", ":whale:"], ["1F42C", "🐬", ":dolphin:"], ["1F419", "🐙", ":octopus:"], ["1F41F", "🐟", ":fish:"], ["1F420", "🐠", ":tropical_fish:"], ["1F421", "🐡", ":blowfish:"], ["1F41A", "🐚", ":shell:"], ["1F40C", "🐌", ":snail:"], ["1F41B", "🐛", ":bug:"], ["1F41C", "🐜", ":ant:"], ["1F41D", "🐝", ":bee:"], ["1F41E", "🐞", ":beetle:"], ["1F577", "🕷", ":spider:"], ["1F578", "🕸", ":spider_web:"], ["1F43E", "🐾", ":feet:"], ["1F614", "😔", ":pensive:"], ["1F525", "🔥", ":fire:"], ["1F319", "🌙", ":crescent_moon:"], ["1F615", "😕", ":confused:"], ["1F616", "😖", ":confounded:"], ["1F617", "😗", ":kissing:"], ["1F327", "🌧", ":cloud_rain:"], ["1F328", "🌨", ":cloud_snow:"], ["1F329", "🌩", ":cloud_lightning:"], ["1F32A", "🌪", ":cloud_tornado:"], ["1F4A7", "💧", ":droplet:"], ["1F4A6", "💦", ":sweat_drops:"], ["1F618", "😘", ":kissing_heart:"], ["1F32B", "🌫", ":fog:"], ["1F4A8", "💨", ":dash:"], ["1F619", "😙", ":kissing_smiling_eyes:"], ["1F31F", "🌟", ":star2:"], ["1F61A", "😚", ":kissing_closed_eyes:"], ["1F320", "🌠", ":stars:"], ["1F304", "🌄", ":sunrise_over_mountains:"], ["1F305", "🌅", ":sunrise:"], ["1F308", "🌈", ":rainbow:"], ["1F30A", "🌊", ":ocean:"], ["1F30B", "🌋", ":volcano:"], ["1F30C", "🌌", ":milky_way:"], ["1F5FB", "🗻", ":mount_fuji:"], ["1F5FE", "🗾", ":japan:"], ["1F310", "🌐", ":globe_with_meridians:"], ["1F30D", "🌍", ":earth_africa:"], ["1F30E", "🌎", ":earth_americas:"], ["1F30F", "🌏", ":earth_asia:"], ["1F311", "🌑", ":new_moon:"], ["1F312", "🌒", ":waxing_crescent_moon:"], ["1F313", "🌓", ":first_quarter_moon:"], ["1F314", "🌔", ":waxing_gibbous_moon:"], ["1F315", "🌕", ":full_moon:"], ["1F316", "🌖", ":waning_gibbous_moon:"], ["1F317", "🌗", ":last_quarter_moon:"], ["1F318", "🌘", ":waning_crescent_moon:"], ["1F31A", "🌚", ":new_moon_with_face:"], ["1F31D", "🌝", ":full_moon_with_face:"], ["1F31B", "🌛", ":first_quarter_moon_with_face:"], ["1F31C", "🌜", ":last_quarter_moon_with_face:"], ["1F31E", "🌞", ":sun_with_face:"], ["1F32C", "🌬", ":wind_blowing_face:"], ["1F380", "🎀", ":ribbon:"], ["1F381", "🎁", ":gift:"], ["1F382", "🎂", ":birthday:"], ["1F383", "🎃", ":jack_o_lantern:"], ["1F384", "🎄", ":christmas_tree:"], ["1F38B", "🎋", ":tanabata_tree:"], ["1F38D", "🎍", ":bamboo:"], ["1F391", "🎑", ":rice_scene:"], ["1F386", "🎆", ":fireworks:"], ["1F387", "🎇", ":sparkler:"], ["1F389", "🎉", ":tada:"], ["1F38A", "🎊", ":confetti_ball:"], ["1F388", "🎈", ":balloon:"], ["1F4AB", "💫", ":dizzy:"], ["1F61B", "😛", ":stuck_out_tongue:"], ["1F4A5", "💥", ":boom:"], ["1F393", "🎓", ":mortar_board:"], ["1F451", "👑", ":crown:"], ["1F397", "🎗", ":reminder_ribbon:"], ["1F396", "🎖", ":military_medal:"], ["1F38E", "🎎", ":dolls:"], ["1F38F", "🎏", ":flags:"], ["1F390", "🎐", ":wind_chime:"], ["1F38C", "🎌", ":crossed_flags:"], ["1F3EE", "🏮", ":izakaya_lantern:"], ["1F48D", "💍", ":ring:"], ["1F395", "🎕", ":bouquet2:"], ["1F61C", "😜", ":stuck_out_tongue_winking_eye:"], ["1F494", "💔", ":broken_heart:"], ["1F48C", "💌", ":love_letter:"], ["1F495", "💕", ":two_hearts:"], ["1F49E", "💞", ":revolving_hearts:"], ["1F493", "💓", ":heartbeat:"], ["1F497", "💗", ":heartpulse:"], ["1F496", "💖", ":sparkling_heart:"], ["1F498", "💘", ":cupid:"], ["1F49D", "💝", ":gift_heart:"], ["1F394", "🎔", ":heart_tip:"], ["1F49F", "💟", ":heart_decoration:"], ["1F49C", "💜", ":purple_heart:"], ["1F49B", "💛", ":yellow_heart:"], ["1F49A", "💚", ":green_heart:"], ["1F499", "💙", ":blue_heart:"], ["1F3C3", "🏃", ":runner:"], ["1F6B6", "🚶", ":walking:"], ["1F483", "💃", ":dancer:"], ["1F3CB", "🏋", ":lifter:"], ["1F3CC", "🏌", ":golfer:"], ["1F6A3", "🚣", ":rowboat:"], ["1F3CA", "🏊", ":swimmer:"], ["1F3C4", "🏄", ":surfer:"], ["1F6C0", "🛀", ":bath:"], ["1F3C2", "🏂", ":snowboarder:"], ["1F3BF", "🎿", ":ski:"], ["1F61D", "😝", ":stuck_out_tongue_closed_eyes:"], ["1F6B4", "🚴", ":bicyclist:"], ["1F6B5", "🚵", ":mountain_bicyclist:"], ["1F3CD", "🏍", ":motorcycle:"], ["1F3CE", "🏎", ":race_car:"], ["1F3C7", "🏇", ":horse_racing:"], ["1F61E", "😞", ":disappointed:"], ["1F3A3", "🎣", ":fishing_pole_and_fish:"], ["1F61F", "😟", ":worried:"], ["1F3C0", "🏀", ":basketball:"], ["1F3C8", "🏈", ":football:"], ["1F620", "😠", ":angry:"], ["1F3BE", "🎾", ":tennis:"], ["1F3C9", "🏉", ":rugby_football:"], ["1F621", "😡", ":rage:"], ["1F3C6", "🏆", ":trophy:"], ["1F3C5", "🏅", ":medal:"], ["1F3BD", "🎽", ":running_shirt_with_sash:"], ["1F3C1", "🏁", ":checkered_flag:"], ["1F3B9", "🎹", ":musical_keyboard:"], ["1F3B8", "🎸", ":guitar:"], ["1F3BB", "🎻", ":violin:"], ["1F3B7", "🎷", ":saxophone:"], ["1F3BA", "🎺", ":trumpet:"], ["1F3B5", "🎵", ":musical_note:"], ["1F3B6", "🎶", ":notes:"], ["1F3BC", "🎼", ":musical_score:"], ["1F3A7", "🎧", ":headphones:"], ["1F3A4", "🎤", ":microphone:"], ["1F3AD", "🎭", ":performing_arts:"], ["1F3AB", "🎫", ":ticket:"], ["1F3A9", "🎩", ":tophat:"], ["1F3AA", "🎪", ":circus_tent:"], ["1F3AC", "🎬", ":clapper:"], ["1F39E", "🎞", ":film_frames:"], ["1F39F", "🎟", ":tickets:"], ["1F3A8", "🎨", ":art:"], ["1F3AF", "🎯", ":dart:"], ["1F3B1", "🎱", ":8ball:"], ["1F3B3", "🎳", ":bowling:"], ["1F3B0", "🎰", ":slot_machine:"], ["1F3B2", "🎲", ":game_die:"], ["1F3AE", "🎮", ":video_game:"], ["1F3B4", "🎴", ":flower_playing_cards:"], ["1F0CF", "🃏", ":black_joker:"], ["1F004", "🀄", ":mahjong:"], ["1F3A0", "🎠", ":carousel_horse:"], ["1F3A1", "🎡", ":ferris_wheel:"], ["1F3A2", "🎢", ":roller_coaster:"], ["1F345", "🍅", ":tomato:"], ["1F346", "🍆", ":eggplant:"], ["1F33D", "🌽", ":corn:"], ["1F360", "🍠", ":sweet_potato:"], ["1F336", "🌶", ":hot_pepper:"], ["1F347", "🍇", ":grapes:"], ["1F348", "🍈", ":melon:"], ["1F349", "🍉", ":watermelon:"], ["1F34A", "🍊", ":tangerine:"], ["1F34B", "🍋", ":lemon:"], ["1F34C", "🍌", ":banana:"], ["1F34D", "🍍", ":pineapple:"], ["1F34E", "🍎", ":apple:"], ["1F34F", "🍏", ":green_apple:"], ["1F350", "🍐", ":pear:"], ["1F351", "🍑", ":peach:"], ["1F352", "🍒", ":cherries:"], ["1F522", "🔢", ":1234:"], ["1F354", "🍔", ":hamburger:"], ["1F355", "🍕", ":pizza:"], ["1F356", "🍖", ":meat_on_bone:"], ["1F357", "🍗", ":poultry_leg:"], ["1F358", "🍘", ":rice_cracker:"], ["1F359", "🍙", ":rice_ball:"], ["1F35A", "🍚", ":rice:"], ["1F35B", "🍛", ":curry:"], ["1F35C", "🍜", ":ramen:"], ["1F35D", "🍝", ":spaghetti:"], ["1F35E", "🍞", ":bread:"], ["1F35F", "🍟", ":fries:"], ["1F361", "🍡", ":dango:"], ["1F362", "🍢", ":oden:"], ["1F363", "🍣", ":sushi:"], ["1F364", "🍤", ":fried_shrimp:"], ["1F365", "🍥", ":fish_cake:"], ["1F366", "🍦", ":icecream:"], ["1F367", "🍧", ":shaved_ice:"], ["1F368", "🍨", ":ice_cream:"], ["1F369", "🍩", ":doughnut:"], ["1F36A", "🍪", ":cookie:"], ["1F36B", "🍫", ":chocolate_bar:"], ["1F36C", "🍬", ":candy:"], ["1F36D", "🍭", ":lollipop:"], ["1F36E", "🍮", ":custard:"], ["1F36F", "🍯", ":honey_pot:"], ["1F370", "🍰", ":cake:"], ["1F371", "🍱", ":bento:"], ["1F372", "🍲", ":stew:"], ["1F373", "🍳", ":egg:"], ["1F374", "🍴", ":fork_and_knife:"], ["1F375", "🍵", ":tea:"], ["1F622", "😢", ":cry:"], ["1F376", "🍶", ":sake:"], ["1F377", "🍷", ":wine_glass:"], ["1F378", "🍸", ":cocktail:"], ["1F379", "🍹", ":tropical_drink:"], ["1F37A", "🍺", ":beer:"], ["1F37B", "🍻", ":beers:"], ["1F37C", "🍼", ":baby_bottle:"], ["1F623", "😣", ":persevere:"], ["1F4F1", "📱", ":iphone:"], ["1F4F2", "📲", ":calling:"], ["1F4BB", "💻", ":computer:"], ["1F5A5", "🖥", ":desktop:"], ["1F5B3", "🖳", ":computer_old:"], ["1F5AE", "🖮", ":keyboard:"], ["1F5AF", "🖯", ":mouse_one:"], ["1F5B2", "🖲", ":trackball:"], ["1F5A6", "🖦", ":keyboard_mouse:"], ["1F5A7", "🖧", ":network:"], ["1F5A8", "🖨", ":printer:"], ["1F5D4", "🗔", ":desktop_window:"], ["1F5A9", "🖩", ":calculator:"], ["1F624", "😤", ":triumph:"], ["1F570", "🕰", ":clock:"], ["1F625", "😥", ":disappointed_relieved:"], ["1F626", "😦", ":frowning:"], ["1F4F7", "📷", ":camera:"], ["1F4F8", "📸", ":camera_with_flash:"], ["1F4F9", "📹", ":video_camera:"], ["1F3A5", "🎥", ":movie_camera:"], ["1F4FD", "📽", ":projector:"], ["1F4FA", "📺", ":tv:"], ["1F398", "🎘", ":keyboard_with_jacks:"], ["1F399", "🎙", ":microphone2:"], ["1F39A", "🎚", ":level_slider:"], ["1F39B", "🎛", ":control_knobs:"], ["1F4FB", "📻", ":radio:"], ["1F4FE", "📾", ":stereo:"], ["1F4DF", "📟", ":pager:"], ["1F579", "🕹", ":joystick:"], ["1F4DE", "📞", ":telephone_receiver:"], ["1F57B", "🕻", ":left_receiver:"], ["1F627", "😧", ":anguished:"], ["1F57E", "🕾", ":telephone_white:"], ["1F57F", "🕿", ":telephone_black:"], ["1F581", "🖁", ":flip_phone:"], ["1F4E0", "📠", ":fax:"], ["1F4BD", "💽", ":minidisc:"], ["1F4BE", "💾", ":floppy_disk:"], ["1F5AA", "🖪", ":floppy_black:"], ["1F5AB", "🖫", ":floppy_white:"], ["1F5AD", "🖭", ":cartridge:"], ["1F5B4", "🖴", ":hard_disk:"], ["1F4BF", "💿", ":cd:"], ["1F4C0", "📀", ":dvd:"], ["1F5B8", "🖸", ":optical_disk:"], ["1F4FC", "📼", ":vhs:"], ["1F50B", "🔋", ":battery:"], ["1F50C", "🔌", ":electric_plug:"], ["1F4A1", "💡", ":bulb:"], ["1F526", "🔦", ":flashlight:"], ["1F56F", "🕯", ":candle:"], ["1F4E1", "📡", ":satellite:"], ["1F6F0", "🛰", ":satellite_orbital:"], ["1F4B3", "💳", ":credit_card:"], ["1F4B8", "💸", ":money_with_wings:"], ["1F4B0", "💰", ":moneybag:"], ["1F48E", "💎", ":gem:"], ["1F302", "🌂", ":closed_umbrella:"], ["1F45D", "👝", ":pouch:"], ["1F45B", "👛", ":purse:"], ["1F45C", "👜", ":handbag:"], ["1F4BC", "💼", ":briefcase:"], ["1F392", "🎒", ":school_satchel:"], ["1F484", "💄", ":lipstick:"], ["1F453", "👓", ":eyeglasses:"], ["1F576", "🕶", ":dark_sunglasses:"], ["1F452", "👒", ":womans_hat:"], ["1F461", "👡", ":sandal:"], ["1F460", "👠", ":high_heel:"], ["1F462", "👢", ":boot:"], ["1F45E", "👞", ":mans_shoe:"], ["1F45F", "👟", ":athletic_shoe:"], ["1F459", "👙", ":bikini:"], ["1F457", "👗", ":dress:"], ["1F458", "👘", ":kimono:"], ["1F45A", "👚", ":womans_clothes:"], ["1F455", "👕", ":shirt:"], ["1F454", "👔", ":necktie:"], ["1F456", "👖", ":jeans:"], ["1F6AA", "🚪", ":door:"], ["1F6BF", "🚿", ":shower:"], ["1F6C1", "🛁", ":bathtub:"], ["1F6BD", "🚽", ":toilet:"], ["1F488", "💈", ":barber:"], ["1F489", "💉", ":syringe:"], ["1F48A", "💊", ":pill:"], ["1F52C", "🔬", ":microscope:"], ["1F52D", "🔭", ":telescope:"], ["1F52E", "🔮", ":crystal_ball:"], ["1F527", "🔧", ":wrench:"], ["1F52A", "🔪", ":knife:"], ["1F5E1", "🗡", ":dagger:"], ["1F529", "🔩", ":nut_and_bolt:"], ["1F528", "🔨", ":hammer:"], ["1F6E0", "🛠", ":tools:"], ["1F6E2", "🛢", ":oil:"], ["1F4A3", "💣", ":bomb:"], ["1F6AC", "🚬", ":smoking:"], ["1F571", "🕱", ":crossbones:"], ["1F52B", "🔫", ":gun:"], ["1F516", "🔖", ":bookmark:"], ["1F4F0", "📰", ":newspaper:"], ["1F5DE", "🗞", ":newspaper2:"], ["1F321", "🌡", ":thermometer:"], ["1F3F7", "🏷", ":label:"], ["1F511", "🔑", ":key:"], ["1F5DD", "🗝", ":key2:"], ["1F628", "😨", ":fearful:"], ["1F582", "🖂", ":envelope_back:"], ["1F583", "🖃", ":envelope_stamped:"], ["1F585", "🖅", ":envelope_flying:"], ["1F586", "🖆", ":envelope_stamped_pen:"], ["1F4E9", "📩", ":envelope_with_arrow:"], ["1F4E8", "📨", ":incoming_envelope:"], ["1F4E7", "📧", ":e-mail:"], ["1F4E5", "📥", ":inbox_tray:"], ["1F4E4", "📤", ":outbox_tray:"], ["1F4E6", "📦", ":package:"], ["1F4EF", "📯", ":postal_horn:"], ["1F4EE", "📮", ":postbox:"], ["1F4EA", "📪", ":mailbox_closed:"], ["1F4EB", "📫", ":mailbox:"], ["1F4ED", "📭", ":mailbox_with_no_mail:"], ["1F4EC", "📬", ":mailbox_with_mail:"], ["1F5CE", "🗎", ":document:"], ["1F5B9", "🖹", ":document_text:"], ["1F5CF", "🗏", ":page:"], ["1F4C4", "📄", ":page_facing_up:"], ["1F4C3", "📃", ":page_with_curl:"], ["1F5D0", "🗐", ":pages:"], ["1F4D1", "📑", ":bookmark_tabs:"], ["1F5D1", "🗑", ":wastebasket:"], ["1F5C6", "🗆", ":note_empty:"], ["1F5C7", "🗇", ":notepad_empty:"], ["1F5C9", "🗉", ":note:"], ["1F5CA", "🗊", ":notepad:"], ["1F5D2", "🗒", ":notepad_spiral:"], ["1F4C8", "📈", ":chart_with_upwards_trend:"], ["1F4C9", "📉", ":chart_with_downwards_trend:"], ["1F4CA", "📊", ":bar_chart:"], ["1F5E0", "🗠", ":stock_chart:"], ["1F4C5", "📅", ":date:"], ["1F4C6", "📆", ":calendar:"], ["1F5D3", "🗓", ":calendar_spiral:"], ["1F5F3", "🗳", ":ballot_box:"], ["1F505", "🔅", ":low_brightness:"], ["1F506", "🔆", ":high_brightness:"], ["1F5DC", "🗜", ":compression:"], ["1F5BE", "🖾", ":frame_x:"], ["1F5BC", "🖼", ":frame_photo:"], ["1F5BD", "🖽", ":frame_tiles:"], ["1F4DC", "📜", ":scroll:"], ["1F4CB", "📋", ":clipboard:"], ["1F56E", "🕮", ":book2:"], ["1F4D6", "📖", ":book:"], ["1F4D3", "📓", ":notebook:"], ["1F4D4", "📔", ":notebook_with_decorative_cover:"], ["1F4D2", "📒", ":ledger:"], ["1F4D5", "📕", ":closed_book:"], ["1F4D7", "📗", ":green_book:"], ["1F4D8", "📘", ":blue_book:"], ["1F4D9", "📙", ":orange_book:"], ["1F4DA", "📚", ":books:"], ["1F4C7", "📇", ":card_index:"], ["1F5C2", "🗂", ":dividers:"], ["1F5C3", "🗃", ":card_box:"], ["1F517", "🔗", ":link:"], ["1F4CE", "📎", ":paperclip:"], ["1F587", "🖇", ":paperclips:"], ["1F4CC", "📌", ":pushpin:"], ["1F588", "🖈", ":pushpin_black:"], ["1F629", "😩", ":weary:"], ["1F4D0", "📐", ":triangular_ruler:"], ["1F4CD", "📍", ":round_pushpin:"], ["1F4CF", "📏", ":straight_ruler:"], ["1F6A9", "🚩", ":triangular_flag_on_post:"], ["1F3F1", "🏱", ":pennant_white:"], ["1F3F2", "🏲", ":pennant_black:"], ["1F3F3", "🏳", ":flag_white:"], ["1F3F4", "🏴", ":flag_black:"], ["1F573", "🕳", ":hole:"], ["1F5C0", "🗀", ":folder:"], ["1F5C1", "🗁", ":folder_open:"], ["1F4C1", "📁", ":file_folder:"], ["1F4C2", "📂", ":open_file_folder:"], ["1F5C4", "🗄", ":file_cabinet:"], ["1F62A", "😪", ":sleepy:"], ["1F62B", "😫", ":tired_face:"], ["1F589", "🖉", ":pencil3:"], ["1F58A", "🖊", ":pen_ballpoint:"], ["1F58B", "🖋", ":pen_fountain:"], ["1F58C", "🖌", ":paintbrush:"], ["1F58D", "🖍", ":crayon:"], ["1F4DD", "📝", ":pencil:"], ["1F50F", "🔏", ":lock_with_ink_pen:"], ["1F510", "🔐", ":closed_lock_with_key:"], ["1F512", "🔒", ":lock:"], ["1F513", "🔓", ":unlock:"], ["1F4E3", "📣", ":mega:"], ["1F4E2", "📢", ":loudspeaker:"], ["1F508", "🔈", ":speaker:"], ["1F509", "🔉", ":sound:"], ["1F50A", "🔊", ":loud_sound:"], ["1F507", "🔇", ":mute:"], ["1F568", "🕨", ":right_speaker:"], ["1F569", "🕩", ":right_speaker_one:"], ["1F56A", "🕪", ":right_speaker_three:"], ["1F56B", "🕫", ":bullhorn:"], ["1F56C", "🕬", ":bullhorn_waves:"], ["1F4A4", "💤", ":zzz:"], ["1F514", "🔔", ":bell:"], ["1F515", "🔕", ":no_bell:"], ["1F56D", "🕭", ":ringing_bell:"], ["1F39C", "🎜", ":ascending_notes:"], ["1F39D", "🎝", ":descending_notes:"], ["1F546", "🕆", ":cross_white:"], ["1F547", "🕇", ":cross_heavy:"], ["1F548", "🕈", ":celtic_cross:"], ["1F549", "🕉", ":om_symbol:"], ["1F54A", "🕊", ":dove:"], ["1F4AD", "💭", ":thought_balloon:"], ["1F4AC", "💬", ":speech_balloon:"], ["1F5E8", "🗨", ":speech_left:"], ["1F5E9", "🗩", ":speech_right:"], ["1F5EA", "🗪", ":speech_two:"], ["1F5EB", "🗫", ":speech_three:"], ["1F5EC", "🗬", ":thought_left:"], ["1F5ED", "🗭", ":thought_right:"], ["1F5EE", "🗮", ":anger_left:"], ["1F5EF", "🗯", ":anger_right:"], ["1F5F0", "🗰", ":mood_bubble:"], ["1F5F1", "🗱", ":mood_bubble_lightning:"], ["1F6B8", "🚸", ":children_crossing:"], ["1F6E1", "🛡", ":shield:"], ["1F50D", "🔍", ":mag:"], ["1F50E", "🔎", ":mag_right:"], ["1F5E3", "🗣", ":speaking_head:"], ["1F6CC", "🛌", ":sleeping_accommodation:"], ["1F6C7", "🛇", ":prohibited:"], ["1F6AB", "🚫", ":no_entry_sign:"], ["1F62C", "😬", ":grimacing:"], ["1F4DB", "📛", ":name_badge:"], ["1F6B7", "🚷", ":no_pedestrians:"], ["1F6AF", "🚯", ":do_not_litter:"], ["1F6B3", "🚳", ":no_bicycles:"], ["1F6B1", "🚱", ":non-potable_water:"], ["1F4F5", "📵", ":no_mobile_phones:"], ["1F51E", "🔞", ":underage:"], ["1F572", "🕲", ":piracy:"], ["1F251", "🉑", ":accept:"], ["1F250", "🉐", ":ideograph_advantage:"], ["1F4AE", "💮", ":white_flower:"], ["1F62D", "😭", ":sob:"], ["1F62E", "😮", ":open_mouth:"], ["1F234", "🈴", ":u5408:"], ["1F235", "🈵", ":u6e80:"], ["1F232", "🈲", ":u7981:"], ["1F236", "🈶", ":u6709:"], ["1F21A", "🈚", ":u7121:"], ["1F238", "🈸", ":u7533:"], ["1F23A", "🈺", ":u55b6:"], ["1F237", "🈷", ":u6708:"], ["1F239", "🈹", ":u5272:"], ["1F233", "🈳", ":u7a7a:"], ["1F202", "🈂", ":sa:"], ["1F201", "🈁", ":koko:"], ["1F22F", "🈯", ":u6307:"], ["1F4B9", "💹", ":chart:"], ["1F62F", "😯", ":hushed:"], ["1F630", "😰", ":cold_sweat:"], ["1F631", "😱", ":scream:"], ["1F632", "😲", ":astonished:"], ["1F633", "😳", ":flushed:"], ["1F4F3", "📳", ":vibration_mode:"], ["1F4F4", "📴", ":mobile_phone_off:"], ["1F19A", "🆚", ":vs:"], ["1F170", "🅰", ":a:"], ["1F171", "🅱", ":b:"], ["1F18E", "🆎", ":ab:"], ["1F191", "🆑", ":cl:"], ["1F17E", "🅾", ":o2:"], ["1F198", "🆘", ":sos:"], ["1F194", "🆔", ":id:"], ["1F17F", "🅿", ":parking:"], ["1F6BE", "🚾", ":wc:"], ["1F192", "🆒", ":cool:"], ["1F193", "🆓", ":free:"], ["1F195", "🆕", ":new:"], ["1F196", "🆖", ":ng:"], ["1F197", "🆗", ":ok:"], ["1F199", "🆙", ":up:"], ["1F3E7", "🏧", ":atm:"], ["1F634", "😴", ":sleeping:"], ["1F635", "😵", ":dizzy_face:"], ["1F636", "😶", ":no_mouth:"], ["1F637", "😷", ":mask:"], ["1F641", "🙁", ":slight_frown:"], ["1F642", "🙂", ":slight_smile:"], ["1F638", "😸", ":smile_cat:"], ["1F639", "😹", ":joy_cat:"], ["1F63A", "😺", ":smiley_cat:"], ["1F63B", "😻", ":heart_eyes_cat:"], ["1F63C", "😼", ":smirk_cat:"], ["1F63D", "😽", ":kissing_cat:"], ["1F6BB", "🚻", ":restroom:"], ["1F6B9", "🚹", ":mens:"], ["1F6BA", "🚺", ":womens:"], ["1F6C9", "🛉", ":boys_symbol:"], ["1F6CA", "🛊", ":girls_symbol:"], ["1F6BC", "🚼", ":baby_symbol:"], ["1F63E", "😾", ":pouting_cat:"], ["1F6B0", "🚰", ":potable_water:"], ["1F6AD", "🚭", ":no_smoking:"], ["1F6AE", "🚮", ":put_litter_in_its_place:"], ["1F63F", "😿", ":crying_cat_face:"], ["1F640", "🙀", ":scream_cat:"], ["1F53C", "🔼", ":arrow_up_small:"], ["1F53D", "🔽", ":arrow_down_small:"], ["1F463", "👣", ":footprints:"], ["1F464", "👤", ":bust_in_silhouette:"], ["1F465", "👥", ":busts_in_silhouette:"], ["1F574", "🕴", ":levitate:"], ["1F575", "🕵", ":spy:"], ["1F476", "👶", ":baby:"], ["1F466", "👦", ":boy:"], ["1F467", "👧", ":girl:"], ["1F468", "👨", ":man:"], ["1F469", "👩", ":woman:"], ["1F46A", "👪", ":family:"], ["1F600", "😀", ":grinning:"], ["1F601", "😁", ":grin:"], ["1F602", "😂", ":joy:"], ["1F504", "🔄", ":arrows_counterclockwise:"], ["1F603", "😃", ":smiley:"], ["1F604", "😄", ":smile:"], ["1F605", "😅", ":sweat_smile:"], ["1F606", "😆", ":laughing:"], ["1F500", "🔀", ":twisted_rightwards_arrows:"], ["1F501", "🔁", ":repeat:"], ["1F502", "🔂", ":repeat_one:"], ["1F607", "😇", ":innocent:"], ["1F608", "😈", ":smiling_imp:"], ["1F47F", "👿", ":imp:"], ["1F609", "😉", ":wink:"], ["1F60A", "😊", ":blush:"], ["1F4AF", "💯", ":100:"], ["1F60B", "😋", ":yum:"], ["1F46B", "👫", ":couple:"], ["1F46C", "👬", ":two_men_holding_hands:"], ["1F46D", "👭", ":two_women_holding_hands:"], ["1F46F", "👯", ":dancers:"], ["1F51F", "🔟", ":keycap_ten:"], ["1F524", "🔤", ":abc:"], ["1F521", "🔡", ":abcd:"], ["1F520", "🔠", ":capital_abcd:"], ["1F470", "👰", ":bride_with_veil:"], ["1F4F6", "📶", ":signal_strength:"], ["1F3A6", "🎦", ":cinema:"], ["1F523", "🔣", ":symbols:"], ["1F471", "👱", ":person_with_blond_hair:"], ["1F472", "👲", ":man_with_gua_pi_mao:"], ["1F473", "👳", ":man_with_turban:"], ["1F474", "👴", ":older_man:"], ["1F475", "👵", ":older_woman:"], ["1F46E", "👮", ":cop:"], ["1F5D9", "🗙", ":cancellation_x:"], ["1F503", "🔃", ":arrows_clockwise:"], ["1F5D8", "🗘", ":clockwise_arrows:"], ["1F477", "👷", ":construction_worker:"], ["1F478", "👸", ":princess:"], ["1F482", "💂", ":guardsman:"], ["1F4B1", "💱", ":currency_exchange:"], ["1F4B2", "💲", ":heavy_dollar_sign:"], ["1F47C", "👼", ":angel:"], ["1F385", "🎅", ":santa:"], ["1F47B", "👻", ":ghost:"], ["1F479", "👹", ":japanese_ogre:"], ["1F47A", "👺", ":japanese_goblin:"], ["1F4A9", "💩", ":poop:"], ["1F480", "💀", ":skull:"], ["1F47D", "👽", ":alien:"], ["1F47E", "👾", ":space_invader:"], ["1F6C6", "🛆", ":triangle_round:"], ["1F647", "🙇", ":bow:"], ["1F481", "💁", ":information_desk_person:"], ["1F51A", "🔚", ":end:"], ["1F519", "🔙", ":back:"], ["1F51B", "🔛", ":on:"], ["1F51D", "🔝", ":top:"], ["1F51C", "🔜", ":soon:"], ["1F300", "🌀", ":cyclone:"], ["1F645", "🙅", ":no_good:"], ["1F6C8", "🛈", ":info:"], ["1F646", "🙆", ":ok_woman:"], ["1F52F", "🔯", ":six_pointed_star:"], ["1F530", "🔰", ":beginner:"], ["1F5F2", "🗲", ":mood_lightning:"], ["1F531", "🔱", ":trident:"], ["1F64B", "🙋", ":raising_hand:"], ["1F64E", "🙎", ":person_with_pouting_face:"], ["1F3F5", "🏵", ":rosette:"], ["1F3F6", "🏶", ":rosette_black:"], ["1F64D", "🙍", ":person_frowning:"], ["1F4A2", "💢", ":anger:"], ["1F4A0", "💠", ":diamond_shape_with_a_dot_inside:"], ["1F486", "💆", ":massage:"], ["1F487", "💇", ":haircut:"], ["1F491", "💑", ":couple_with_heart:"], ["1F60C", "😌", ":relieved:"], ["1F60D", "😍", ":heart_eyes:"], ["1F5F8", "🗸", ":light_check_mark:"], ["1F5F9", "🗹", ":ballot_box_check:"], ["1F5F4", "🗴", ":ballot_x:"], ["1F5F5", "🗵", ":ballot_box_x:"], ["1F48F", "💏", ":couplekiss:"], ["1F60E", "😎", ":sunglasses:"], ["1F518", "🔘", ":radio_button:"], ["1F534", "🔴", ":red_circle:"], ["1F535", "🔵", ":large_blue_circle:"], ["1F53A", "🔺", ":small_red_triangle:"], ["1F53B", "🔻", ":small_red_triangle_down:"], ["1F538", "🔸", ":small_orange_diamond:"], ["1F539", "🔹", ":small_blue_diamond:"], ["1F536", "🔶", ":large_orange_diamond:"], ["1F537", "🔷", ":large_blue_diamond:"], ["1F60F", "😏", ":smirk:"], ["1F64C", "🙌", ":raised_hands:"], ["1F44F", "👏", ":clap:"], ["1F442", "👂", ":ear:"], ["1F441", "👁", ":eye:"], ["1F440", "👀", ":eyes:"], ["1F443", "👃", ":nose:"], ["1F444", "👄", ":lips:"], ["1F532", "🔲", ":black_square_button:"], ["1F533", "🔳", ":white_square_button:"], ["1F550", "🕐", ":clock1:"], ["1F551", "🕑", ":clock2:"], ["1F552", "🕒", ":clock3:"], ["1F553", "🕓", ":clock4:"], ["1F554", "🕔", ":clock5:"], ["1F555", "🕕", ":clock6:"], ["1F556", "🕖", ":clock7:"], ["1F557", "🕗", ":clock8:"], ["1F558", "🕘", ":clock9:"], ["1F559", "🕙", ":clock10:"], ["1F55A", "🕚", ":clock11:"], ["1F55B", "🕛", ":clock12:"], ["1F55C", "🕜", ":clock130:"], ["1F55D", "🕝", ":clock230:"], ["1F55E", "🕞", ":clock330:"], ["1F55F", "🕟", ":clock430:"], ["1F560", "🕠", ":clock530:"], ["1F561", "🕡", ":clock630:"], ["1F562", "🕢", ":clock730:"], ["1F563", "🕣", ":clock830:"], ["1F564", "🕤", ":clock930:"], ["1F565", "🕥", ":clock1030:"], ["1F566", "🕦", ":clock1130:"], ["1F567", "🕧", ":clock1230:"], ["1F683", "🚃", ":railway_car:"], ["1F69E", "🚞", ":mountain_railway:"], ["1F682", "🚂", ":steam_locomotive:"], ["1F6F2", "🛲", ":train_diesel:"], ["1F68B", "🚋", ":train:"], ["1F69D", "🚝", ":monorail:"], ["1F684", "🚄", ":bullettrain_side:"], ["1F685", "🚅", ":bullettrain_front:"], ["1F686", "🚆", ":train2:"], ["1F687", "🚇", ":metro:"], ["1F688", "🚈", ":light_rail:"], ["1F689", "🚉", ":station:"], ["1F68A", "🚊", ":tram:"], ["1F6E4", "🛤", ":railway_track:"], ["1F68C", "🚌", ":bus:"], ["1F68D", "🚍", ":oncoming_bus:"], ["1F68E", "🚎", ":trolleybus:"], ["1F690", "🚐", ":minibus:"], ["1F691", "🚑", ":ambulance:"], ["1F692", "🚒", ":fire_engine:"], ["1F6F1", "🛱", ":fire_engine_oncoming:"], ["1F693", "🚓", ":police_car:"], ["1F694", "🚔", ":oncoming_police_car:"], ["1F6A8", "🚨", ":rotating_light:"], ["1F695", "🚕", ":taxi:"], ["1F696", "🚖", ":oncoming_taxi:"], ["1F697", "🚗", ":red_car:"], ["1F698", "🚘", ":oncoming_automobile:"], ["1F699", "🚙", ":blue_car:"], ["1F69A", "🚚", ":truck:"], ["1F69B", "🚛", ":articulated_lorry:"], ["1F69C", "🚜", ":tractor:"], ["1F6B2", "🚲", ":bike:"], ["1F6E3", "🛣", ":motorway:"], ["1F68F", "🚏", ":busstop:"], ["1F5E2", "🗢", ":lips2:"], ["1F6A7", "🚧", ":construction:"], ["1F6A6", "🚦", ":vertical_traffic_light:"], ["1F6A5", "🚥", ":traffic_light:"], ["1F680", "🚀", ":rocket:"], ["1F681", "🚁", ":helicopter:"], ["1F48B", "💋", ":kiss:"], ["1F6E7", "🛧", ":airplane_up:"], ["1F6E8", "🛨", ":airplane_small_up:"], ["1F6E6", "🛦", ":jet_up:"], ["1F6EA", "🛪", ":airplane_northeast:"], ["1F6E9", "🛩", ":airplane_small:"], ["1F6EB", "🛫", ":airplane_departure:"], ["1F6EC", "🛬", ":airplane_arriving:"], ["1F4BA", "💺", ":seat:"], ["1F445", "👅", ":tongue:"], ["1F6A2", "🚢", ":ship:"], ["1F6F3", "🛳", ":cruise_ship:"], ["1F6E5", "🛥", ":motorboat:"], ["1F6A4", "🚤", ":speedboat:"], ["1F485", "💅", ":nail_care:"], ["1F6A1", "🚡", ":aerial_tramway:"], ["1F6A0", "🚠", ":mountain_cableway:"], ["1F69F", "🚟", ":suspension_railway:"], ["1F6C2", "🛂", ":passport_control:"], ["1F6C3", "🛃", ":customs:"], ["1F6C4", "🛄", ":baggage_claim:"], ["1F6C5", "🛅", ":left_luggage:"], ["1F4B4", "💴", ":yen:"], ["1F4B6", "💶", ":euro:"], ["1F4B7", "💷", ":pound:"], ["1F4B5", "💵", ":dollar:"], ["1F6CE", "🛎", ":bellhop:"], ["1F6CF", "🛏", ":bed:"], ["1F6CB", "🛋", ":couch:"], ["1F37D", "🍽", ":fork_knife_plate:"], ["1F6CD", "🛍", ":shopping_bags:"], ["1F5FD", "🗽", ":statue_of_liberty:"], ["1F5FF", "🗿", ":moyai:"], ["1F301", "🌁", ":foggy:"], ["1F5FC", "🗼", ":tokyo_tower:"], ["1F44B", "👋", ":wave:"], ["1F3F0", "🏰", ":european_castle:"], ["1F3EF", "🏯", ":japanese_castle:"], ["1F3DB", "🏛", ":classical_building:"], ["1F3DF", "🏟", ":stadium:"], ["1F3D4", "🏔", ":mountain_snow:"], ["1F3D5", "🏕", ":camping:"], ["1F3D6", "🏖", ":beach:"], ["1F3DC", "🏜", ":desert:"], ["1F3DD", "🏝", ":island:"], ["1F3DE", "🏞", ":park:"], ["1F3D9", "🏙", ":cityscape:"], ["1F307", "🌇", ":city_sunset:"], ["1F306", "🌆", ":city_dusk:"], ["1F303", "🌃", ":night_with_stars:"], ["1F309", "🌉", ":bridge_at_night:"], ["1F3E0", "🏠", ":house:"], ["1F3D8", "🏘", ":homes:"], ["1F3E1", "🏡", ":house_with_garden:"], ["1F3DA", "🏚", ":house_abandoned:"], ["1F3D7", "🏗", ":contruction_site:"], ["1F3E2", "🏢", ":office:"], ["1F3EC", "🏬", ":department_store:"], ["1F3ED", "🏭", ":factory:"], ["1F3E3", "🏣", ":post_office:"], ["1F3E4", "🏤", ":european_post_office:"], ["1F3E5", "🏥", ":hospital:"], ["1F3E6", "🏦", ":bank:"], ["1F3E8", "🏨", ":hotel:"], ["1F3E9", "🏩", ":love_hotel:"], ["1F492", "💒", ":wedding:"], ["1F44D", "👍", ":thumbsup:"], ["1F3EA", "🏪", ":convenience_store:"], ["1F3EB", "🏫", ":school:"], ["1F5FA", "🗺", ":map:"], ["1F44E", "👎", ":thumbsdown:"], ["1F610", "😐", ":neutral_face:"], ["1F446", "👆", ":point_up_2:"], ["1F447", "👇", ":point_down:"], ["1F448", "👈", ":point_left:"], ["1F449", "👉", ":point_right:"], ["1F44C", "👌", ":ok_hand:"], ["1F611", "😑", ":expressionless:"], ["1F44A", "👊", ":punch:"], ["1F612", "😒", ":unamused:"], ["1F613", "😓", ":sweat:"], ["1F4AA", "💪", ":muscle:"], ["1F450", "👐", ":open_hands:"], ["1F58E", "🖎", ":writing_hand:"], ["1F58F", "🖏", ":turned_ok_hand:"], ["1F590", "🖐", ":hand_splayed:"], ["1F591", "🖑", ":hand_splayed_reverse:"], ["1F592", "🖒", ":thumbs_up_reverse:"], ["1F593", "🖓", ":thumbs_down_reverse:"], ["1F594", "🖔", ":hand_victory:"], ["1F595", "🖕", ":middle_finger:"], ["1F596", "🖖", ":vulcan:"], ["1F597", "🖗", ":finger_pointing_down:"], ["1F598", "🖘", ":finger_pointing_left:"], ["1F599", "🖙", ":finger_pointing_right:"], ["1F59E", "🖞", ":finger_pointing_up:"], ["1F59F", "🖟", ":finger_pointing_down2:"], ["1F64F", "🙏", ":pray:"], ["1F331", "🌱", ":seedling:"], ["1F332", "🌲", ":evergreen_tree:"], ["1F333", "🌳", ":deciduous_tree:"], ["1F334", "🌴", ":palm_tree:"], ["1F335", "🌵", ":cactus:"], ["1F337", "🌷", ":tulip:"], ["1F338", "🌸", ":cherry_blossom:"], ["1F339", "🌹", ":rose:"], ["1F33A", "🌺", ":hibiscus:"], ["1F33B", "🌻", ":sunflower:"], ["1F33C", "🌼", ":blossom:"], ["1F490", "💐", ":bouquet:"], ["1F33E", "🌾", ":ear_of_rice:"], ["1F33F", "🌿", ":herb:"], ["1F340", "🍀", ":four_leaf_clover:"], ["1F341", "🍁", ":maple_leaf:"], ["1F342", "🍂", ":fallen_leaf:"], ["1F343", "🍃", ":leaves:"], ["1F344", "🍄", ":mushroom:"], ["1F330", "🌰", ":chestnut:"], ["1F400", "🐀", ":rat:"], ["1F401", "🐁", ":mouse2:"], ["1F42D", "🐭", ":mouse:"], ["1F439", "🐹", ":hamster:"], ["1F402", "🐂", ":ox:"], ["1F403", "🐃", ":water_buffalo:"], ["1F404", "🐄", ":cow2:"], ["1F42E", "🐮", ":cow:"], ["1F405", "🐅", ":tiger2:"], ["1F406", "🐆", ":leopard:"], ["1F42F", "🐯", ":tiger:"], ["1F43F", "🐿", ":chipmunk:"], ["1F407", "🐇", ":rabbit2:"], ["1F430", "🐰", ":rabbit:"], ["1F408", "🐈", ":cat2:"], ["1F431", "🐱", ":cat:"], ["1F40E", "🐎", ":racehorse:"], ["1F434", "🐴", ":horse:"], ["1F40F", "🐏", ":ram:"], ["1F411", "🐑", ":sheep:"], ["1F410", "🐐", ":goat:"], ["1F413", "🐓", ":rooster:"], ["1F414", "🐔", ":chicken:"], ["1F424", "🐤", ":baby_chick:"], ["1F423", "🐣", ":hatching_chick:"], ["1F425", "🐥", ":hatched_chick:"], ["1F426", "🐦", ":bird:"], ["1F427", "🐧", ":penguin:"], ["1F418", "🐘", ":elephant:"], ["1F42A", "🐪", ":dromedary_camel:"], ["1F42B", "🐫", ":camel:"], ["1F417", "🐗", ":boar:"], ["1F416", "🐖", ":pig2:"], ["1F437", "🐷", ":pig:"], ["1F43D", "🐽", ":pig_nose:"], ["1F415", "🐕", ":dog2:"], ["1F429", "🐩", ":poodle:"], ["1F436", "🐶", ":dog:"], ["1F43A", "🐺", ":wolf:"], ["1F43B", "🐻", ":bear:"], ["1F428", "🐨", ":koala:"], ["1F43C", "🐼", ":panda_face:"], ["1F435", "🐵", ":monkey_face:"], ["1F648", "🙈", ":see_no_evil:"], ["1F649", "🙉", ":hear_no_evil:"], ["1F64A", "🙊", ":speak_no_evil:"], ["1F412", "🐒", ":monkey:"], ["1F409", "🐉", ":dragon:"], ["1F432", "🐲", ":dragon_face:"], ["1F40A", "🐊", ":crocodile:"], ["1F40D", "🐍", ":snake:"], ["1F422", "🐢", ":turtle:"], ["1F353", "🍓", ":strawberry:"], ["26EA", "⛪", ":church:"], ["26F5", "⛵", ":sailboat:"], ["2693", "⚓", ":anchor:"], ["2708", "✈", ":airplane:"], ["26FD", "⛽", ":fuelpump:"], ["25FD", "◽", ":white_medium_small_square:"], ["25FE", "◾", ":black_medium_small_square:"], ["25FB", "◻", ":white_medium_square:"], ["25FC", "◼", ":black_medium_square:"], ["2B1C", "⬜", ":white_large_square:"], ["2B1B", "⬛", ":black_large_square:"], ["25AB", "▫", ":white_small_square:"], ["25AA", "▪", ":black_small_square:"], ["26AB", "⚫", ":black_circle:"], ["26AA", "⚪", ":white_circle:"], ["2611", "☑", ":ballot_box_with_check:"], ["2666", "♦", ":diamonds:"], ["2665", "♥", ":hearts:"], ["2663", "♣", ":clubs:"], ["2660", "♠", ":spades:"], ["267B", "♻", ":recycle:"], ["2668", "♨", ":hotsprings:"], ["26A0", "⚠", ":warning:"], ["26CE", "⛎", ":ophiuchus:"], ["24C2", "Ⓜ", ":m:"], ["2B55", "⭕", ":o:"], ["274C", "❌", ":x:"], ["2049", "⁉", ":interrobang:"], ["203C", "‼", ":bangbang:"], ["2754", "❔", ":grey_question:"], ["2755", "❕", ":grey_exclamation:"], ["2753", "❓", ":question:"], ["2757", "❗", ":exclamation:"], ["303D", "〽", ":part_alternation_mark:"], ["27BF", "➿", ":loop:"], ["27B0", "➰", ":curly_loop:"], ["00AE", "®", ":registered:"], ["00A9", "©", ":copyright:"], ["2122", "™", ":tm:"], ["2714", "✔", ":heavy_check_mark:"], ["2716", "✖", ":heavy_multiplication_x:"], ["2797", "➗", ":heavy_division_sign:"], ["3030", "〰", ":wavy_dash:"], ["2796", "➖", ":heavy_minus_sign:"], ["2795", "➕", ":heavy_plus_sign:"], ["2139", "ℹ", ":information_source:"], ["2935", "⤵", ":arrow_heading_down:"], ["2934", "⤴", ":arrow_heading_up:"], ["21A9", "↩", ":leftwards_arrow_with_hook:"], ["21AA", "↪", ":arrow_right_hook:"], ["2194", "↔", ":left_right_arrow:"], ["2195", "↕", ":arrow_up_down:"], ["2196", "↖", ":arrow_upper_left:"], ["2199", "↙", ":arrow_lower_left:"], ["2198", "↘", ":arrow_lower_right:"], ["2197", "↗", ":arrow_upper_right:"], ["2B07", "⬇", ":arrow_down:"], ["2B06", "⬆", ":arrow_up:"], ["26F2", "⛲", ":fountain:"], ["27A1", "➡", ":arrow_right:"], ["23EC", "⏬", ":arrow_double_down:"], ["23EB", "⏫", ":arrow_double_up:"], ["23EA", "⏪", ":rewind:"], ["23E9", "⏩", ":fast_forward:"], ["25C0", "◀", ":arrow_backward:"], ["25B6", "▶", ":arrow_forward:"], ["267F", "♿", ":wheelchair:"], ["2653", "♓", ":pisces:"], ["2652", "♒", ":aquarius:"], ["2651", "♑", ":capricorn:"], ["2650", "♐", ":sagittarius:"], ["264F", "♏", ":scorpius:"], ["264E", "♎", ":libra:"], ["264D", "♍", ":virgo:"], ["264C", "♌", ":leo:"], ["264B", "♋", ":cancer:"], ["264A", "♊", ":gemini:"], ["2649", "♉", ":taurus:"], ["2648", "♈", ":aries:"], ["2734", "✴", ":eight_pointed_black_star:"], ["2705", "✅", ":white_check_mark:"], ["274E", "❎", ":negative_squared_cross_mark:"], ["2733", "✳", ":eight_spoked_asterisk:"], ["2747", "❇", ":sparkle:"], ["3297", "㊗", ":congratulations:"], ["3299", "㊙", ":secret:"], ["26D4", "⛔", ":no_entry:"], ["270F", "✏", ":pencil2:"], ["2712", "✒", ":black_nib:"], ["2702", "✂", ":scissors:"], ["2709", "✉", ":envelope:"], ["260E", "☎", ":telephone:"], ["231B", "⌛", ":hourglass:"], ["23F3", "⏳", ":hourglass_flowing_sand:"], ["23F0", "⏰", ":alarm_clock:"], ["231A", "⌚", ":watch:"], ["2615", "☕", ":coffee:"], ["26F3", "⛳", ":golf:"], ["26BE", "⚾", ":baseball:"], ["26BD", "⚽", ":soccer:"], ["26FA", "⛺", ":tent:"], ["26C4", "⛄", ":snowman:"], ["2764", "❤", ":heart:"], ["2728", "✨", ":sparkles:"], ["2B50", "⭐", ":star:"], ["2744", "❄", ":snowflake:"], ["2614", "☔", ":umbrella:"], ["2601", "☁", ":cloud:"], ["26C5", "⛅", ":partly_sunny:"], ["2600", "☀", ":sunny:"], ["26A1", "⚡", ":zap:"], ["270B", "✋", ":raised_hand:"], ["270A", "✊", ":fist:"], ["270C", "✌", ":v:"], ["261D", "☝", ":point_up:"], ["263A", "☺", ":relaxed:"], ["2B05", "⬅", ":arrow_left:"]];
+},{}],451:[function(require,module,exports){
+'use strict';
 
-function shouldUseNative() {
-	try {
-		if (!Object.assign) {
-			return false;
-		}
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.emojify = undefined;
 
-		// Detect buggy property enumeration order in older V8 versions.
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /*!
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * react-emojione
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * Copyright(c) 2016 Pedro Ladaria
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * MIT Licensed
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          */
 
-		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
-		test1[5] = 'de';
-		if (Object.getOwnPropertyNames(test1)[0] === '5') {
-			return false;
-		}
 
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test2 = {};
-		for (var i = 0; i < 10; i++) {
-			test2['_' + String.fromCharCode(i)] = i;
-		}
-		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-			return test2[n];
-		});
-		if (order2.join('') !== '0123456789') {
-			return false;
-		}
+var _asciiToUnicode = require('./data/ascii-to-unicode');
 
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test3 = {};
-		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-			test3[letter] = letter;
-		});
-		if (Object.keys(Object.assign({}, test3)).join('') !==
-				'abcdefghijklmnopqrst') {
-			return false;
-		}
+var _asciiToUnicode2 = _interopRequireDefault(_asciiToUnicode);
 
-		return true;
-	} catch (err) {
-		// We don't expect any of the above to throw, but better to be safe.
-		return false;
-	}
-}
+var _rendererFactory = require('./renderers/renderer-factory');
 
-module.exports = shouldUseNative() ? Object.assign : function (target, source) {
-	var from;
-	var to = toObject(target);
-	var symbols;
+var _rendererFactory2 = _interopRequireDefault(_rendererFactory);
 
-	for (var s = 1; s < arguments.length; s++) {
-		from = Object(arguments[s]);
+var _emojiFormatConversion = require('./utils/emoji-format-conversion');
 
-		for (var key in from) {
-			if (hasOwnProperty.call(from, key)) {
-				to[key] = from[key];
-			}
-		}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-		if (getOwnPropertySymbols) {
-			symbols = getOwnPropertySymbols(from);
-			for (var i = 0; i < symbols.length; i++) {
-				if (propIsEnumerable.call(from, symbols[i])) {
-					to[symbols[i]] = from[symbols[i]];
-				}
-			}
-		}
-	}
-
-	return to;
+var DEFAULT_OPTIONS = {
+    convertShortnames: true,
+    convertUnicode: true,
+    convertAscii: true,
+    styles: {
+        backgroundImage: 'url(emojione.sprites.png)'
+    },
+    handleClick: undefined,
+    output: 'emoji' // valid options: 'emoji', 'unicode'
 };
 
-},{}],449:[function(require,module,exports){
-!function(f,e){"object"==typeof exports&&"object"==typeof module?module.exports=e(require("react")):"function"==typeof define&&define.amd?define(["react"],e):"object"==typeof exports?exports.ReactEmoji=e(require("react")):f.ReactEmoji=e(f.React)}(this,function(f){return function(f){function e(o){if(a[o])return a[o].exports;var r=a[o]={exports:{},id:o,loaded:!1};return f[o].call(r.exports,r,r.exports,e),r.loaded=!0,r.exports}var a={};return e.m=f,e.c=a,e.p="",e(0)}([function(f,e,a){"use strict";var o=function(f){return f&&f.__esModule?f["default"]:f},r=o(a(6)),t=o(a(1)),n=o(a(2)),i=o(a(3)),c=o(a(5)),s=o(a(4)),_=function(){var f=function(f){return Object.keys(f).map(function(f){return i(f)}).join("|")},e=function(f){var e={useEmoticon:f.useEmoticon!==!1,emojiType:f.emojiType||"twemoji",host:f.host||"",path:f.path||"",ext:f.ext||"svg",singleEmoji:f.singleEmoji||!1,strict:f.strict||!1};return e.attributes=c({width:"20px",height:"20px"},f.attributes),e},a={":/":"1f615"},o="\\:\\/(?!\\/)",_={delimiter:new RegExp("(:(?:"+f(t)+"):|"+f(n)+"|"+o+")","g"),dict:c(t,n,a)},l={delimiter:new RegExp("(:(?:"+f(t)+"):)","g"),dict:t},b=function(f,e){if(e.host)return s([e.host,e.path,""+f+"."+e.ext]).join("/");if("twemoji"===e.emojiType)return"https://twemoji.maxcdn.com/"+e.ext+"/"+f+"."+e.ext;if("emojione"===e.emojiType)return"http://cdn.jsdelivr.net/emojione/assets/"+e.ext+"/"+f.toUpperCase()+"."+e.ext;throw new Error("Invalid emojiType is passed")},u=function(f){return f.match(/^:.*:$/)?f.replace(/^:/,"").replace(/:$/,""):f},d=function(f,e){var a=e.useEmoticon?_:l,o=a.dict,t=o[u(f)];if(e.strict&&!t)throw new Error("Could not find emoji: "+f+".");return t?r.createElement("img",c(e.attributes,{src:b(t,e)})):f},h=function(f,e){var a=e.useEmoticon?_:l,o=a.delimiter,t=a.dict;return s(f.split(o).map(function(f,a){var n=f.match(o);if(e.strict&&""!==f&&null===n)throw new Error("Could not find emoji: "+f+".");if(n){var i=t[u(n[0])];return null===i?f:r.createElement("img",c(e.attributes,{key:a,src:b(i,e)}))}return f}))};return{emojify:function(f){var a=void 0===arguments[1]?{}:arguments[1];return f?(a=e(a),a.singleEmoji?d(f,a):h(f,a)):null}}};f.exports=_()},function(f,e){f.exports={"+1":"1f44d","-1":"1f44e",100:"1f4af",1234:"1f522","8ball":"1f3b1",a:"1f170",ab:"1f18e",abc:"1f524",abcd:"1f521",accept:"1f251",aerial_tramway:"1f6a1",airplane:"2708",alarm_clock:"23f0",alien:"1f47d",ambulance:"1f691",anchor:"2693",angel:"1f47c",anger:"1f4a2",angry:"1f620",anguished:"1f627",ant:"1f41c",apple:"1f34e",aquarius:"2652",aries:"2648",arrow_backward:"25c0",arrow_double_down:"23ec",arrow_double_up:"23eb",arrow_down:"2b07",arrow_down_small:"1f53d",arrow_forward:"25b6",arrow_heading_down:"2935",arrow_heading_up:"2934",arrow_left:"2b05",arrow_lower_left:"2199",arrow_lower_right:"2198",arrow_right:"27a1",arrow_right_hook:"21aa",arrow_up:"2b06",arrow_up_down:"2195",arrow_up_small:"1f53c",arrow_upper_left:"2196",arrow_upper_right:"2197",arrows_clockwise:"1f503",arrows_counterclockwise:"1f504",art:"1f3a8",articulated_lorry:"1f69b",astonished:"1f632",athletic_shoe:"1f45f",atm:"1f3e7",b:"1f171",baby:"1f476",baby_bottle:"1f37c",baby_chick:"1f424",baby_symbol:"1f6bc",back:"1f519",baggage_claim:"1f6c4",balloon:"1f388",ballot_box_with_check:"2611",bamboo:"1f38d",banana:"1f34c",bangbang:"203c",bank:"1f3e6",bar_chart:"1f4ca",barber:"1f488",baseball:"26be",basketball:"1f3c0",bath:"1f6c0",bathtub:"1f6c1",battery:"1f50b",bear:"1f43b",bee:"1f41d",beer:"1f37a",beers:"1f37b",beetle:"1f41e",beginner:"1f530",bell:"1f514",bento:"1f371",bicyclist:"1f6b4",bike:"1f6b2",bikini:"1f459",bird:"1f426",birthday:"1f382",black_circle:"26ab",black_joker:"1f0cf",black_large_square:"2b1b",black_medium_small_square:"25fe",black_medium_square:"25fc",black_nib:"2712",black_small_square:"25aa",black_square_button:"1f532",blossom:"1f33c",blowfish:"1f421",blue_book:"1f4d8",blue_car:"1f699",blue_heart:"1f499",blush:"1f60a",boar:"1f417",boat:"26f5",bomb:"1f4a3",book:"1f4d6",bookmark:"1f516",bookmark_tabs:"1f4d1",books:"1f4da",boom:"1f4a5",boot:"1f462",bouquet:"1f490",bow:"1f647",bowling:"1f3b3",bowtie:null,boy:"1f466",bread:"1f35e",bride_with_veil:"1f470",bridge_at_night:"1f309",briefcase:"1f4bc",broken_heart:"1f494",bug:"1f41b",bulb:"1f4a1",bullettrain_front:"1f685",bullettrain_side:"1f684",bus:"1f68c",busstop:"1f68f",bust_in_silhouette:"1f464",busts_in_silhouette:"1f465",cactus:"1f335",cake:"1f370",calendar:"1f4c6",calling:"1f4f2",camel:"1f42b",camera:"1f4f7",cancer:"264b",candy:"1f36c",capital_abcd:"1f520",capricorn:"2651",car:"1f697",card_index:"1f4c7",carousel_horse:"1f3a0",cat:"1f431",cat2:"1f408",cd:"1f4bf",chart:"1f4b9",chart_with_downwards_trend:"1f4c9",chart_with_upwards_trend:"1f4c8",checkered_flag:"1f3c1",cherries:"1f352",cherry_blossom:"1f338",chestnut:"1f330",chicken:"1f414",children_crossing:"1f6b8",chocolate_bar:"1f36b",christmas_tree:"1f384",church:"26ea",cinema:"1f3a6",circus_tent:"1f3aa",city_sunrise:"1f307",city_sunset:"1f306",cl:"1f191",clap:"1f44f",clapper:"1f3ac",clipboard:"1f4cb",clock1:"1f550",clock10:"1f559",clock1030:"1f565",clock11:"1f55a",clock1130:"1f566",clock12:"1f55b",clock1230:"1f567",clock130:"1f55c",clock2:"1f551",clock230:"1f55d",clock3:"1f552",clock330:"1f55e",clock4:"1f553",clock430:"1f55f",clock5:"1f554",clock530:"1f560",clock6:"1f555",clock630:"1f561",clock7:"1f556",clock730:"1f562",clock8:"1f557",clock830:"1f563",clock9:"1f558",clock930:"1f564",closed_book:"1f4d5",closed_lock_with_key:"1f510",closed_umbrella:"1f302",cloud:"2601",clubs:"2663",cn:"1f1e8-1f1f3",cocktail:"1f378",coffee:"2615",cold_sweat:"1f630",collision:"1f4a5",computer:"1f4bb",confetti_ball:"1f38a",confounded:"1f616",confused:"1f615",congratulations:"3297",construction:"1f6a7",construction_worker:"1f477",convenience_store:"1f3ea",cookie:"1f36a",cool:"1f192",cop:"1f46e",copyright:"00a9",corn:"1f33d",couple:"1f46b",couple_with_heart:"1f491",couplekiss:"1f48f",cow:"1f42e",cow2:"1f404",credit_card:"1f4b3",crescent_moon:"1f319",crocodile:"1f40a",crossed_flags:"1f38c",crown:"1f451",cry:"1f622",crying_cat_face:"1f63f",crystal_ball:"1f52e",cupid:"1f498",curly_loop:"27b0",currency_exchange:"1f4b1",curry:"1f35b",custard:"1f36e",customs:"1f6c3",cyclone:"1f300",dancer:"1f483",dancers:"1f46f",dango:"1f361",dart:"1f3af",dash:"1f4a8",date:"1f4c5",de:"1f1e9-1f1ea",deciduous_tree:"1f333",department_store:"1f3ec",diamond_shape_with_a_dot_inside:"1f4a0",diamonds:"2666",disappointed:"1f61e",disappointed_relieved:"1f625",dizzy:"1f4ab",dizzy_face:"1f635",do_not_litter:"1f6af",dog:"1f436",dog2:"1f415",dollar:"1f4b5",dolls:"1f38e",dolphin:"1f42c",door:"1f6aa",doughnut:"1f369",dragon:"1f409",dragon_face:"1f432",dress:"1f457",dromedary_camel:"1f42a",droplet:"1f4a7",dvd:"1f4c0","e-mail":"1f4e7",ear:"1f442",ear_of_rice:"1f33e",earth_africa:"1f30d",earth_americas:"1f30e",earth_asia:"1f30f",egg:"1f373",eggplant:"1f346",eight:"0038-20e3",eight_pointed_black_star:"2734",eight_spoked_asterisk:"2733",electric_plug:"1f50c",elephant:"1f418",email:"2709",end:"1f51a",envelope:"2709",envelope_with_arrow:"1f4e9",es:"1f1ea-1f1f8",euro:"1f4b6",european_castle:"1f3f0",european_post_office:"1f3e4",evergreen_tree:"1f332",exclamation:"2757",expressionless:"1f611",eyeglasses:"1f453",eyes:"1f440",facepunch:"1f44a",factory:"1f3ed",fallen_leaf:"1f342",family:"1f46a",fast_forward:"23e9",fax:"1f4e0",fearful:"1f628",feelsgood:null,feet:"1f43e",ferris_wheel:"1f3a1",file_folder:"1f4c1",finnadie:null,fire:"1f525",fire_engine:"1f692",fireworks:"1f386",first_quarter_moon:"1f313",first_quarter_moon_with_face:"1f31b",fish:"1f41f",fish_cake:"1f365",fishing_pole_and_fish:"1f3a3",fist:"270a",five:"0035-20e3",flags:"1f38f",flashlight:"1f526",flipper:"1f42c",floppy_disk:"1f4be",flower_playing_cards:"1f3b4",flushed:"1f633",foggy:"1f301",football:"1f3c8",footprints:"1f463",fork_and_knife:"1f374",fountain:"26f2",four:"0034-20e3",four_leaf_clover:"1f340",fr:"1f1eb-1f1f7",free:"1f193",fried_shrimp:"1f364",fries:"1f35f",frog:"1f438",frowning:"1f626",fu:null,fuelpump:"26fd",full_moon:"1f315",full_moon_with_face:"1f31d",game_die:"1f3b2",gb:"1f1ec-1f1e7",gem:"1f48e",gemini:"264a",ghost:"1f47b",gift:"1f381",gift_heart:"1f49d",girl:"1f467",globe_with_meridians:"1f310",goat:"1f410",goberserk:null,godmode:null,golf:"26f3",grapes:"1f347",green_apple:"1f34f",green_book:"1f4d7",green_heart:"1f49a",grey_exclamation:"2755",grey_question:"2754",grimacing:"1f62c",grin:"1f601",grinning:"1f600",guardsman:"1f482",guitar:"1f3b8",gun:"1f52b",haircut:"1f487",hamburger:"1f354",hammer:"1f528",hamster:"1f439",hand:"270b",handbag:"1f45c",hankey:"1f4a9",hash:"0023-20e3",hatched_chick:"1f425",hatching_chick:"1f423",headphones:"1f3a7",hear_no_evil:"1f649",heart:"2764",heart_decoration:"1f49f",heart_eyes:"1f60d",heart_eyes_cat:"1f63b",heartbeat:"1f493",heartpulse:"1f497",hearts:"2665",heavy_check_mark:"2714",heavy_division_sign:"2797",heavy_dollar_sign:"1f4b2",heavy_exclamation_mark:"2757",heavy_minus_sign:"2796",heavy_multiplication_x:"2716",heavy_plus_sign:"2795",helicopter:"1f681",herb:"1f33f",hibiscus:"1f33a",high_brightness:"1f506",high_heel:"1f460",hocho:"1f52a",honey_pot:"1f36f",honeybee:"1f41d",horse:"1f434",horse_racing:"1f3c7",hospital:"1f3e5",hotel:"1f3e8",hotsprings:"2668",hourglass:"231b",hourglass_flowing_sand:"23f3",house:"1f3e0",house_with_garden:"1f3e1",hurtrealbad:null,hushed:"1f62f",ice_cream:"1f368",icecream:"1f366",id:"1f194",ideograph_advantage:"1f250",imp:"1f47f",inbox_tray:"1f4e5",incoming_envelope:"1f4e8",information_desk_person:"1f481",information_source:"2139",innocent:"1f607",interrobang:"2049",iphone:"1f4f1",it:"1f1ee-1f1f9",izakaya_lantern:"1f3ee",jack_o_lantern:"1f383",japan:"1f5fe",japanese_castle:"1f3ef",japanese_goblin:"1f47a",japanese_ogre:"1f479",jeans:"1f456",joy:"1f602",joy_cat:"1f639",jp:"1f1ef-1f1f5",key:"1f511",keycap_ten:"1f51f",kimono:"1f458",kiss:"1f48b",kissing:"1f617",kissing_cat:"1f63d",kissing_closed_eyes:"1f61a",kissing_heart:"1f618",kissing_smiling_eyes:"1f619",knife:"1f52a",koala:"1f428",koko:"1f201",kr:"1f1f0-1f1f7",lantern:"1f3ee",large_blue_circle:"1f535",large_blue_diamond:"1f537",large_orange_diamond:"1f536",last_quarter_moon:"1f317",last_quarter_moon_with_face:"1f31c",laughing:"1f606",leaves:"1f343",ledger:"1f4d2",left_luggage:"1f6c5",left_right_arrow:"2194",leftwards_arrow_with_hook:"21a9",lemon:"1f34b",leo:"264c",leopard:"1f406",libra:"264e",light_rail:"1f688",link:"1f517",lips:"1f444",lipstick:"1f484",lock:"1f512",lock_with_ink_pen:"1f50f",lollipop:"1f36d",loop:"27bf",loud_sound:"1f50a",loudspeaker:"1f4e2",love_hotel:"1f3e9",love_letter:"1f48c",low_brightness:"1f505",m:"24c2",mag:"1f50d",mag_right:"1f50e",mahjong:"1f004",mailbox:"1f4eb",mailbox_closed:"1f4ea",mailbox_with_mail:"1f4ec",mailbox_with_no_mail:"1f4ed",man:"1f468",man_with_gua_pi_mao:"1f472",man_with_turban:"1f473",mans_shoe:"1f45e",maple_leaf:"1f341",mask:"1f637",massage:"1f486",meat_on_bone:"1f356",mega:"1f4e3",melon:"1f348",memo:"1f4dd",mens:"1f6b9",metal:null,metro:"1f687",microphone:"1f3a4",microscope:"1f52c",milky_way:"1f30c",minibus:"1f690",minidisc:"1f4bd",mobile_phone_off:"1f4f4",money_with_wings:"1f4b8",moneybag:"1f4b0",monkey:"1f412",monkey_face:"1f435",monorail:"1f69d",moon:"1f314",mortar_board:"1f393",mount_fuji:"1f5fb",mountain_bicyclist:"1f6b5",mountain_cableway:"1f6a0",mountain_railway:"1f69e",mouse:"1f42d",mouse2:"1f401",movie_camera:"1f3a5",moyai:"1f5ff",muscle:"1f4aa",mushroom:"1f344",musical_keyboard:"1f3b9",musical_note:"1f3b5",musical_score:"1f3bc",mute:"1f507",nail_care:"1f485",name_badge:"1f4db",neckbeard:null,necktie:"1f454",negative_squared_cross_mark:"274e",neutral_face:"1f610","new":"1f195",new_moon:"1f311",new_moon_with_face:"1f31a",newspaper:"1f4f0",ng:"1f196",night_with_stars:"1f303",nine:"0039-20e3",no_bell:"1f515",no_bicycles:"1f6b3",no_entry:"26d4",no_entry_sign:"1f6ab",no_good:"1f645",no_mobile_phones:"1f4f5",no_mouth:"1f636",no_pedestrians:"1f6b7",no_smoking:"1f6ad","non-potable_water":"1f6b1",nose:"1f443",notebook:"1f4d3",notebook_with_decorative_cover:"1f4d4",notes:"1f3b6",nut_and_bolt:"1f529",o:"2b55",o2:"1f17e",ocean:"1f30a",octocat:null,octopus:"1f419",oden:"1f362",office:"1f3e2",ok:"1f197",ok_hand:"1f44c",ok_woman:"1f646",older_man:"1f474",older_woman:"1f475",on:"1f51b",oncoming_automobile:"1f698",oncoming_bus:"1f68d",oncoming_police_car:"1f694",oncoming_taxi:"1f696",one:"0031-20e3",open_book:"1f4d6",open_file_folder:"1f4c2",open_hands:"1f450",open_mouth:"1f62e",ophiuchus:"26ce",orange_book:"1f4d9",outbox_tray:"1f4e4",ox:"1f402","package":"1f4e6",page_facing_up:"1f4c4",page_with_curl:"1f4c3",pager:"1f4df",palm_tree:"1f334",panda_face:"1f43c",paperclip:"1f4ce",parking:"1f17f",part_alternation_mark:"303d",partly_sunny:"26c5",passport_control:"1f6c2",paw_prints:"1f43e",peach:"1f351",pear:"1f350",pencil:"1f4dd",pencil2:"270f",penguin:"1f427",pensive:"1f614",performing_arts:"1f3ad",persevere:"1f623",person_frowning:"1f64d",person_with_blond_hair:"1f471",person_with_pouting_face:"1f64e",phone:"260e",pig:"1f437",pig2:"1f416",pig_nose:"1f43d",pill:"1f48a",pineapple:"1f34d",pisces:"2653",pizza:"1f355",point_down:"1f447",point_left:"1f448",point_right:"1f449",point_up:"261d",point_up_2:"1f446",police_car:"1f693",poodle:"1f429",poop:"1f4a9",post_office:"1f3e3",postal_horn:"1f4ef",postbox:"1f4ee",potable_water:"1f6b0",pouch:"1f45d",poultry_leg:"1f357",pound:"1f4b7",pouting_cat:"1f63e",pray:"1f64f",princess:"1f478",punch:"1f44a",purple_heart:"1f49c",purse:"1f45b",pushpin:"1f4cc",put_litter_in_its_place:"1f6ae",question:"2753",rabbit:"1f430",rabbit2:"1f407",racehorse:"1f40e",radio:"1f4fb",radio_button:"1f518",rage:"1f621",rage1:null,rage2:null,rage3:null,rage4:null,railway_car:"1f683",rainbow:"1f308",raised_hand:"270b",raised_hands:"1f64c",raising_hand:"1f64b",ram:"1f40f",ramen:"1f35c",rat:"1f400",recycle:"267b",red_car:"1f697",red_circle:"1f534",registered:"00ae",relaxed:"263a",relieved:"1f60c",repeat:"1f501",repeat_one:"1f502",restroom:"1f6bb",revolving_hearts:"1f49e",rewind:"23ea",ribbon:"1f380",rice:"1f35a",rice_ball:"1f359",rice_cracker:"1f358",rice_scene:"1f391",ring:"1f48d",rocket:"1f680",roller_coaster:"1f3a2",rooster:"1f413",rose:"1f339",rotating_light:"1f6a8",round_pushpin:"1f4cd",rowboat:"1f6a3",ru:"1f1f7-1f1fa",rugby_football:"1f3c9",runner:"1f3c3",running:"1f3c3",running_shirt_with_sash:"1f3bd",sa:"1f202",sagittarius:"2650",sailboat:"26f5",sake:"1f376",sandal:"1f461",santa:"1f385",satellite:"1f4e1",satisfied:"1f606",saxophone:"1f3b7",school:"1f3eb",school_satchel:"1f392",scissors:"2702",scorpius:"264f",scream:"1f631",scream_cat:"1f640",scroll:"1f4dc",seat:"1f4ba",secret:"3299",see_no_evil:"1f648",seedling:"1f331",seven:"0037-20e3",shaved_ice:"1f367",sheep:"1f411",shell:"1f41a",ship:"1f6a2",shipit:null,shirt:"1f455",shit:"1f4a9",shoe:"1f45e",shower:"1f6bf",signal_strength:"1f4f6",six:"0036-20e3",six_pointed_star:"1f52f",ski:"1f3bf",skull:"1f480",sleeping:"1f634",sleepy:"1f62a",slot_machine:"1f3b0",small_blue_diamond:"1f539",small_orange_diamond:"1f538",small_red_triangle:"1f53a",small_red_triangle_down:"1f53b",smile:"1f604",smile_cat:"1f638",smiley:"1f603",smiley_cat:"1f63a",smiling_imp:"1f608",smirk:"1f60f",smirk_cat:"1f63c",smoking:"1f6ac",snail:"1f40c",snake:"1f40d",snowboarder:"1f3c2",snowflake:"2744",snowman:"26c4",sob:"1f62d",soccer:"26bd",soon:"1f51c",sos:"1f198",sound:"1f509",space_invader:"1f47e",spades:"2660",spaghetti:"1f35d",sparkle:"2747",sparkler:"1f387",sparkles:"2728",sparkling_heart:"1f496",speak_no_evil:"1f64a",speaker:"1f508",speech_balloon:"1f4ac",speedboat:"1f6a4",squirrel:null,star:"2b50",star2:"1f31f",stars:"1f320",station:"1f689",statue_of_liberty:"1f5fd",steam_locomotive:"1f682",stew:"1f372",straight_ruler:"1f4cf",strawberry:"1f353",stuck_out_tongue:"1f61b",stuck_out_tongue_closed_eyes:"1f61d",stuck_out_tongue_winking_eye:"1f61c",sun_with_face:"1f31e",sunflower:"1f33b",sunglasses:"1f60e",sunny:"2600",sunrise:"1f305",sunrise_over_mountains:"1f304",surfer:"1f3c4",sushi:"1f363",suspect:null,suspension_railway:"1f69f",sweat:"1f613",sweat_drops:"1f4a6",sweat_smile:"1f605",sweet_potato:"1f360",swimmer:"1f3ca",symbols:"1f523",syringe:"1f489",tada:"1f389",tanabata_tree:"1f38b",tangerine:"1f34a",taurus:"2649",taxi:"1f695",tea:"1f375",telephone:"260e",telephone_receiver:"1f4de",telescope:"1f52d",tennis:"1f3be",tent:"26fa",thought_balloon:"1f4ad",three:"0033-20e3",thumbsdown:"1f44e",thumbsup:"1f44d",ticket:"1f3ab",tiger:"1f42f",tiger2:"1f405",tired_face:"1f62b",tm:"2122",toilet:"1f6bd",tokyo_tower:"1f5fc",tomato:"1f345",tongue:"1f445",top:"1f51d",tophat:"1f3a9",tractor:"1f69c",traffic_light:"1f6a5",train:"1f68b",train2:"1f686",tram:"1f68a",triangular_flag_on_post:"1f6a9",triangular_ruler:"1f4d0",trident:"1f531",triumph:"1f624",trolleybus:"1f68e",trollface:null,trophy:"1f3c6",tropical_drink:"1f379",tropical_fish:"1f420",truck:"1f69a",trumpet:"1f3ba",tshirt:"1f455",tulip:"1f337",turtle:"1f422",tv:"1f4fa",twisted_rightwards_arrows:"1f500",two:"0032-20e3",two_hearts:"1f495",two_men_holding_hands:"1f46c",two_women_holding_hands:"1f46d",u5272:"1f239",u5408:"1f234",u55b6:"1f23a",u6307:"1f22f",u6708:"1f237",u6709:"1f236",u6e80:"1f235",u7121:"1f21a",u7533:"1f238",u7981:"1f232",u7a7a:"1f233",uk:"1f1ec-1f1e7",umbrella:"2614",unamused:"1f612",underage:"1f51e",unlock:"1f513",up:"1f199",us:"1f1fa-1f1f8",v:"270c",vertical_traffic_light:"1f6a6",vhs:"1f4fc",vibration_mode:"1f4f3",video_camera:"1f4f9",video_game:"1f3ae",violin:"1f3bb",virgo:"264d",volcano:"1f30b",vs:"1f19a",walking:"1f6b6",waning_crescent_moon:"1f318",waning_gibbous_moon:"1f316",warning:"26a0",watch:"231a",water_buffalo:"1f403",watermelon:"1f349",wave:"1f44b",wavy_dash:"3030",waxing_crescent_moon:"1f312",waxing_gibbous_moon:"1f314",wc:"1f6be",weary:"1f629",wedding:"1f492",whale:"1f433",whale2:"1f40b",wheelchair:"267f",white_check_mark:"2705",white_circle:"26aa",white_flower:"1f4ae",white_large_square:"2b1c",white_medium_small_square:"25fd",white_medium_square:"25fb",white_small_square:"25ab",white_square_button:"1f533",wind_chime:"1f390",wine_glass:"1f377",wink:"1f609",wolf:"1f43a",woman:"1f469",womans_clothes:"1f45a",womans_hat:"1f452",womens:"1f6ba",worried:"1f61f",wrench:"1f527",x:"274c",yellow_heart:"1f49b",yen:"1f4b4",yum:"1f60b",zap:"26a1",zero:"0030-20e3",zzz:"1f4a4",simple_smile:"1f642"}},function(f,e){f.exports={"<3":"2764","</3":"1f494",":')":"1f642",":'-)":"1f642",":D":"1f603",":-D":"1f603","=D":"1f603",":)":"1f642",":-)":"1f604","=]":"1f604","=)":"1f604",":]":"1f604","':)":"1f605","':-)":"1f605","'=)":"1f605","':D":"1f605","':-D":"1f605","'=D":"1f605",">:)":"1f606",">;)":"1f606",">:-)":"1f606",">=)":"1f606",";)":"1f609",";-)":"1f609","*-)":"1f609","*)":"1f609",";-]":"1f609",";]":"1f609",";D":"1f609",";^)":"1f609","':(":"1f613","':-(":"1f613","'=(":"1f613",":*":"1f618",":-*":"1f618","=*":"1f618",":^*":"1f618",">:P":"1f61c","X-P":"1f61c","x-p":"1f61c",">:[":"1f61e",":-(":"1f61e",":(":"1f61e",":-[":"1f61e",":[":"1f61e","=(":"1f61e",">:(":"1f620",">:-(":"1f620",":@":"1f620",":'(":"1f622",":'-(":"1f622",";(":"1f622",";-(":"1f622",">.<":"1f623",":$":"1f633","=$":"1f633","#-)":"1f635","#)":"1f635","%-)":"1f635","%)":"1f635","X)":"1f635","X-)":"1f635","*\\0/*":"1f646","\\0/":"1f646","*\\O/*":"1f646","\\O/":"1f646","O:-)":"1f607","0:-3":"1f607","0:3":"1f607","0:-)":"1f607","0:)":"1f607","0;^)":"1f607","O:)":"1f607","O;-)":"1f607","O=)":"1f607","0;-)":"1f607","O:-3":"1f607","O:3":"1f607","B-)":"1f60e","B)":"1f60e","8)":"1f60e","8-)":"1f60e","B-D":"1f60e","8-D":"1f60e","-_-":"1f611","-__-":"1f611","-___-":"1f611",">:\\":"1f615",">:/":"1f615",":-/":"1f615",":-.":"1f615",":\\":"1f615","=/":"1f615","=\\":"1f615",":L":"1f615","=L":"1f615",":P":"1f61b",":-P":"1f61b","=P":"1f61b",":-p":"1f61b",":p":"1f61b","=p":"1f61b",":-Þ":"1f61b",":Þ":"1f61b",":þ":"1f61b",":-þ":"1f61b",":-b":"1f61b",":b":"1f61b","d:":"1f61b",":-O":"1f62e",":O":"1f62e",":-o":"1f62e",":o":"1f62e",O_O:"1f62e",">:O":"1f62e",":-X":"1f636",":X":"1f636",":-#":"1f636",":#":"1f636","=X":"1f636","=x":"1f636",":x":"1f636",":-x":"1f636","=#":"1f636"}},function(f,e){"use strict";var a=/[|\\{}()[\]^$+*?.]/g;f.exports=function(f){if("string"!=typeof f)throw new TypeError("Expected a string");return f.replace(a,"\\$&")}},function(f,e){function a(f){for(var e=-1,a=f?f.length:0,o=0,r=[];++e<a;){var t=f[e];t&&(r[o++]=t)}return r}f.exports=a},function(f,e){"use strict";function a(f){if(null==f)throw new TypeError("Object.assign cannot be called with null or undefined");return Object(f)}f.exports=Object.assign||function(f,e){for(var o,r,t=a(f),n=1;n<arguments.length;n++){o=arguments[n],r=Object.keys(Object(o));for(var i=0;i<r.length;i++)t[r[i]]=o[r[i]]}return t}},function(e,a){e.exports=f}])});
-},{"react":477}],450:[function(require,module,exports){
+var asciiToUnicodeCache = new Map();
+var asciiRegExpToUnicode = new Map();
+
+_asciiToUnicode2.default.forEach(function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 2);
+
+    var reStr = _ref2[0];
+    var unicode = _ref2[1];
+    return asciiRegExpToUnicode.set(RegExp(reStr), unicode);
+});
+
+var asciiRegexStr = _asciiToUnicode2.default.map(function (_ref3) {
+    var _ref4 = _slicedToArray(_ref3, 1);
+
+    var reStr = _ref4[0];
+    return reStr;
+}).join('|');
+
+var convertAsciiToUnicodeOrNull = function convertAsciiToUnicodeOrNull(text) {
+    if (!text) {
+        return '';
+    }
+    var str = String(text);
+    if (asciiToUnicodeCache.has(str)) {
+        return asciiToUnicodeCache.get(str);
+    }
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = asciiRegExpToUnicode.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var _step$value = _slicedToArray(_step.value, 2);
+
+            var regExp = _step$value[0];
+            var unicode = _step$value[1];
+
+            if (str.replace(regExp, unicode) === unicode) {
+                asciiToUnicodeCache.set(str, unicode);
+                return unicode;
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return null;
+};
+
+var RE_SHORTNAMES_UNICODES = RegExp('(:\\w+:|' + _emojiFormatConversion.unicodes.join('|') + ')');
+var RE_SHORTNAMES_UNICODES_ASCII = RegExp('(:\\w+:|' + _emojiFormatConversion.unicodes.join('|') + '|' + asciiRegexStr + ')');
+
+var startsWithSpace = function startsWithSpace(str) {
+    return (/^\s/.test(str)
+    );
+};
+var endsWithSpace = function endsWithSpace(str) {
+    return (/\s$/.test(str)
+    );
+};
+
+var shouldConvertAscii = function shouldConvertAscii(parts, index) {
+    if (parts.length === 1) {
+        return true;
+    }
+    if (index === 0) {
+        return startsWithSpace(parts[index + 1]);
+    }
+    if (index === parts.length - 1) {
+        return endsWithSpace(parts[index - 1]);
+    }
+    return endsWithSpace(parts[index - 1]) && startsWithSpace(parts[index + 1]);
+};
+
+var emojify = exports.emojify = function emojify(str) {
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+
+    var mergedOptions = Object.assign({}, DEFAULT_OPTIONS, options);
+
+    var convertShortnames = mergedOptions.convertShortnames;
+    var convertUnicode = mergedOptions.convertUnicode;
+    var convertAscii = mergedOptions.convertAscii;
+
+
+    var regExp = convertAscii ? RE_SHORTNAMES_UNICODES_ASCII : RE_SHORTNAMES_UNICODES;
+
+    var renderCodepoint = (0, _rendererFactory2.default)(mergedOptions);
+
+    var convertedParts = str.split(regExp).filter(Boolean).map(function (part, index, parts) {
+        if (convertAscii && shouldConvertAscii(parts, index)) {
+            var unicode = convertAsciiToUnicodeOrNull(part);
+            if (unicode) {
+                return renderCodepoint(_emojiFormatConversion.unicodeToCodepoint.get(unicode), 'a-' + index);
+            }
+        }
+        if (convertShortnames && _emojiFormatConversion.shortToCodepoint.has(part)) {
+            return renderCodepoint(_emojiFormatConversion.shortToCodepoint.get(part), 's-' + index);
+        }
+        if (convertUnicode && _emojiFormatConversion.unicodeToCodepoint.has(part)) {
+            return renderCodepoint(_emojiFormatConversion.unicodeToCodepoint.get(part), 'u-' + index);
+        }
+        return part;
+    });
+
+    return mergedOptions.output === 'unicode' ? convertedParts.join('') : convertedParts;
+};
+
+exports.default = {
+    emojify: emojify
+};
+},{"./data/ascii-to-unicode":449,"./renderers/renderer-factory":453,"./utils/emoji-format-conversion":457}],452:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _emojioneSprite = require('../styles/emojione-sprite');
+
+var _emojioneSprite2 = _interopRequireDefault(_emojioneSprite);
+
+var _emojiFormatConversion = require('../utils/emoji-format-conversion');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Emoji = function Emoji(_ref) {
+    var codepoint = _ref.codepoint;
+    var _ref$customStyles = _ref.customStyles;
+    var customStyles = _ref$customStyles === undefined ? {} : _ref$customStyles;
+    var handleClick = _ref.handleClick;
+    return _react2.default.createElement(
+        'span',
+        {
+            onClick: handleClick,
+            style: _emojioneSprite2.default.sprite(codepoint, customStyles),
+            title: _emojiFormatConversion.codepointToShort.get(codepoint)
+        },
+        _emojiFormatConversion.codepointToUnicode.get(codepoint)
+    );
+};
+
+var getRenderer = function getRenderer(_ref2) {
+    var styles = _ref2.styles;
+    var handleClick = _ref2.handleClick;
+    return function (codepoint, key) {
+        return _react2.default.createElement(Emoji, {
+            codepoint: codepoint,
+            customStyles: styles,
+            handleClick: handleClick,
+            key: key
+        });
+    };
+};
+
+exports.default = getRenderer;
+},{"../styles/emojione-sprite":456,"../utils/emoji-format-conversion":457,"react":484}],453:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _emojiRenderer = require('./emoji-renderer');
+
+var _emojiRenderer2 = _interopRequireDefault(_emojiRenderer);
+
+var _unicodeRenderer = require('./unicode-renderer');
+
+var _unicodeRenderer2 = _interopRequireDefault(_unicodeRenderer);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var rendererForOutputFormat = {
+    emoji: _emojiRenderer2.default,
+    unicode: _unicodeRenderer2.default
+};
+
+var getRenderer = function getRenderer(config) {
+    var renderer = rendererForOutputFormat[config.output] || rendererForOutputFormat.emoji;
+    return renderer(config);
+};
+
+exports.default = getRenderer;
+},{"./emoji-renderer":452,"./unicode-renderer":454}],454:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _emojiFormatConversion = require('../utils/emoji-format-conversion');
+
+var getRenderer = function getRenderer() {
+  return function (codepoint) {
+    return _emojiFormatConversion.codepointToUnicode.get(codepoint);
+  };
+};
+
+exports.default = getRenderer;
+},{"../utils/emoji-format-conversion":457}],455:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/*eslint-disable */
+// Do not edit!
+// This file was auto-generated by create-styles.js
+exports.default = {
+  '0023-20E3': '2.85714% 0%',
+  '0030-20E3': '71.42857% 51.42857%',
+  '0031-20E3': '0% 2.85714%',
+  '0032-20E3': '2.85714% 2.85714%',
+  '0033-20E3': '5.71429% 0%',
+  '0034-20E3': '5.71429% 2.85714%',
+  '0035-20E3': '0% 5.71429%',
+  '0036-20E3': '2.85714% 5.71429%',
+  '0037-20E3': '5.71429% 5.71429%',
+  '0038-20E3': '8.57143% 0%',
+  '0039-20E3': '8.57143% 2.85714%',
+  '00A9': '8.57143% 5.71429%',
+  '00AE': '0% 8.57143%',
+  '1F004': '2.85714% 8.57143%',
+  '1F0CF': '5.71429% 8.57143%',
+  '1F170': '8.57143% 8.57143%',
+  '1F171': '11.42857% 0%',
+  '1F17E': '11.42857% 2.85714%',
+  '1F17F': '11.42857% 5.71429%',
+  '1F18E': '11.42857% 8.57143%',
+  '1F191': '0% 11.42857%',
+  '1F192': '2.85714% 11.42857%',
+  '1F193': '5.71429% 11.42857%',
+  '1F194': '8.57143% 11.42857%',
+  '1F195': '11.42857% 11.42857%',
+  '1F196': '14.28571% 0%',
+  '1F197': '14.28571% 2.85714%',
+  '1F198': '14.28571% 5.71429%',
+  '1F199': '14.28571% 8.57143%',
+  '1F19A': '14.28571% 11.42857%',
+  '1F1E6-1F1E8': '0% 14.28571%',
+  '1F1E6-1F1E9': '2.85714% 14.28571%',
+  '1F1E6-1F1EA': '5.71429% 14.28571%',
+  '1F1E6-1F1EB': '8.57143% 14.28571%',
+  '1F1E6-1F1EC': '11.42857% 14.28571%',
+  '1F1E6-1F1EE': '14.28571% 14.28571%',
+  '1F1E6-1F1F1': '17.14286% 0%',
+  '1F1E6-1F1F2': '17.14286% 2.85714%',
+  '1F1E6-1F1F4': '17.14286% 5.71429%',
+  '1F1E6-1F1F7': '17.14286% 8.57143%',
+  '1F1E6-1F1F9': '17.14286% 11.42857%',
+  '1F1E6-1F1FA': '17.14286% 14.28571%',
+  '1F1E6-1F1FC': '0% 17.14286%',
+  '1F1E6-1F1FF': '2.85714% 17.14286%',
+  '1F1E7-1F1E6': '5.71429% 17.14286%',
+  '1F1E7-1F1E7': '8.57143% 17.14286%',
+  '1F1E7-1F1E9': '11.42857% 17.14286%',
+  '1F1E7-1F1EA': '14.28571% 17.14286%',
+  '1F1E7-1F1EB': '17.14286% 17.14286%',
+  '1F1E7-1F1EC': '20% 0%',
+  '1F1E7-1F1ED': '20% 2.85714%',
+  '1F1E7-1F1EE': '20% 5.71429%',
+  '1F1E7-1F1EF': '20% 8.57143%',
+  '1F1E7-1F1F2': '20% 11.42857%',
+  '1F1E7-1F1F3': '20% 14.28571%',
+  '1F1E7-1F1F4': '20% 17.14286%',
+  '1F1E7-1F1F7': '0% 20%',
+  '1F1E7-1F1F8': '2.85714% 20%',
+  '1F1E7-1F1F9': '5.71429% 20%',
+  '1F1E7-1F1FC': '8.57143% 20%',
+  '1F1E7-1F1FE': '11.42857% 20%',
+  '1F1E7-1F1FF': '14.28571% 20%',
+  '1F1E8-1F1E6': '17.14286% 20%',
+  '1F1E8-1F1E9': '20% 20%',
+  '1F1E8-1F1EB': '22.85714% 0%',
+  '1F1E8-1F1EC': '22.85714% 2.85714%',
+  '1F1E8-1F1ED': '22.85714% 5.71429%',
+  '1F1E8-1F1EE': '22.85714% 8.57143%',
+  '1F1E8-1F1F1': '22.85714% 11.42857%',
+  '1F1E8-1F1F2': '22.85714% 14.28571%',
+  '1F1E8-1F1F3': '22.85714% 17.14286%',
+  '1F1E8-1F1F4': '22.85714% 20%',
+  '1F1E8-1F1F7': '0% 22.85714%',
+  '1F1E8-1F1FA': '2.85714% 22.85714%',
+  '1F1E8-1F1FB': '5.71429% 22.85714%',
+  '1F1E8-1F1FE': '8.57143% 22.85714%',
+  '1F1E8-1F1FF': '11.42857% 22.85714%',
+  '1F1E9-1F1EA': '14.28571% 22.85714%',
+  '1F1E9-1F1EF': '17.14286% 22.85714%',
+  '1F1E9-1F1F0': '20% 22.85714%',
+  '1F1E9-1F1F2': '22.85714% 22.85714%',
+  '1F1E9-1F1F4': '25.71429% 0%',
+  '1F1E9-1F1FF': '25.71429% 2.85714%',
+  '1F1EA-1F1E8': '25.71429% 5.71429%',
+  '1F1EA-1F1EA': '25.71429% 8.57143%',
+  '1F1EA-1F1EC': '25.71429% 11.42857%',
+  '1F1EA-1F1ED': '25.71429% 14.28571%',
+  '1F1EA-1F1F7': '25.71429% 17.14286%',
+  '1F1EA-1F1F8': '25.71429% 20%',
+  '1F1EA-1F1F9': '25.71429% 22.85714%',
+  '1F1EB-1F1EE': '0% 25.71429%',
+  '1F1EB-1F1EF': '2.85714% 25.71429%',
+  '1F1EB-1F1F0': '5.71429% 25.71429%',
+  '1F1EB-1F1F2': '8.57143% 25.71429%',
+  '1F1EB-1F1F4': '11.42857% 25.71429%',
+  '1F1EB-1F1F7': '14.28571% 25.71429%',
+  '1F1EC-1F1E6': '17.14286% 25.71429%',
+  '1F1EC-1F1E7': '20% 25.71429%',
+  '1F1EC-1F1E9': '22.85714% 25.71429%',
+  '1F1EC-1F1EA': '25.71429% 25.71429%',
+  '1F1EC-1F1ED': '28.57143% 0%',
+  '1F1EC-1F1EE': '28.57143% 2.85714%',
+  '1F1EC-1F1F1': '28.57143% 5.71429%',
+  '1F1EC-1F1F2': '28.57143% 8.57143%',
+  '1F1EC-1F1F3': '28.57143% 11.42857%',
+  '1F1EC-1F1F6': '28.57143% 14.28571%',
+  '1F1EC-1F1F7': '28.57143% 17.14286%',
+  '1F1EC-1F1F9': '28.57143% 20%',
+  '1F1EC-1F1FA': '28.57143% 22.85714%',
+  '1F1EC-1F1FC': '28.57143% 25.71429%',
+  '1F1EC-1F1FE': '0% 28.57143%',
+  '1F1ED-1F1F0': '2.85714% 28.57143%',
+  '1F1ED-1F1F3': '5.71429% 28.57143%',
+  '1F1ED-1F1F7': '8.57143% 28.57143%',
+  '1F1ED-1F1F9': '11.42857% 28.57143%',
+  '1F1ED-1F1FA': '14.28571% 28.57143%',
+  '1F1EE-1F1E9': '17.14286% 28.57143%',
+  '1F1EE-1F1EA': '20% 28.57143%',
+  '1F1EE-1F1F1': '22.85714% 28.57143%',
+  '1F1EE-1F1F3': '25.71429% 28.57143%',
+  '1F1EE-1F1F6': '28.57143% 28.57143%',
+  '1F1EE-1F1F7': '31.42857% 0%',
+  '1F1EE-1F1F8': '31.42857% 2.85714%',
+  '1F1EE-1F1F9': '31.42857% 5.71429%',
+  '1F1EF-1F1EA': '31.42857% 8.57143%',
+  '1F1EF-1F1F2': '31.42857% 11.42857%',
+  '1F1EF-1F1F4': '31.42857% 14.28571%',
+  '1F1EF-1F1F5': '31.42857% 17.14286%',
+  '1F1F0-1F1EA': '31.42857% 20%',
+  '1F1F0-1F1EC': '31.42857% 22.85714%',
+  '1F1F0-1F1ED': '31.42857% 25.71429%',
+  '1F1F0-1F1EE': '31.42857% 28.57143%',
+  '1F1F0-1F1F2': '0% 31.42857%',
+  '1F1F0-1F1F3': '2.85714% 31.42857%',
+  '1F1F0-1F1F5': '5.71429% 31.42857%',
+  '1F1F0-1F1F7': '8.57143% 31.42857%',
+  '1F1F0-1F1FC': '11.42857% 31.42857%',
+  '1F1F0-1F1FE': '14.28571% 31.42857%',
+  '1F1F0-1F1FF': '17.14286% 31.42857%',
+  '1F1F1-1F1E6': '20% 31.42857%',
+  '1F1F1-1F1E7': '22.85714% 31.42857%',
+  '1F1F1-1F1E8': '25.71429% 31.42857%',
+  '1F1F1-1F1EE': '28.57143% 31.42857%',
+  '1F1F1-1F1F0': '31.42857% 31.42857%',
+  '1F1F1-1F1F7': '34.28571% 0%',
+  '1F1F1-1F1F8': '34.28571% 2.85714%',
+  '1F1F1-1F1F9': '34.28571% 5.71429%',
+  '1F1F1-1F1FA': '34.28571% 8.57143%',
+  '1F1F1-1F1FB': '34.28571% 11.42857%',
+  '1F1F1-1F1FE': '34.28571% 14.28571%',
+  '1F1F2-1F1E6': '34.28571% 17.14286%',
+  '1F1F2-1F1E8': '34.28571% 20%',
+  '1F1F2-1F1E9': '34.28571% 22.85714%',
+  '1F1F2-1F1EA': '34.28571% 25.71429%',
+  '1F1F2-1F1EC': '34.28571% 28.57143%',
+  '1F1F2-1F1ED': '34.28571% 31.42857%',
+  '1F1F2-1F1F0': '0% 34.28571%',
+  '1F1F2-1F1F1': '2.85714% 34.28571%',
+  '1F1F2-1F1F2': '5.71429% 34.28571%',
+  '1F1F2-1F1F3': '8.57143% 34.28571%',
+  '1F1F2-1F1F4': '11.42857% 34.28571%',
+  '1F1F2-1F1F7': '14.28571% 34.28571%',
+  '1F1F2-1F1F8': '17.14286% 34.28571%',
+  '1F1F2-1F1F9': '20% 34.28571%',
+  '1F1F2-1F1FA': '22.85714% 34.28571%',
+  '1F1F2-1F1FB': '25.71429% 34.28571%',
+  '1F1F2-1F1FC': '28.57143% 34.28571%',
+  '1F1F2-1F1FD': '31.42857% 34.28571%',
+  '1F1F2-1F1FE': '34.28571% 34.28571%',
+  '1F1F2-1F1FF': '37.14286% 0%',
+  '1F1F3-1F1E6': '37.14286% 2.85714%',
+  '1F1F3-1F1E8': '37.14286% 5.71429%',
+  '1F1F3-1F1EA': '37.14286% 8.57143%',
+  '1F1F3-1F1EC': '37.14286% 11.42857%',
+  '1F1F3-1F1EE': '37.14286% 14.28571%',
+  '1F1F3-1F1F1': '37.14286% 17.14286%',
+  '1F1F3-1F1F4': '37.14286% 20%',
+  '1F1F3-1F1F5': '37.14286% 22.85714%',
+  '1F1F3-1F1F7': '37.14286% 25.71429%',
+  '1F1F3-1F1FA': '37.14286% 28.57143%',
+  '1F1F3-1F1FF': '37.14286% 31.42857%',
+  '1F1F4-1F1F2': '37.14286% 34.28571%',
+  '1F1F5-1F1E6': '0% 37.14286%',
+  '1F1F5-1F1EA': '2.85714% 37.14286%',
+  '1F1F5-1F1EB': '5.71429% 37.14286%',
+  '1F1F5-1F1EC': '8.57143% 37.14286%',
+  '1F1F5-1F1ED': '11.42857% 37.14286%',
+  '1F1F5-1F1F0': '14.28571% 37.14286%',
+  '1F1F5-1F1F1': '17.14286% 37.14286%',
+  '1F1F5-1F1F7': '20% 37.14286%',
+  '1F1F5-1F1F8': '22.85714% 37.14286%',
+  '1F1F5-1F1F9': '25.71429% 37.14286%',
+  '1F1F5-1F1FC': '28.57143% 37.14286%',
+  '1F1F5-1F1FE': '31.42857% 37.14286%',
+  '1F1F6-1F1E6': '34.28571% 37.14286%',
+  '1F1F7-1F1F4': '37.14286% 37.14286%',
+  '1F1F7-1F1F8': '40% 0%',
+  '1F1F7-1F1FA': '40% 2.85714%',
+  '1F1F7-1F1FC': '40% 5.71429%',
+  '1F1F8-1F1E6': '40% 8.57143%',
+  '1F1F8-1F1E7': '40% 11.42857%',
+  '1F1F8-1F1E8': '40% 14.28571%',
+  '1F1F8-1F1E9': '40% 17.14286%',
+  '1F1F8-1F1EA': '40% 20%',
+  '1F1F8-1F1EC': '40% 22.85714%',
+  '1F1F8-1F1ED': '40% 25.71429%',
+  '1F1F8-1F1EE': '40% 28.57143%',
+  '1F1F8-1F1F0': '40% 31.42857%',
+  '1F1F8-1F1F1': '40% 34.28571%',
+  '1F1F8-1F1F2': '40% 37.14286%',
+  '1F1F8-1F1F3': '0% 40%',
+  '1F1F8-1F1F4': '2.85714% 40%',
+  '1F1F8-1F1F7': '5.71429% 40%',
+  '1F1F8-1F1F9': '8.57143% 40%',
+  '1F1F8-1F1FB': '11.42857% 40%',
+  '1F1F8-1F1FE': '14.28571% 40%',
+  '1F1F8-1F1FF': '17.14286% 40%',
+  '1F1F9-1F1E9': '20% 40%',
+  '1F1F9-1F1EC': '22.85714% 40%',
+  '1F1F9-1F1ED': '25.71429% 40%',
+  '1F1F9-1F1EF': '28.57143% 40%',
+  '1F1F9-1F1F1': '31.42857% 40%',
+  '1F1F9-1F1F2': '34.28571% 40%',
+  '1F1F9-1F1F3': '37.14286% 40%',
+  '1F1F9-1F1F4': '40% 40%',
+  '1F1F9-1F1F7': '42.85714% 0%',
+  '1F1F9-1F1F9': '42.85714% 2.85714%',
+  '1F1F9-1F1FB': '42.85714% 5.71429%',
+  '1F1F9-1F1FC': '42.85714% 8.57143%',
+  '1F1F9-1F1FF': '42.85714% 11.42857%',
+  '1F1FA-1F1E6': '42.85714% 14.28571%',
+  '1F1FA-1F1EC': '42.85714% 17.14286%',
+  '1F1FA-1F1F8': '42.85714% 20%',
+  '1F1FA-1F1FE': '42.85714% 22.85714%',
+  '1F1FA-1F1FF': '42.85714% 25.71429%',
+  '1F1FB-1F1E6': '42.85714% 28.57143%',
+  '1F1FB-1F1E8': '42.85714% 31.42857%',
+  '1F1FB-1F1EA': '42.85714% 34.28571%',
+  '1F1FB-1F1EE': '42.85714% 37.14286%',
+  '1F1FB-1F1F3': '42.85714% 40%',
+  '1F1FB-1F1FA': '0% 42.85714%',
+  '1F1FC-1F1EB': '2.85714% 42.85714%',
+  '1F1FC-1F1F8': '5.71429% 42.85714%',
+  '1F1FD-1F1F0': '8.57143% 42.85714%',
+  '1F1FE-1F1EA': '11.42857% 42.85714%',
+  '1F1FF-1F1E6': '14.28571% 42.85714%',
+  '1F1FF-1F1F2': '17.14286% 42.85714%',
+  '1F1FF-1F1FC': '20% 42.85714%',
+  '1F201': '22.85714% 42.85714%',
+  '1F202': '25.71429% 42.85714%',
+  '1F21A': '28.57143% 42.85714%',
+  '1F22F': '31.42857% 42.85714%',
+  '1F232': '34.28571% 42.85714%',
+  '1F233': '37.14286% 42.85714%',
+  '1F234': '40% 42.85714%',
+  '1F235': '42.85714% 42.85714%',
+  '1F236': '45.71429% 0%',
+  '1F237': '45.71429% 2.85714%',
+  '1F238': '45.71429% 5.71429%',
+  '1F239': '45.71429% 8.57143%',
+  '1F23A': '45.71429% 11.42857%',
+  '1F250': '45.71429% 14.28571%',
+  '1F251': '45.71429% 17.14286%',
+  '1F300': '45.71429% 20%',
+  '1F301': '45.71429% 22.85714%',
+  '1F302': '45.71429% 25.71429%',
+  '1F303': '45.71429% 28.57143%',
+  '1F304': '45.71429% 31.42857%',
+  '1F305': '45.71429% 34.28571%',
+  '1F306': '45.71429% 37.14286%',
+  '1F307': '45.71429% 40%',
+  '1F308': '45.71429% 42.85714%',
+  '1F309': '0% 45.71429%',
+  '1F30A': '2.85714% 45.71429%',
+  '1F30B': '5.71429% 45.71429%',
+  '1F30C': '8.57143% 45.71429%',
+  '1F30D': '11.42857% 45.71429%',
+  '1F30E': '14.28571% 45.71429%',
+  '1F30F': '17.14286% 45.71429%',
+  '1F310': '20% 45.71429%',
+  '1F311': '22.85714% 45.71429%',
+  '1F312': '25.71429% 45.71429%',
+  '1F313': '28.57143% 45.71429%',
+  '1F314': '31.42857% 45.71429%',
+  '1F315': '34.28571% 45.71429%',
+  '1F316': '37.14286% 45.71429%',
+  '1F317': '40% 45.71429%',
+  '1F318': '42.85714% 45.71429%',
+  '1F319': '45.71429% 45.71429%',
+  '1F31A': '48.57143% 0%',
+  '1F31B': '48.57143% 2.85714%',
+  '1F31C': '48.57143% 5.71429%',
+  '1F31D': '48.57143% 8.57143%',
+  '1F31E': '48.57143% 11.42857%',
+  '1F31F': '48.57143% 14.28571%',
+  '1F320': '48.57143% 17.14286%',
+  '1F321': '48.57143% 20%',
+  '1F327': '48.57143% 22.85714%',
+  '1F328': '48.57143% 25.71429%',
+  '1F329': '48.57143% 28.57143%',
+  '1F32A': '48.57143% 31.42857%',
+  '1F32B': '48.57143% 34.28571%',
+  '1F32C': '48.57143% 37.14286%',
+  '1F330': '48.57143% 40%',
+  '1F331': '48.57143% 42.85714%',
+  '1F332': '48.57143% 45.71429%',
+  '1F333': '0% 48.57143%',
+  '1F334': '2.85714% 48.57143%',
+  '1F335': '5.71429% 48.57143%',
+  '1F336': '8.57143% 48.57143%',
+  '1F337': '11.42857% 48.57143%',
+  '1F338': '14.28571% 48.57143%',
+  '1F339': '17.14286% 48.57143%',
+  '1F33A': '20% 48.57143%',
+  '1F33B': '22.85714% 48.57143%',
+  '1F33C': '25.71429% 48.57143%',
+  '1F33D': '28.57143% 48.57143%',
+  '1F33E': '31.42857% 48.57143%',
+  '1F33F': '34.28571% 48.57143%',
+  '1F340': '37.14286% 48.57143%',
+  '1F341': '40% 48.57143%',
+  '1F342': '42.85714% 48.57143%',
+  '1F343': '45.71429% 48.57143%',
+  '1F344': '48.57143% 48.57143%',
+  '1F345': '51.42857% 0%',
+  '1F346': '51.42857% 2.85714%',
+  '1F347': '51.42857% 5.71429%',
+  '1F348': '51.42857% 8.57143%',
+  '1F349': '51.42857% 11.42857%',
+  '1F34A': '51.42857% 14.28571%',
+  '1F34B': '51.42857% 17.14286%',
+  '1F34C': '51.42857% 20%',
+  '1F34D': '51.42857% 22.85714%',
+  '1F34E': '51.42857% 25.71429%',
+  '1F34F': '51.42857% 28.57143%',
+  '1F350': '51.42857% 31.42857%',
+  '1F351': '51.42857% 34.28571%',
+  '1F352': '51.42857% 37.14286%',
+  '1F353': '51.42857% 40%',
+  '1F354': '51.42857% 42.85714%',
+  '1F355': '51.42857% 45.71429%',
+  '1F356': '51.42857% 48.57143%',
+  '1F357': '0% 51.42857%',
+  '1F358': '2.85714% 51.42857%',
+  '1F359': '5.71429% 51.42857%',
+  '1F35A': '8.57143% 51.42857%',
+  '1F35B': '11.42857% 51.42857%',
+  '1F35C': '14.28571% 51.42857%',
+  '1F35D': '17.14286% 51.42857%',
+  '1F35E': '20% 51.42857%',
+  '1F35F': '22.85714% 51.42857%',
+  '1F360': '25.71429% 51.42857%',
+  '1F361': '28.57143% 51.42857%',
+  '1F362': '31.42857% 51.42857%',
+  '1F363': '34.28571% 51.42857%',
+  '1F364': '37.14286% 51.42857%',
+  '1F365': '40% 51.42857%',
+  '1F366': '42.85714% 51.42857%',
+  '1F367': '45.71429% 51.42857%',
+  '1F368': '48.57143% 51.42857%',
+  '1F369': '51.42857% 51.42857%',
+  '1F36A': '54.28571% 0%',
+  '1F36B': '54.28571% 2.85714%',
+  '1F36C': '54.28571% 5.71429%',
+  '1F36D': '54.28571% 8.57143%',
+  '1F36E': '54.28571% 11.42857%',
+  '1F36F': '54.28571% 14.28571%',
+  '1F370': '54.28571% 17.14286%',
+  '1F371': '54.28571% 20%',
+  '1F372': '54.28571% 22.85714%',
+  '1F373': '54.28571% 25.71429%',
+  '1F374': '54.28571% 28.57143%',
+  '1F375': '54.28571% 31.42857%',
+  '1F376': '54.28571% 34.28571%',
+  '1F377': '54.28571% 37.14286%',
+  '1F378': '54.28571% 40%',
+  '1F379': '54.28571% 42.85714%',
+  '1F37A': '54.28571% 45.71429%',
+  '1F37B': '54.28571% 48.57143%',
+  '1F37C': '54.28571% 51.42857%',
+  '1F37D': '0% 54.28571%',
+  '1F380': '2.85714% 54.28571%',
+  '1F381': '5.71429% 54.28571%',
+  '1F382': '8.57143% 54.28571%',
+  '1F383': '11.42857% 54.28571%',
+  '1F384': '14.28571% 54.28571%',
+  '1F385': '17.14286% 54.28571%',
+  '1F386': '20% 54.28571%',
+  '1F387': '22.85714% 54.28571%',
+  '1F388': '25.71429% 54.28571%',
+  '1F389': '28.57143% 54.28571%',
+  '1F38A': '31.42857% 54.28571%',
+  '1F38B': '34.28571% 54.28571%',
+  '1F38C': '37.14286% 54.28571%',
+  '1F38D': '40% 54.28571%',
+  '1F38E': '42.85714% 54.28571%',
+  '1F38F': '45.71429% 54.28571%',
+  '1F390': '48.57143% 54.28571%',
+  '1F391': '51.42857% 54.28571%',
+  '1F392': '54.28571% 54.28571%',
+  '1F393': '57.14286% 0%',
+  '1F394': '57.14286% 2.85714%',
+  '1F395': '57.14286% 5.71429%',
+  '1F396': '57.14286% 8.57143%',
+  '1F397': '57.14286% 11.42857%',
+  '1F398': '57.14286% 14.28571%',
+  '1F399': '57.14286% 17.14286%',
+  '1F39A': '57.14286% 20%',
+  '1F39B': '57.14286% 22.85714%',
+  '1F39C': '57.14286% 25.71429%',
+  '1F39D': '57.14286% 28.57143%',
+  '1F39E': '57.14286% 31.42857%',
+  '1F39F': '57.14286% 34.28571%',
+  '1F3A0': '57.14286% 37.14286%',
+  '1F3A1': '57.14286% 40%',
+  '1F3A2': '57.14286% 42.85714%',
+  '1F3A3': '57.14286% 45.71429%',
+  '1F3A4': '57.14286% 48.57143%',
+  '1F3A5': '57.14286% 51.42857%',
+  '1F3A6': '57.14286% 54.28571%',
+  '1F3A7': '0% 57.14286%',
+  '1F3A8': '2.85714% 57.14286%',
+  '1F3A9': '5.71429% 57.14286%',
+  '1F3AA': '8.57143% 57.14286%',
+  '1F3AB': '11.42857% 57.14286%',
+  '1F3AC': '14.28571% 57.14286%',
+  '1F3AD': '17.14286% 57.14286%',
+  '1F3AE': '20% 57.14286%',
+  '1F3AF': '22.85714% 57.14286%',
+  '1F3B0': '25.71429% 57.14286%',
+  '1F3B1': '28.57143% 57.14286%',
+  '1F3B2': '31.42857% 57.14286%',
+  '1F3B3': '34.28571% 57.14286%',
+  '1F3B4': '37.14286% 57.14286%',
+  '1F3B5': '40% 57.14286%',
+  '1F3B6': '42.85714% 57.14286%',
+  '1F3B7': '45.71429% 57.14286%',
+  '1F3B8': '48.57143% 57.14286%',
+  '1F3B9': '51.42857% 57.14286%',
+  '1F3BA': '54.28571% 57.14286%',
+  '1F3BB': '57.14286% 57.14286%',
+  '1F3BC': '60% 0%',
+  '1F3BD': '60% 2.85714%',
+  '1F3BE': '60% 5.71429%',
+  '1F3BF': '60% 8.57143%',
+  '1F3C0': '60% 11.42857%',
+  '1F3C1': '60% 14.28571%',
+  '1F3C2': '60% 17.14286%',
+  '1F3C3': '60% 20%',
+  '1F3C4': '60% 22.85714%',
+  '1F3C5': '60% 25.71429%',
+  '1F3C6': '60% 28.57143%',
+  '1F3C7': '60% 31.42857%',
+  '1F3C8': '60% 34.28571%',
+  '1F3C9': '60% 37.14286%',
+  '1F3CA': '60% 40%',
+  '1F3CB': '60% 42.85714%',
+  '1F3CC': '60% 45.71429%',
+  '1F3CD': '60% 48.57143%',
+  '1F3CE': '60% 51.42857%',
+  '1F3D4': '60% 54.28571%',
+  '1F3D5': '60% 57.14286%',
+  '1F3D6': '0% 60%',
+  '1F3D7': '2.85714% 60%',
+  '1F3D8': '5.71429% 60%',
+  '1F3D9': '8.57143% 60%',
+  '1F3DA': '11.42857% 60%',
+  '1F3DB': '14.28571% 60%',
+  '1F3DC': '17.14286% 60%',
+  '1F3DD': '20% 60%',
+  '1F3DE': '22.85714% 60%',
+  '1F3DF': '25.71429% 60%',
+  '1F3E0': '28.57143% 60%',
+  '1F3E1': '31.42857% 60%',
+  '1F3E2': '34.28571% 60%',
+  '1F3E3': '37.14286% 60%',
+  '1F3E4': '40% 60%',
+  '1F3E5': '42.85714% 60%',
+  '1F3E6': '45.71429% 60%',
+  '1F3E7': '48.57143% 60%',
+  '1F3E8': '51.42857% 60%',
+  '1F3E9': '54.28571% 60%',
+  '1F3EA': '57.14286% 60%',
+  '1F3EB': '60% 60%',
+  '1F3EC': '62.85714% 0%',
+  '1F3ED': '62.85714% 2.85714%',
+  '1F3EE': '62.85714% 5.71429%',
+  '1F3EF': '62.85714% 8.57143%',
+  '1F3F0': '62.85714% 11.42857%',
+  '1F3F1': '62.85714% 14.28571%',
+  '1F3F2': '62.85714% 17.14286%',
+  '1F3F3': '62.85714% 20%',
+  '1F3F4': '62.85714% 22.85714%',
+  '1F3F5': '62.85714% 25.71429%',
+  '1F3F6': '62.85714% 28.57143%',
+  '1F3F7': '62.85714% 31.42857%',
+  '1F400': '62.85714% 34.28571%',
+  '1F401': '62.85714% 37.14286%',
+  '1F402': '62.85714% 40%',
+  '1F403': '62.85714% 42.85714%',
+  '1F404': '62.85714% 45.71429%',
+  '1F405': '62.85714% 48.57143%',
+  '1F406': '62.85714% 51.42857%',
+  '1F407': '62.85714% 54.28571%',
+  '1F408': '62.85714% 57.14286%',
+  '1F409': '62.85714% 60%',
+  '1F40A': '0% 62.85714%',
+  '1F40B': '2.85714% 62.85714%',
+  '1F40C': '5.71429% 62.85714%',
+  '1F40D': '8.57143% 62.85714%',
+  '1F40E': '11.42857% 62.85714%',
+  '1F40F': '14.28571% 62.85714%',
+  '1F410': '17.14286% 62.85714%',
+  '1F411': '20% 62.85714%',
+  '1F412': '22.85714% 62.85714%',
+  '1F413': '25.71429% 62.85714%',
+  '1F414': '28.57143% 62.85714%',
+  '1F415': '31.42857% 62.85714%',
+  '1F416': '34.28571% 62.85714%',
+  '1F417': '37.14286% 62.85714%',
+  '1F418': '40% 62.85714%',
+  '1F419': '42.85714% 62.85714%',
+  '1F41A': '45.71429% 62.85714%',
+  '1F41B': '48.57143% 62.85714%',
+  '1F41C': '51.42857% 62.85714%',
+  '1F41D': '54.28571% 62.85714%',
+  '1F41E': '57.14286% 62.85714%',
+  '1F41F': '60% 62.85714%',
+  '1F420': '62.85714% 62.85714%',
+  '1F421': '65.71429% 0%',
+  '1F422': '65.71429% 2.85714%',
+  '1F423': '65.71429% 5.71429%',
+  '1F424': '65.71429% 8.57143%',
+  '1F425': '65.71429% 11.42857%',
+  '1F426': '65.71429% 14.28571%',
+  '1F427': '65.71429% 17.14286%',
+  '1F428': '65.71429% 20%',
+  '1F429': '65.71429% 22.85714%',
+  '1F42A': '65.71429% 25.71429%',
+  '1F42B': '65.71429% 28.57143%',
+  '1F42C': '65.71429% 31.42857%',
+  '1F42D': '65.71429% 34.28571%',
+  '1F42E': '65.71429% 37.14286%',
+  '1F42F': '65.71429% 40%',
+  '1F430': '65.71429% 42.85714%',
+  '1F431': '65.71429% 45.71429%',
+  '1F432': '65.71429% 48.57143%',
+  '1F433': '65.71429% 51.42857%',
+  '1F434': '65.71429% 54.28571%',
+  '1F435': '65.71429% 57.14286%',
+  '1F436': '65.71429% 60%',
+  '1F437': '65.71429% 62.85714%',
+  '1F438': '0% 65.71429%',
+  '1F439': '2.85714% 65.71429%',
+  '1F43A': '5.71429% 65.71429%',
+  '1F43B': '8.57143% 65.71429%',
+  '1F43C': '11.42857% 65.71429%',
+  '1F43D': '14.28571% 65.71429%',
+  '1F43E': '17.14286% 65.71429%',
+  '1F43F': '20% 65.71429%',
+  '1F440': '22.85714% 65.71429%',
+  '1F441': '25.71429% 65.71429%',
+  '1F442': '28.57143% 65.71429%',
+  '1F443': '31.42857% 65.71429%',
+  '1F444': '34.28571% 65.71429%',
+  '1F445': '37.14286% 65.71429%',
+  '1F446': '40% 65.71429%',
+  '1F447': '42.85714% 65.71429%',
+  '1F448': '45.71429% 65.71429%',
+  '1F449': '48.57143% 65.71429%',
+  '1F44A': '51.42857% 65.71429%',
+  '1F44B': '54.28571% 65.71429%',
+  '1F44C': '57.14286% 65.71429%',
+  '1F44D': '60% 65.71429%',
+  '1F44E': '62.85714% 65.71429%',
+  '1F44F': '65.71429% 65.71429%',
+  '1F450': '68.57143% 0%',
+  '1F451': '68.57143% 2.85714%',
+  '1F452': '68.57143% 5.71429%',
+  '1F453': '68.57143% 8.57143%',
+  '1F454': '68.57143% 11.42857%',
+  '1F455': '68.57143% 14.28571%',
+  '1F456': '68.57143% 17.14286%',
+  '1F457': '68.57143% 20%',
+  '1F458': '68.57143% 22.85714%',
+  '1F459': '68.57143% 25.71429%',
+  '1F45A': '68.57143% 28.57143%',
+  '1F45B': '68.57143% 31.42857%',
+  '1F45C': '68.57143% 34.28571%',
+  '1F45D': '68.57143% 37.14286%',
+  '1F45E': '68.57143% 40%',
+  '1F45F': '68.57143% 42.85714%',
+  '1F460': '68.57143% 45.71429%',
+  '1F461': '68.57143% 48.57143%',
+  '1F462': '68.57143% 51.42857%',
+  '1F463': '68.57143% 54.28571%',
+  '1F464': '68.57143% 57.14286%',
+  '1F465': '68.57143% 60%',
+  '1F466': '68.57143% 62.85714%',
+  '1F467': '68.57143% 65.71429%',
+  '1F468-1F468-1F466-1F466': '0% 68.57143%',
+  '1F468-1F468-1F466': '2.85714% 68.57143%',
+  '1F468-1F468-1F467-1F466': '5.71429% 68.57143%',
+  '1F468-1F468-1F467-1F467': '8.57143% 68.57143%',
+  '1F468-1F468-1F467': '11.42857% 68.57143%',
+  '1F468-1F469-1F466-1F466': '14.28571% 68.57143%',
+  '1F468-1F469-1F467-1F466': '17.14286% 68.57143%',
+  '1F468-1F469-1F467-1F467': '20% 68.57143%',
+  '1F468-1F469-1F467': '22.85714% 68.57143%',
+  '1F468-2764-1F468': '25.71429% 68.57143%',
+  '1F468-2764-1F48B-1F468': '28.57143% 68.57143%',
+  '1F468': '31.42857% 68.57143%',
+  '1F469-1F469-1F466-1F466': '34.28571% 68.57143%',
+  '1F469-1F469-1F466': '37.14286% 68.57143%',
+  '1F469-1F469-1F467-1F466': '40% 68.57143%',
+  '1F469-1F469-1F467-1F467': '42.85714% 68.57143%',
+  '1F469-1F469-1F467': '45.71429% 68.57143%',
+  '1F469-2764-1F469': '48.57143% 68.57143%',
+  '1F469-2764-1F48B-1F469': '51.42857% 68.57143%',
+  '1F469': '54.28571% 68.57143%',
+  '1F46A': '57.14286% 68.57143%',
+  '1F46B': '60% 68.57143%',
+  '1F46C': '62.85714% 68.57143%',
+  '1F46D': '65.71429% 68.57143%',
+  '1F46E': '68.57143% 68.57143%',
+  '1F46F': '71.42857% 0%',
+  '1F470': '71.42857% 2.85714%',
+  '1F471': '71.42857% 5.71429%',
+  '1F472': '71.42857% 8.57143%',
+  '1F473': '71.42857% 11.42857%',
+  '1F474': '71.42857% 14.28571%',
+  '1F475': '71.42857% 17.14286%',
+  '1F476': '71.42857% 20%',
+  '1F477': '71.42857% 22.85714%',
+  '1F478': '71.42857% 25.71429%',
+  '1F479': '71.42857% 28.57143%',
+  '1F47A': '71.42857% 31.42857%',
+  '1F47B': '71.42857% 34.28571%',
+  '1F47C': '71.42857% 37.14286%',
+  '1F47D': '71.42857% 40%',
+  '1F47E': '71.42857% 42.85714%',
+  '1F47F': '71.42857% 45.71429%',
+  '1F480': '71.42857% 48.57143%',
+  '1F481': '0% 0%',
+  '1F482': '71.42857% 54.28571%',
+  '1F483': '71.42857% 57.14286%',
+  '1F484': '71.42857% 60%',
+  '1F485': '71.42857% 62.85714%',
+  '1F486': '71.42857% 65.71429%',
+  '1F487': '71.42857% 68.57143%',
+  '1F488': '0% 71.42857%',
+  '1F489': '2.85714% 71.42857%',
+  '1F48A': '5.71429% 71.42857%',
+  '1F48B': '8.57143% 71.42857%',
+  '1F48C': '11.42857% 71.42857%',
+  '1F48D': '14.28571% 71.42857%',
+  '1F48E': '17.14286% 71.42857%',
+  '1F48F': '20% 71.42857%',
+  '1F490': '22.85714% 71.42857%',
+  '1F491': '25.71429% 71.42857%',
+  '1F492': '28.57143% 71.42857%',
+  '1F493': '31.42857% 71.42857%',
+  '1F494': '34.28571% 71.42857%',
+  '1F495': '37.14286% 71.42857%',
+  '1F496': '40% 71.42857%',
+  '1F497': '42.85714% 71.42857%',
+  '1F498': '45.71429% 71.42857%',
+  '1F499': '48.57143% 71.42857%',
+  '1F49A': '51.42857% 71.42857%',
+  '1F49B': '54.28571% 71.42857%',
+  '1F49C': '57.14286% 71.42857%',
+  '1F49D': '60% 71.42857%',
+  '1F49E': '62.85714% 71.42857%',
+  '1F49F': '65.71429% 71.42857%',
+  '1F4A0': '68.57143% 71.42857%',
+  '1F4A1': '71.42857% 71.42857%',
+  '1F4A2': '74.28571% 0%',
+  '1F4A3': '74.28571% 2.85714%',
+  '1F4A4': '74.28571% 5.71429%',
+  '1F4A5': '74.28571% 8.57143%',
+  '1F4A6': '74.28571% 11.42857%',
+  '1F4A7': '74.28571% 14.28571%',
+  '1F4A8': '74.28571% 17.14286%',
+  '1F4A9': '74.28571% 20%',
+  '1F4AA': '74.28571% 22.85714%',
+  '1F4AB': '74.28571% 25.71429%',
+  '1F4AC': '74.28571% 28.57143%',
+  '1F4AD': '74.28571% 31.42857%',
+  '1F4AE': '74.28571% 34.28571%',
+  '1F4AF': '74.28571% 37.14286%',
+  '1F4B0': '74.28571% 40%',
+  '1F4B1': '74.28571% 42.85714%',
+  '1F4B2': '74.28571% 45.71429%',
+  '1F4B3': '74.28571% 48.57143%',
+  '1F4B4': '74.28571% 51.42857%',
+  '1F4B5': '74.28571% 54.28571%',
+  '1F4B6': '74.28571% 57.14286%',
+  '1F4B7': '74.28571% 60%',
+  '1F4B8': '74.28571% 62.85714%',
+  '1F4B9': '74.28571% 65.71429%',
+  '1F4BA': '74.28571% 68.57143%',
+  '1F4BB': '74.28571% 71.42857%',
+  '1F4BC': '0% 74.28571%',
+  '1F4BD': '2.85714% 74.28571%',
+  '1F4BE': '5.71429% 74.28571%',
+  '1F4BF': '8.57143% 74.28571%',
+  '1F4C0': '11.42857% 74.28571%',
+  '1F4C1': '14.28571% 74.28571%',
+  '1F4C2': '17.14286% 74.28571%',
+  '1F4C3': '20% 74.28571%',
+  '1F4C4': '22.85714% 74.28571%',
+  '1F4C5': '25.71429% 74.28571%',
+  '1F4C6': '28.57143% 74.28571%',
+  '1F4C7': '31.42857% 74.28571%',
+  '1F4C8': '34.28571% 74.28571%',
+  '1F4C9': '37.14286% 74.28571%',
+  '1F4CA': '40% 74.28571%',
+  '1F4CB': '42.85714% 74.28571%',
+  '1F4CC': '45.71429% 74.28571%',
+  '1F4CD': '48.57143% 74.28571%',
+  '1F4CE': '51.42857% 74.28571%',
+  '1F4CF': '54.28571% 74.28571%',
+  '1F4D0': '57.14286% 74.28571%',
+  '1F4D1': '60% 74.28571%',
+  '1F4D2': '62.85714% 74.28571%',
+  '1F4D3': '65.71429% 74.28571%',
+  '1F4D4': '68.57143% 74.28571%',
+  '1F4D5': '71.42857% 74.28571%',
+  '1F4D6': '74.28571% 74.28571%',
+  '1F4D7': '77.14286% 0%',
+  '1F4D8': '77.14286% 2.85714%',
+  '1F4D9': '77.14286% 5.71429%',
+  '1F4DA': '77.14286% 8.57143%',
+  '1F4DB': '77.14286% 11.42857%',
+  '1F4DC': '77.14286% 14.28571%',
+  '1F4DD': '77.14286% 17.14286%',
+  '1F4DE': '77.14286% 20%',
+  '1F4DF': '77.14286% 22.85714%',
+  '1F4E0': '77.14286% 25.71429%',
+  '1F4E1': '77.14286% 28.57143%',
+  '1F4E2': '77.14286% 31.42857%',
+  '1F4E3': '77.14286% 34.28571%',
+  '1F4E4': '77.14286% 37.14286%',
+  '1F4E5': '77.14286% 40%',
+  '1F4E6': '77.14286% 42.85714%',
+  '1F4E7': '77.14286% 45.71429%',
+  '1F4E8': '77.14286% 48.57143%',
+  '1F4E9': '77.14286% 51.42857%',
+  '1F4EA': '77.14286% 54.28571%',
+  '1F4EB': '77.14286% 57.14286%',
+  '1F4EC': '77.14286% 60%',
+  '1F4ED': '77.14286% 62.85714%',
+  '1F4EE': '77.14286% 65.71429%',
+  '1F4EF': '77.14286% 68.57143%',
+  '1F4F0': '77.14286% 71.42857%',
+  '1F4F1': '77.14286% 74.28571%',
+  '1F4F2': '0% 77.14286%',
+  '1F4F3': '2.85714% 77.14286%',
+  '1F4F4': '5.71429% 77.14286%',
+  '1F4F5': '8.57143% 77.14286%',
+  '1F4F6': '11.42857% 77.14286%',
+  '1F4F7': '14.28571% 77.14286%',
+  '1F4F8': '17.14286% 77.14286%',
+  '1F4F9': '20% 77.14286%',
+  '1F4FA': '22.85714% 77.14286%',
+  '1F4FB': '25.71429% 77.14286%',
+  '1F4FC': '28.57143% 77.14286%',
+  '1F4FD': '31.42857% 77.14286%',
+  '1F4FE': '34.28571% 77.14286%',
+  '1F500': '37.14286% 77.14286%',
+  '1F501': '40% 77.14286%',
+  '1F502': '42.85714% 77.14286%',
+  '1F503': '45.71429% 77.14286%',
+  '1F504': '48.57143% 77.14286%',
+  '1F505': '51.42857% 77.14286%',
+  '1F506': '54.28571% 77.14286%',
+  '1F507': '57.14286% 77.14286%',
+  '1F508': '60% 77.14286%',
+  '1F509': '62.85714% 77.14286%',
+  '1F50A': '65.71429% 77.14286%',
+  '1F50B': '68.57143% 77.14286%',
+  '1F50C': '71.42857% 77.14286%',
+  '1F50D': '74.28571% 77.14286%',
+  '1F50E': '77.14286% 77.14286%',
+  '1F50F': '80% 0%',
+  '1F510': '80% 2.85714%',
+  '1F511': '80% 5.71429%',
+  '1F512': '80% 8.57143%',
+  '1F513': '80% 11.42857%',
+  '1F514': '80% 14.28571%',
+  '1F515': '80% 17.14286%',
+  '1F516': '80% 20%',
+  '1F517': '80% 22.85714%',
+  '1F518': '80% 25.71429%',
+  '1F519': '80% 28.57143%',
+  '1F51A': '80% 31.42857%',
+  '1F51B': '80% 34.28571%',
+  '1F51C': '80% 37.14286%',
+  '1F51D': '80% 40%',
+  '1F51E': '80% 42.85714%',
+  '1F51F': '80% 45.71429%',
+  '1F520': '80% 48.57143%',
+  '1F521': '80% 51.42857%',
+  '1F522': '80% 54.28571%',
+  '1F523': '80% 57.14286%',
+  '1F524': '80% 60%',
+  '1F525': '80% 62.85714%',
+  '1F526': '80% 65.71429%',
+  '1F527': '80% 68.57143%',
+  '1F528': '80% 71.42857%',
+  '1F529': '80% 74.28571%',
+  '1F52A': '80% 77.14286%',
+  '1F52B': '0% 80%',
+  '1F52C': '2.85714% 80%',
+  '1F52D': '5.71429% 80%',
+  '1F52E': '8.57143% 80%',
+  '1F52F': '11.42857% 80%',
+  '1F530': '14.28571% 80%',
+  '1F531': '17.14286% 80%',
+  '1F532': '20% 80%',
+  '1F533': '22.85714% 80%',
+  '1F534': '25.71429% 80%',
+  '1F535': '28.57143% 80%',
+  '1F536': '31.42857% 80%',
+  '1F537': '34.28571% 80%',
+  '1F538': '37.14286% 80%',
+  '1F539': '40% 80%',
+  '1F53A': '42.85714% 80%',
+  '1F53B': '45.71429% 80%',
+  '1F53C': '48.57143% 80%',
+  '1F53D': '51.42857% 80%',
+  '1F546': '54.28571% 80%',
+  '1F547': '57.14286% 80%',
+  '1F548': '60% 80%',
+  '1F549': '62.85714% 80%',
+  '1F54A': '65.71429% 80%',
+  '1F550': '68.57143% 80%',
+  '1F551': '71.42857% 80%',
+  '1F552': '74.28571% 80%',
+  '1F553': '77.14286% 80%',
+  '1F554': '80% 80%',
+  '1F555': '82.85714% 0%',
+  '1F556': '82.85714% 2.85714%',
+  '1F557': '82.85714% 5.71429%',
+  '1F558': '82.85714% 8.57143%',
+  '1F559': '82.85714% 11.42857%',
+  '1F55A': '82.85714% 14.28571%',
+  '1F55B': '82.85714% 17.14286%',
+  '1F55C': '82.85714% 20%',
+  '1F55D': '82.85714% 22.85714%',
+  '1F55E': '82.85714% 25.71429%',
+  '1F55F': '82.85714% 28.57143%',
+  '1F560': '82.85714% 31.42857%',
+  '1F561': '82.85714% 34.28571%',
+  '1F562': '82.85714% 37.14286%',
+  '1F563': '82.85714% 40%',
+  '1F564': '82.85714% 42.85714%',
+  '1F565': '82.85714% 45.71429%',
+  '1F566': '82.85714% 48.57143%',
+  '1F567': '82.85714% 51.42857%',
+  '1F568': '82.85714% 54.28571%',
+  '1F569': '82.85714% 57.14286%',
+  '1F56A': '82.85714% 60%',
+  '1F56B': '82.85714% 62.85714%',
+  '1F56C': '82.85714% 65.71429%',
+  '1F56D': '82.85714% 68.57143%',
+  '1F56E': '82.85714% 71.42857%',
+  '1F56F': '82.85714% 74.28571%',
+  '1F570': '82.85714% 77.14286%',
+  '1F571': '82.85714% 80%',
+  '1F572': '0% 82.85714%',
+  '1F573': '2.85714% 82.85714%',
+  '1F574': '5.71429% 82.85714%',
+  '1F575': '8.57143% 82.85714%',
+  '1F576': '11.42857% 82.85714%',
+  '1F577': '14.28571% 82.85714%',
+  '1F578': '17.14286% 82.85714%',
+  '1F579': '20% 82.85714%',
+  '1F57B': '22.85714% 82.85714%',
+  '1F57E': '25.71429% 82.85714%',
+  '1F57F': '28.57143% 82.85714%',
+  '1F581': '31.42857% 82.85714%',
+  '1F582': '34.28571% 82.85714%',
+  '1F583': '37.14286% 82.85714%',
+  '1F585': '40% 82.85714%',
+  '1F586': '42.85714% 82.85714%',
+  '1F587': '45.71429% 82.85714%',
+  '1F588': '48.57143% 82.85714%',
+  '1F589': '51.42857% 82.85714%',
+  '1F58A': '54.28571% 82.85714%',
+  '1F58B': '57.14286% 82.85714%',
+  '1F58C': '60% 82.85714%',
+  '1F58D': '62.85714% 82.85714%',
+  '1F58E': '65.71429% 82.85714%',
+  '1F58F': '68.57143% 82.85714%',
+  '1F590': '71.42857% 82.85714%',
+  '1F591': '74.28571% 82.85714%',
+  '1F592': '77.14286% 82.85714%',
+  '1F593': '80% 82.85714%',
+  '1F594': '82.85714% 82.85714%',
+  '1F595': '85.71429% 0%',
+  '1F596': '85.71429% 2.85714%',
+  '1F597': '85.71429% 5.71429%',
+  '1F598': '85.71429% 8.57143%',
+  '1F599': '85.71429% 11.42857%',
+  '1F59E': '85.71429% 14.28571%',
+  '1F59F': '85.71429% 17.14286%',
+  '1F5A5': '85.71429% 20%',
+  '1F5A6': '85.71429% 22.85714%',
+  '1F5A7': '85.71429% 25.71429%',
+  '1F5A8': '85.71429% 28.57143%',
+  '1F5A9': '85.71429% 31.42857%',
+  '1F5AA': '85.71429% 34.28571%',
+  '1F5AB': '85.71429% 37.14286%',
+  '1F5AD': '85.71429% 40%',
+  '1F5AE': '85.71429% 42.85714%',
+  '1F5AF': '85.71429% 45.71429%',
+  '1F5B2': '85.71429% 48.57143%',
+  '1F5B3': '85.71429% 51.42857%',
+  '1F5B4': '85.71429% 54.28571%',
+  '1F5B8': '85.71429% 57.14286%',
+  '1F5B9': '85.71429% 60%',
+  '1F5BC': '85.71429% 62.85714%',
+  '1F5BD': '85.71429% 65.71429%',
+  '1F5BE': '85.71429% 68.57143%',
+  '1F5C0': '85.71429% 71.42857%',
+  '1F5C1': '85.71429% 74.28571%',
+  '1F5C2': '85.71429% 77.14286%',
+  '1F5C3': '85.71429% 80%',
+  '1F5C4': '85.71429% 82.85714%',
+  '1F5C6': '0% 85.71429%',
+  '1F5C7': '2.85714% 85.71429%',
+  '1F5C9': '5.71429% 85.71429%',
+  '1F5CA': '8.57143% 85.71429%',
+  '1F5CE': '11.42857% 85.71429%',
+  '1F5CF': '14.28571% 85.71429%',
+  '1F5D0': '17.14286% 85.71429%',
+  '1F5D1': '20% 85.71429%',
+  '1F5D2': '22.85714% 85.71429%',
+  '1F5D3': '25.71429% 85.71429%',
+  '1F5D4': '28.57143% 85.71429%',
+  '1F5D8': '31.42857% 85.71429%',
+  '1F5D9': '34.28571% 85.71429%',
+  '1F5DC': '37.14286% 85.71429%',
+  '1F5DD': '40% 85.71429%',
+  '1F5DE': '42.85714% 85.71429%',
+  '1F5E0': '45.71429% 85.71429%',
+  '1F5E1': '48.57143% 85.71429%',
+  '1F5E2': '51.42857% 85.71429%',
+  '1F5E3': '54.28571% 85.71429%',
+  '1F5E8': '57.14286% 85.71429%',
+  '1F5E9': '60% 85.71429%',
+  '1F5EA': '62.85714% 85.71429%',
+  '1F5EB': '65.71429% 85.71429%',
+  '1F5EC': '68.57143% 85.71429%',
+  '1F5ED': '71.42857% 85.71429%',
+  '1F5EE': '74.28571% 85.71429%',
+  '1F5EF': '77.14286% 85.71429%',
+  '1F5F0': '80% 85.71429%',
+  '1F5F1': '82.85714% 85.71429%',
+  '1F5F2': '85.71429% 85.71429%',
+  '1F5F3': '88.57143% 0%',
+  '1F5F4': '88.57143% 2.85714%',
+  '1F5F5': '88.57143% 5.71429%',
+  '1F5F8': '88.57143% 8.57143%',
+  '1F5F9': '88.57143% 11.42857%',
+  '1F5FA': '88.57143% 14.28571%',
+  '1F5FB': '88.57143% 17.14286%',
+  '1F5FC': '88.57143% 20%',
+  '1F5FD': '88.57143% 22.85714%',
+  '1F5FE': '88.57143% 25.71429%',
+  '1F5FF': '88.57143% 28.57143%',
+  '1F600': '88.57143% 31.42857%',
+  '1F601': '88.57143% 34.28571%',
+  '1F602': '88.57143% 37.14286%',
+  '1F603': '88.57143% 40%',
+  '1F604': '88.57143% 42.85714%',
+  '1F605': '88.57143% 45.71429%',
+  '1F606': '88.57143% 48.57143%',
+  '1F607': '88.57143% 51.42857%',
+  '1F608': '88.57143% 54.28571%',
+  '1F609': '88.57143% 57.14286%',
+  '1F60A': '88.57143% 60%',
+  '1F60B': '88.57143% 62.85714%',
+  '1F60C': '88.57143% 65.71429%',
+  '1F60D': '88.57143% 68.57143%',
+  '1F60E': '88.57143% 71.42857%',
+  '1F60F': '88.57143% 74.28571%',
+  '1F610': '88.57143% 77.14286%',
+  '1F611': '88.57143% 80%',
+  '1F612': '88.57143% 82.85714%',
+  '1F613': '88.57143% 85.71429%',
+  '1F614': '0% 88.57143%',
+  '1F615': '2.85714% 88.57143%',
+  '1F616': '5.71429% 88.57143%',
+  '1F617': '8.57143% 88.57143%',
+  '1F618': '11.42857% 88.57143%',
+  '1F619': '14.28571% 88.57143%',
+  '1F61A': '17.14286% 88.57143%',
+  '1F61B': '20% 88.57143%',
+  '1F61C': '22.85714% 88.57143%',
+  '1F61D': '25.71429% 88.57143%',
+  '1F61E': '28.57143% 88.57143%',
+  '1F61F': '31.42857% 88.57143%',
+  '1F620': '34.28571% 88.57143%',
+  '1F621': '37.14286% 88.57143%',
+  '1F622': '40% 88.57143%',
+  '1F623': '42.85714% 88.57143%',
+  '1F624': '45.71429% 88.57143%',
+  '1F625': '48.57143% 88.57143%',
+  '1F626': '51.42857% 88.57143%',
+  '1F627': '54.28571% 88.57143%',
+  '1F628': '57.14286% 88.57143%',
+  '1F629': '60% 88.57143%',
+  '1F62A': '62.85714% 88.57143%',
+  '1F62B': '65.71429% 88.57143%',
+  '1F62C': '68.57143% 88.57143%',
+  '1F62D': '71.42857% 88.57143%',
+  '1F62E': '74.28571% 88.57143%',
+  '1F62F': '77.14286% 88.57143%',
+  '1F630': '80% 88.57143%',
+  '1F631': '82.85714% 88.57143%',
+  '1F632': '85.71429% 88.57143%',
+  '1F633': '88.57143% 88.57143%',
+  '1F634': '91.42857% 0%',
+  '1F635': '91.42857% 2.85714%',
+  '1F636': '91.42857% 5.71429%',
+  '1F637': '91.42857% 8.57143%',
+  '1F638': '91.42857% 11.42857%',
+  '1F639': '91.42857% 14.28571%',
+  '1F63A': '91.42857% 17.14286%',
+  '1F63B': '91.42857% 20%',
+  '1F63C': '91.42857% 22.85714%',
+  '1F63D': '91.42857% 25.71429%',
+  '1F63E': '91.42857% 28.57143%',
+  '1F63F': '91.42857% 31.42857%',
+  '1F640': '91.42857% 34.28571%',
+  '1F641': '91.42857% 37.14286%',
+  '1F642': '91.42857% 40%',
+  '1F645': '91.42857% 42.85714%',
+  '1F646': '91.42857% 45.71429%',
+  '1F647': '91.42857% 48.57143%',
+  '1F648': '91.42857% 51.42857%',
+  '1F649': '91.42857% 54.28571%',
+  '1F64A': '91.42857% 57.14286%',
+  '1F64B': '91.42857% 60%',
+  '1F64C': '91.42857% 62.85714%',
+  '1F64D': '91.42857% 65.71429%',
+  '1F64E': '91.42857% 68.57143%',
+  '1F64F': '91.42857% 71.42857%',
+  '1F680': '91.42857% 74.28571%',
+  '1F681': '91.42857% 77.14286%',
+  '1F682': '91.42857% 80%',
+  '1F683': '91.42857% 82.85714%',
+  '1F684': '91.42857% 85.71429%',
+  '1F685': '91.42857% 88.57143%',
+  '1F686': '0% 91.42857%',
+  '1F687': '2.85714% 91.42857%',
+  '1F688': '5.71429% 91.42857%',
+  '1F689': '8.57143% 91.42857%',
+  '1F68A': '11.42857% 91.42857%',
+  '1F68B': '14.28571% 91.42857%',
+  '1F68C': '17.14286% 91.42857%',
+  '1F68D': '20% 91.42857%',
+  '1F68E': '22.85714% 91.42857%',
+  '1F68F': '25.71429% 91.42857%',
+  '1F690': '28.57143% 91.42857%',
+  '1F691': '31.42857% 91.42857%',
+  '1F692': '34.28571% 91.42857%',
+  '1F693': '37.14286% 91.42857%',
+  '1F694': '40% 91.42857%',
+  '1F695': '42.85714% 91.42857%',
+  '1F696': '45.71429% 91.42857%',
+  '1F697': '48.57143% 91.42857%',
+  '1F698': '51.42857% 91.42857%',
+  '1F699': '54.28571% 91.42857%',
+  '1F69A': '57.14286% 91.42857%',
+  '1F69B': '60% 91.42857%',
+  '1F69C': '62.85714% 91.42857%',
+  '1F69D': '65.71429% 91.42857%',
+  '1F69E': '68.57143% 91.42857%',
+  '1F69F': '71.42857% 91.42857%',
+  '1F6A0': '74.28571% 91.42857%',
+  '1F6A1': '77.14286% 91.42857%',
+  '1F6A2': '80% 91.42857%',
+  '1F6A3': '82.85714% 91.42857%',
+  '1F6A4': '85.71429% 91.42857%',
+  '1F6A5': '88.57143% 91.42857%',
+  '1F6A6': '91.42857% 91.42857%',
+  '1F6A7': '94.28571% 0%',
+  '1F6A8': '94.28571% 2.85714%',
+  '1F6A9': '94.28571% 5.71429%',
+  '1F6AA': '94.28571% 8.57143%',
+  '1F6AB': '94.28571% 11.42857%',
+  '1F6AC': '94.28571% 14.28571%',
+  '1F6AD': '94.28571% 17.14286%',
+  '1F6AE': '94.28571% 20%',
+  '1F6AF': '94.28571% 22.85714%',
+  '1F6B0': '94.28571% 25.71429%',
+  '1F6B1': '94.28571% 28.57143%',
+  '1F6B2': '94.28571% 31.42857%',
+  '1F6B3': '94.28571% 34.28571%',
+  '1F6B4': '94.28571% 37.14286%',
+  '1F6B5': '94.28571% 40%',
+  '1F6B6': '94.28571% 42.85714%',
+  '1F6B7': '94.28571% 45.71429%',
+  '1F6B8': '94.28571% 48.57143%',
+  '1F6B9': '94.28571% 51.42857%',
+  '1F6BA': '94.28571% 54.28571%',
+  '1F6BB': '94.28571% 57.14286%',
+  '1F6BC': '94.28571% 60%',
+  '1F6BD': '94.28571% 62.85714%',
+  '1F6BE': '94.28571% 65.71429%',
+  '1F6BF': '94.28571% 68.57143%',
+  '1F6C0': '94.28571% 71.42857%',
+  '1F6C1': '94.28571% 74.28571%',
+  '1F6C2': '94.28571% 77.14286%',
+  '1F6C3': '94.28571% 80%',
+  '1F6C4': '94.28571% 82.85714%',
+  '1F6C5': '94.28571% 85.71429%',
+  '1F6C6': '94.28571% 88.57143%',
+  '1F6C7': '94.28571% 91.42857%',
+  '1F6C8': '0% 94.28571%',
+  '1F6C9': '2.85714% 94.28571%',
+  '1F6CA': '5.71429% 94.28571%',
+  '1F6CB': '8.57143% 94.28571%',
+  '1F6CC': '11.42857% 94.28571%',
+  '1F6CD': '14.28571% 94.28571%',
+  '1F6CE': '17.14286% 94.28571%',
+  '1F6CF': '20% 94.28571%',
+  '1F6E0': '22.85714% 94.28571%',
+  '1F6E1': '25.71429% 94.28571%',
+  '1F6E2': '28.57143% 94.28571%',
+  '1F6E3': '31.42857% 94.28571%',
+  '1F6E4': '34.28571% 94.28571%',
+  '1F6E5': '37.14286% 94.28571%',
+  '1F6E6': '40% 94.28571%',
+  '1F6E7': '42.85714% 94.28571%',
+  '1F6E8': '45.71429% 94.28571%',
+  '1F6E9': '48.57143% 94.28571%',
+  '1F6EA': '51.42857% 94.28571%',
+  '1F6EB': '54.28571% 94.28571%',
+  '1F6EC': '57.14286% 94.28571%',
+  '1F6F0': '60% 94.28571%',
+  '1F6F1': '62.85714% 94.28571%',
+  '1F6F2': '65.71429% 94.28571%',
+  '1F6F3': '68.57143% 94.28571%',
+  '203C': '71.42857% 94.28571%',
+  '2049': '74.28571% 94.28571%',
+  '2122': '77.14286% 94.28571%',
+  '2139': '80% 94.28571%',
+  '2194': '82.85714% 94.28571%',
+  '2195': '85.71429% 94.28571%',
+  '2196': '88.57143% 94.28571%',
+  '2197': '91.42857% 94.28571%',
+  '2198': '94.28571% 94.28571%',
+  '2199': '97.14286% 0%',
+  '21A9': '97.14286% 2.85714%',
+  '21AA': '97.14286% 5.71429%',
+  '231A': '97.14286% 8.57143%',
+  '231B': '97.14286% 11.42857%',
+  '23E9': '97.14286% 14.28571%',
+  '23EA': '97.14286% 17.14286%',
+  '23EB': '97.14286% 20%',
+  '23EC': '97.14286% 22.85714%',
+  '23F0': '97.14286% 25.71429%',
+  '23F3': '97.14286% 28.57143%',
+  '24C2': '97.14286% 31.42857%',
+  '25AA': '97.14286% 34.28571%',
+  '25AB': '97.14286% 37.14286%',
+  '25B6': '97.14286% 40%',
+  '25C0': '97.14286% 42.85714%',
+  '25FB': '97.14286% 45.71429%',
+  '25FC': '97.14286% 48.57143%',
+  '25FD': '97.14286% 51.42857%',
+  '25FE': '97.14286% 54.28571%',
+  '2600': '97.14286% 57.14286%',
+  '2601': '97.14286% 60%',
+  '260E': '97.14286% 62.85714%',
+  '2611': '97.14286% 65.71429%',
+  '2614': '97.14286% 68.57143%',
+  '2615': '97.14286% 71.42857%',
+  '261D': '97.14286% 74.28571%',
+  '263A': '97.14286% 77.14286%',
+  '2648': '97.14286% 80%',
+  '2649': '97.14286% 82.85714%',
+  '264A': '97.14286% 85.71429%',
+  '264B': '97.14286% 88.57143%',
+  '264C': '97.14286% 91.42857%',
+  '264D': '97.14286% 94.28571%',
+  '264E': '0% 97.14286%',
+  '264F': '2.85714% 97.14286%',
+  '2650': '5.71429% 97.14286%',
+  '2651': '8.57143% 97.14286%',
+  '2652': '11.42857% 97.14286%',
+  '2653': '14.28571% 97.14286%',
+  '2660': '17.14286% 97.14286%',
+  '2663': '20% 97.14286%',
+  '2665': '22.85714% 97.14286%',
+  '2666': '25.71429% 97.14286%',
+  '2668': '28.57143% 97.14286%',
+  '267B': '31.42857% 97.14286%',
+  '267F': '34.28571% 97.14286%',
+  '2693': '37.14286% 97.14286%',
+  '26A0': '40% 97.14286%',
+  '26A1': '42.85714% 97.14286%',
+  '26AA': '45.71429% 97.14286%',
+  '26AB': '48.57143% 97.14286%',
+  '26BD': '51.42857% 97.14286%',
+  '26BE': '54.28571% 97.14286%',
+  '26C4': '57.14286% 97.14286%',
+  '26C5': '60% 97.14286%',
+  '26CE': '62.85714% 97.14286%',
+  '26D4': '65.71429% 97.14286%',
+  '26EA': '68.57143% 97.14286%',
+  '26F2': '71.42857% 97.14286%',
+  '26F3': '74.28571% 97.14286%',
+  '26F5': '77.14286% 97.14286%',
+  '26FA': '80% 97.14286%',
+  '26FD': '82.85714% 97.14286%',
+  '2702': '85.71429% 97.14286%',
+  '2705': '88.57143% 97.14286%',
+  '2708': '91.42857% 97.14286%',
+  '2709': '94.28571% 97.14286%',
+  '270A': '97.14286% 97.14286%',
+  '270B': '100% 0%',
+  '270C': '100% 2.85714%',
+  '270F': '100% 5.71429%',
+  '2712': '100% 8.57143%',
+  '2714': '100% 11.42857%',
+  '2716': '100% 14.28571%',
+  '2728': '100% 17.14286%',
+  '2733': '100% 20%',
+  '2734': '100% 22.85714%',
+  '2744': '100% 25.71429%',
+  '2747': '100% 28.57143%',
+  '274C': '100% 31.42857%',
+  '274E': '100% 34.28571%',
+  '2753': '100% 37.14286%',
+  '2754': '100% 40%',
+  '2755': '100% 42.85714%',
+  '2757': '100% 45.71429%',
+  '2764': '100% 48.57143%',
+  '2795': '100% 51.42857%',
+  '2796': '100% 54.28571%',
+  '2797': '100% 57.14286%',
+  '27A1': '100% 60%',
+  '27B0': '100% 62.85714%',
+  '27BF': '100% 65.71429%',
+  '2934': '100% 68.57143%',
+  '2935': '100% 71.42857%',
+  '2B05': '100% 74.28571%',
+  '2B06': '100% 77.14286%',
+  '2B07': '100% 80%',
+  '2B1B': '100% 82.85714%',
+  '2B1C': '100% 85.71429%',
+  '2B50': '100% 88.57143%',
+  '2B55': '100% 91.42857%',
+  '3030': '100% 94.28571%',
+  '303D': '100% 97.14286%',
+  '3297': '0% 100%',
+  '3299': '2.85714% 100%' };
+},{}],456:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.sprite = undefined;
+
+var _emojioneSpritePositions = require('./emojione-sprite-positions');
+
+var _emojioneSpritePositions2 = _interopRequireDefault(_emojioneSpritePositions);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var defaults = function defaults(codepoint) {
+    return {
+        textIndent: '-9999em',
+        imageRendering: 'optimizeQuality',
+        fontSize: 'inherit',
+        height: '1.5em',
+        width: '1.5em',
+        top: '-3px',
+        position: 'relative',
+        display: 'inline-block',
+        margin: '0 .15em',
+        lineHeight: 'normal',
+        verticalAlign: 'middle',
+        backgroundImage: 'url("assets/emojione.sprites.png")',
+        backgroundSize: '3600%',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: _emojioneSpritePositions2.default[codepoint]
+    };
+};
+
+var sprite = exports.sprite = function sprite(codepoint) {
+    var style = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    return Object.assign({}, defaults(codepoint), style);
+};
+
+exports.default = {
+    sprite: sprite
+};
+},{"./emojione-sprite-positions":455}],457:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.unicodeToCodepoint = exports.codepointToUnicode = exports.shortToCodepoint = exports.codepointToShort = exports.unicodes = undefined;
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _emojiData = require('../data/emoji-data');
+
+var _emojiData2 = _interopRequireDefault(_emojiData);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var unicodes = exports.unicodes = [];
+var codepointToShort = exports.codepointToShort = new Map();
+var shortToCodepoint = exports.shortToCodepoint = new Map();
+var codepointToUnicode = exports.codepointToUnicode = new Map();
+var unicodeToCodepoint = exports.unicodeToCodepoint = new Map();
+
+_emojiData2.default.forEach(function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 3);
+
+    var codepoint = _ref2[0];
+    var unicode = _ref2[1];
+    var shortname = _ref2[2];
+
+    unicodes.push(unicode);
+    codepointToShort.set(codepoint, shortname);
+    shortToCodepoint.set(shortname, codepoint);
+    codepointToUnicode.set(codepoint, unicode);
+    unicodeToCodepoint.set(unicode, codepoint);
+});
+},{"../data/emoji-data":450}],458:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -40777,7 +42464,7 @@ function clearNextFrameAction(nextFrameId) {
   }
 }
 
-},{"./calculateNodeHeight":451,"react":477}],451:[function(require,module,exports){
+},{"./calculateNodeHeight":459,"react":484}],459:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -40891,11 +42578,11 @@ function calculateNodeStyling(node) {
   return nodeInfo;
 }
 
-},{}],452:[function(require,module,exports){
-arguments[4][343][0].apply(exports,arguments)
-},{"dup":343}],453:[function(require,module,exports){
-arguments[4][345][0].apply(exports,arguments)
-},{"./reactProdInvariant":474,"_process":320,"dup":345,"fbjs/lib/invariant":311}],454:[function(require,module,exports){
+},{}],460:[function(require,module,exports){
+arguments[4][344][0].apply(exports,arguments)
+},{"dup":344}],461:[function(require,module,exports){
+arguments[4][346][0].apply(exports,arguments)
+},{"./reactProdInvariant":482,"_process":321,"dup":346,"fbjs/lib/invariant":311}],462:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -40986,7 +42673,7 @@ var React = {
 
 module.exports = React;
 }).call(this,require('_process'))
-},{"./ReactChildren":455,"./ReactClass":456,"./ReactComponent":457,"./ReactDOMFactories":460,"./ReactElement":461,"./ReactElementValidator":463,"./ReactPropTypes":466,"./ReactPureComponent":468,"./ReactVersion":469,"./onlyChild":473,"_process":320,"fbjs/lib/warning":318,"object-assign":476}],455:[function(require,module,exports){
+},{"./ReactChildren":463,"./ReactClass":464,"./ReactComponent":465,"./ReactDOMFactories":468,"./ReactElement":469,"./ReactElementValidator":471,"./ReactPropTypes":474,"./ReactPureComponent":476,"./ReactVersion":477,"./onlyChild":481,"_process":321,"fbjs/lib/warning":318,"object-assign":320}],463:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -41177,7 +42864,7 @@ var ReactChildren = {
 };
 
 module.exports = ReactChildren;
-},{"./PooledClass":453,"./ReactElement":461,"./traverseAllChildren":475,"fbjs/lib/emptyFunction":303}],456:[function(require,module,exports){
+},{"./PooledClass":461,"./ReactElement":469,"./traverseAllChildren":483,"fbjs/lib/emptyFunction":303}],464:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -41896,7 +43583,7 @@ var ReactClass = {
 
 module.exports = ReactClass;
 }).call(this,require('_process'))
-},{"./ReactComponent":457,"./ReactElement":461,"./ReactNoopUpdateQueue":464,"./ReactPropTypeLocationNames":465,"./reactProdInvariant":474,"_process":320,"fbjs/lib/emptyObject":304,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"object-assign":476}],457:[function(require,module,exports){
+},{"./ReactComponent":465,"./ReactElement":469,"./ReactNoopUpdateQueue":472,"./ReactPropTypeLocationNames":473,"./reactProdInvariant":482,"_process":321,"fbjs/lib/emptyObject":304,"fbjs/lib/invariant":311,"fbjs/lib/warning":318,"object-assign":320}],465:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -42016,7 +43703,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = ReactComponent;
 }).call(this,require('_process'))
-},{"./ReactNoopUpdateQueue":464,"./canDefineProperty":470,"./reactProdInvariant":474,"_process":320,"fbjs/lib/emptyObject":304,"fbjs/lib/invariant":311,"fbjs/lib/warning":318}],458:[function(require,module,exports){
+},{"./ReactNoopUpdateQueue":472,"./canDefineProperty":478,"./reactProdInvariant":482,"_process":321,"fbjs/lib/emptyObject":304,"fbjs/lib/invariant":311,"fbjs/lib/warning":318}],466:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2016-present, Facebook, Inc.
@@ -42352,7 +44039,7 @@ var ReactComponentTreeHook = {
 
 module.exports = ReactComponentTreeHook;
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":459,"./reactProdInvariant":474,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318}],459:[function(require,module,exports){
+},{"./ReactCurrentOwner":467,"./reactProdInvariant":482,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318}],467:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -42383,7 +44070,7 @@ var ReactCurrentOwner = {
 };
 
 module.exports = ReactCurrentOwner;
-},{}],460:[function(require,module,exports){
+},{}],468:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -42555,7 +44242,7 @@ var ReactDOMFactories = {
 
 module.exports = ReactDOMFactories;
 }).call(this,require('_process'))
-},{"./ReactElement":461,"./ReactElementValidator":463,"_process":320}],461:[function(require,module,exports){
+},{"./ReactElement":469,"./ReactElementValidator":471,"_process":321}],469:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-present, Facebook, Inc.
@@ -42898,9 +44585,9 @@ ReactElement.isValidElement = function (object) {
 
 module.exports = ReactElement;
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":459,"./ReactElementSymbol":462,"./canDefineProperty":470,"_process":320,"fbjs/lib/warning":318,"object-assign":476}],462:[function(require,module,exports){
-arguments[4][372][0].apply(exports,arguments)
-},{"dup":372}],463:[function(require,module,exports){
+},{"./ReactCurrentOwner":467,"./ReactElementSymbol":470,"./canDefineProperty":478,"_process":321,"fbjs/lib/warning":318,"object-assign":320}],470:[function(require,module,exports){
+arguments[4][373][0].apply(exports,arguments)
+},{"dup":373}],471:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-present, Facebook, Inc.
@@ -43136,7 +44823,7 @@ var ReactElementValidator = {
 
 module.exports = ReactElementValidator;
 }).call(this,require('_process'))
-},{"./ReactComponentTreeHook":458,"./ReactCurrentOwner":459,"./ReactElement":461,"./canDefineProperty":470,"./checkReactTypeSpec":471,"./getIteratorFn":472,"_process":320,"fbjs/lib/warning":318}],464:[function(require,module,exports){
+},{"./ReactComponentTreeHook":466,"./ReactCurrentOwner":467,"./ReactElement":469,"./canDefineProperty":478,"./checkReactTypeSpec":479,"./getIteratorFn":480,"_process":321,"fbjs/lib/warning":318}],472:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015-present, Facebook, Inc.
@@ -43234,9 +44921,9 @@ var ReactNoopUpdateQueue = {
 
 module.exports = ReactNoopUpdateQueue;
 }).call(this,require('_process'))
-},{"_process":320,"fbjs/lib/warning":318}],465:[function(require,module,exports){
-arguments[4][390][0].apply(exports,arguments)
-},{"_process":320,"dup":390}],466:[function(require,module,exports){
+},{"_process":321,"fbjs/lib/warning":318}],473:[function(require,module,exports){
+arguments[4][391][0].apply(exports,arguments)
+},{"_process":321,"dup":391}],474:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -43672,9 +45359,9 @@ function getClassName(propValue) {
 
 module.exports = ReactPropTypes;
 }).call(this,require('_process'))
-},{"./ReactElement":461,"./ReactPropTypeLocationNames":465,"./ReactPropTypesSecret":467,"./getIteratorFn":472,"_process":320,"fbjs/lib/emptyFunction":303,"fbjs/lib/warning":318}],467:[function(require,module,exports){
-arguments[4][391][0].apply(exports,arguments)
-},{"dup":391}],468:[function(require,module,exports){
+},{"./ReactElement":469,"./ReactPropTypeLocationNames":473,"./ReactPropTypesSecret":475,"./getIteratorFn":480,"_process":321,"fbjs/lib/emptyFunction":303,"fbjs/lib/warning":318}],475:[function(require,module,exports){
+arguments[4][392][0].apply(exports,arguments)
+},{"dup":392}],476:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -43716,9 +45403,9 @@ _assign(ReactPureComponent.prototype, ReactComponent.prototype);
 ReactPureComponent.prototype.isPureReactComponent = true;
 
 module.exports = ReactPureComponent;
-},{"./ReactComponent":457,"./ReactNoopUpdateQueue":464,"fbjs/lib/emptyObject":304,"object-assign":476}],469:[function(require,module,exports){
-arguments[4][399][0].apply(exports,arguments)
-},{"dup":399}],470:[function(require,module,exports){
+},{"./ReactComponent":465,"./ReactNoopUpdateQueue":472,"fbjs/lib/emptyObject":304,"object-assign":320}],477:[function(require,module,exports){
+arguments[4][400][0].apply(exports,arguments)
+},{"dup":400}],478:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -43746,7 +45433,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = canDefineProperty;
 }).call(this,require('_process'))
-},{"_process":320}],471:[function(require,module,exports){
+},{"_process":321}],479:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -43835,9 +45522,9 @@ function checkReactTypeSpec(typeSpecs, values, location, componentName, element,
 
 module.exports = checkReactTypeSpec;
 }).call(this,require('_process'))
-},{"./ReactComponentTreeHook":458,"./ReactPropTypeLocationNames":465,"./ReactPropTypesSecret":467,"./reactProdInvariant":474,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318}],472:[function(require,module,exports){
-arguments[4][432][0].apply(exports,arguments)
-},{"dup":432}],473:[function(require,module,exports){
+},{"./ReactComponentTreeHook":466,"./ReactPropTypeLocationNames":473,"./ReactPropTypesSecret":475,"./reactProdInvariant":482,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318}],480:[function(require,module,exports){
+arguments[4][433][0].apply(exports,arguments)
+},{"dup":433}],481:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -43877,9 +45564,9 @@ function onlyChild(children) {
 
 module.exports = onlyChild;
 }).call(this,require('_process'))
-},{"./ReactElement":461,"./reactProdInvariant":474,"_process":320,"fbjs/lib/invariant":311}],474:[function(require,module,exports){
-arguments[4][441][0].apply(exports,arguments)
-},{"dup":441}],475:[function(require,module,exports){
+},{"./ReactElement":469,"./reactProdInvariant":482,"_process":321,"fbjs/lib/invariant":311}],482:[function(require,module,exports){
+arguments[4][442][0].apply(exports,arguments)
+},{"dup":442}],483:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -44057,14 +45744,12 @@ function traverseAllChildren(children, callback, traverseContext) {
 
 module.exports = traverseAllChildren;
 }).call(this,require('_process'))
-},{"./KeyEscapeUtils":452,"./ReactCurrentOwner":459,"./ReactElementSymbol":462,"./getIteratorFn":472,"./reactProdInvariant":474,"_process":320,"fbjs/lib/invariant":311,"fbjs/lib/warning":318}],476:[function(require,module,exports){
-arguments[4][448][0].apply(exports,arguments)
-},{"dup":448}],477:[function(require,module,exports){
+},{"./KeyEscapeUtils":460,"./ReactCurrentOwner":467,"./ReactElementSymbol":470,"./getIteratorFn":480,"./reactProdInvariant":482,"_process":321,"fbjs/lib/invariant":311,"fbjs/lib/warning":318}],484:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib/React');
 
-},{"./lib/React":454}],478:[function(require,module,exports){
+},{"./lib/React":462}],485:[function(require,module,exports){
 (function (process,global){
 /**
  * Copyright (c) 2014, Facebook, Inc.
@@ -44791,7 +46476,7 @@ module.exports = require('./lib/React');
 );
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":320}],479:[function(require,module,exports){
+},{"_process":321}],486:[function(require,module,exports){
 (function(self) {
   'use strict';
 
@@ -45254,7 +46939,7 @@ module.exports = require('./lib/React');
   self.fetch.polyfill = true
 })(typeof self !== 'undefined' ? self : this);
 
-},{}],480:[function(require,module,exports){
+},{}],487:[function(require,module,exports){
 "use strict";
 
 var _react = require("react");
@@ -45350,7 +47035,7 @@ var IconRating = _react2.default.createClass({
 
 module.exports = IconRating;
 
-},{"react":477}],481:[function(require,module,exports){
+},{"react":484}],488:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -45381,9 +47066,7 @@ var _IconRating = require("./IconRating");
 
 var _IconRating2 = _interopRequireDefault(_IconRating);
 
-var _reactEmoji = require("react-emoji");
-
-var _reactEmoji2 = _interopRequireDefault(_reactEmoji);
+var _reactEmojione = require("react-emojione");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -45727,7 +47410,7 @@ function Comment(_ref5) {
 	    removable = _ref5.removable,
 	    onRemove = _ref5.onRemove;
 
-	text = _reactEmoji2.default.emojify(text);
+	text = (0, _reactEmojione.emojify)(text, { output: 'unicode' });
 	return _react2.default.createElement(
 		"span",
 		{ className: "comment" },
@@ -45948,4 +47631,4 @@ document.addEventListener("DOMContentLoaded", function () {
 	_reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById("main"));
 });
 
-},{"./IconRating":480,"babel-polyfill":1,"lodash":319,"react":477,"react-dom":321,"react-emoji":449,"react-textarea-autosize":450,"whatwg-fetch":479}]},{},[481]);
+},{"./IconRating":487,"babel-polyfill":1,"lodash":319,"react":484,"react-dom":322,"react-emojione":451,"react-textarea-autosize":458,"whatwg-fetch":486}]},{},[488]);
