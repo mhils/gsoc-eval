@@ -45937,6 +45937,7 @@ function MelangeLink(_ref8) {
 	return _react2.default.createElement("a", {
 		title: "Open proposal on GSoC site",
 		href: url,
+		target: "_blank",
 		className: "glyphicon glyphicon-new-window" });
 }
 MelangeLink.propTypes = {

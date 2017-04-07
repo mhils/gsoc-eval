@@ -376,6 +376,7 @@ function MelangeLink({proposal}) {
 	return <a
 		title="Open proposal on GSoC site"
 		href={url} 
+		target="_blank"
 		className="glyphicon glyphicon-new-window"/>;
 }
 MelangeLink.propTypes = {
