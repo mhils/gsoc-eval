@@ -7,3 +7,6 @@ services:
       - "3000:3000"
     volumes:
       - ./data:/usr/src/app/data
+      # Uncomment this for development so that the host's static/ folder 
+      # is mounted within the docker container.
+      # - ./static:/usr/src/app/static
