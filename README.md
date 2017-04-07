@@ -24,3 +24,7 @@ A simple application for initial GSoC proposal assessment.
 #### Run using Docker
 
 - `docker-compose up`
+
+##### Updating the Docker Image
+
+- `docker-compose build`
