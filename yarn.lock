@@ -2109,6 +2109,10 @@ react-emojione@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/react-emojione/-/react-emojione-2.0.0.tgz#7a29026430425946f32a2d380d4c6621fb07d2f1"
 
+react-linkifier@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/react-linkifier/-/react-linkifier-3.0.1.tgz#33a0196bb389288370571e7f7b5824fa22735694"
+
 react-textarea-autosize@^4.0.5:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/react-textarea-autosize/-/react-textarea-autosize-4.0.5.tgz#55379f6a6fa575fc87d1b8de2756e57e3b6c995d"

@@ -6,6 +6,7 @@ import _ from "lodash"
 import Textarea from "react-textarea-autosize"
 import IconRating from './IconRating'
 import {emojify} from 'react-emojione'
+import Linkifier from 'react-linkifier'
 
 class App extends React.Component {
 	constructor(props) {
@@ -239,7 +240,8 @@ Comments.propTypes = {
 function Comment({user, text, removable, onRemove}) {
 	text = emojify(text, {output: 'unicode'});
 	return <span className="comment">
-		<strong>{user}:</strong> {text}
+		<strong>{user}:&nbsp;</strong>
+		<Linkifier>{text}</Linkifier>
 		{removable && <span onClick={onRemove} role="button" className="glyphicon glyphicon-trash text-mute pull-right"></span>}
 	</span>;
 }

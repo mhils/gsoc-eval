@@ -16,6 +16,7 @@
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-emojione": "^2.0.0",
+    "react-linkifier": "^3.0.1",
     "react-textarea-autosize": "^4.0.5",
     "watchify": "^3.7.0",
     "whatwg-fetch": "^2.0.3"
