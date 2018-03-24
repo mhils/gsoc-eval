@@ -6,7 +6,6 @@ var parse_basic_auth = require('basic-auth')
 var config = require("./data/config")
 
 DATAFILE = "./data/data.json"
-var proposals = jsonfile.readFileSync("./data/proposals.json");
 var data = jsonfile.readFileSync(DATAFILE);
 
 var app = express();
@@ -23,7 +22,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/proposals.json', (req, res) => {
-  res.send(proposals);
+  res.sendFile(__dirname + "/data/proposals.json");
 });
 app.get('/data.json', (req, res) => {
   res.send(data);
