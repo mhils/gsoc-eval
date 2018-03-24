@@ -15,17 +15,20 @@ class App extends React.Component {
 			proposals: false,
 			proposalData: false,
 			user: false,
-			hideWeak: localStorage["hideWeak"] === "true",
+			settings: {
+				hideWeak: localStorage["hideWeak"] === "true",
+				hideIncomplete: localStorage["hideIncomplete"] === "true",
+			},
 		};
 		this.updateProposalData = this.updateProposalData.bind(this);
 		this.addProposalData = this.addProposalData.bind(this);
-		this.setHideWeak = this.setHideWeak.bind(this);
+		this.setSettings = this.setSettings.bind(this);
 	}
 	componentWillMount() {
 		fetch("/proposals.json", {credentials: 'same-origin'})
 			.then(r => r.json())
 			.then(x => {
-				let proposals = x.results.filter(p => !p.ignored && p.is_complete);
+				let proposals = x.results;
 				console.debug("updateProposals", proposals);
 				this.setState({proposals});
 			})
@@ -56,14 +59,18 @@ class App extends React.Component {
 			this.setState({proposalData});
 		});
 	}
-	setHideWeak(val) {
+	setSettings(key, val) {
+		const {settings} = this.state;
+		const newSettings = {};
+		newSettings[key] = val;
 		this.setState({
-			hideWeak: val
+			settings: Object.assign({}, settings, newSettings),
 		});
-		localStorage["hideWeak"] = val;
+		localStorage[key] = val;
 	}
 	render() {
-		let {proposals, proposalData, user, hideWeak} = this.state;
+		let {proposals, proposalData, user, settings} = this.state;
+		let {hideWeak, hideIncomplete} = settings;
 		if(!proposals || !proposalData || !user){
 			return <div>Loading...</div>;
 		}
@@ -83,30 +90,48 @@ class App extends React.Component {
 			/>
 		);
 
-		return <div className={hideWeak ? "hide-weak" : ""}>
-			<Menu user={user} hideWeak={hideWeak} setHideWeak={this.setHideWeak} />
+		return <div
+			className={
+				(hideWeak ? "hide-weak " : "") +
+				(hideIncomplete ? "hide-incomplete" : "")
+			}>
+			<Menu
+				user={user}
+				settings={settings}
+				setSettings={this.setSettings}
+			/>
 			{proposalGroups}
 		</div>;
 	}
 }
 
-function Menu({user, hideWeak, setHideWeak}) {
+function Menu({user, settings: { hideWeak, hideIncomplete }, setSettings}) {
 	return <div className="pull-right text-right">
 		<strong>{user ? `User: ${user}` : null}</strong>
 		<br/>
 		<label className="checkbox-inline">
 			<input
 				type="checkbox"
+				checked={hideIncomplete}
+				onChange={() => setSettings('hideIncomplete', !hideIncomplete)}/>
+			Hide incomplete proposals
+		</label>
+		<label className="checkbox-inline">
+			<input
+				type="checkbox"
 				checked={hideWeak}
-				onChange={() => setHideWeak(!hideWeak)}/>
+				onChange={() => setSettings('hideWeak', !hideWeak)}/>
 			Hide weak proposals
 		</label>
 	</div>;
 }
 Menu.propTypes = {
 	user: React.PropTypes.string.isRequired,
-	hideWeak: React.PropTypes.bool.isRequired,
-	setHideWeak: React.PropTypes.func.isRequired,
+	settings: React.PropTypes.shape({
+		hideWeak: React.PropTypes.bool.isRequired,
+		hideIncomplete: React.PropTypes.bool.isRequired,
+	}),
+	setSettings: React.PropTypes.func.isRequired,
 }
 
 function sortProposals(proposal, proposalData){
@@ -131,7 +156,7 @@ function ProposalGroup({name, user, proposals, proposalData, addProposalData}) {
 	return <div>
 		<h1>Proposals for {name || "other projects"} ({proposals.length})</h1>
 		{proposals.map(proposal =>
-			<Proposal 
+			<Proposal
 				key={proposal.id}
 				data={proposalData[proposal.id] || []}
 				addData={(d) => addProposalData(proposal.id, d)}
@@ -150,7 +175,8 @@ ProposalGroup.propTypes = {
 
 function Proposal({user, data, proposal, addData}) {
 	let weak = meanRating(data) <= 3 ? "weak" : "";
-	return <div className={`panel panel-default ${weak}`}>
+	let incomplete = proposal.is_complete ? "" : "incomplete";
+	return <div className={`panel panel-default ${weak} ${incomplete}`}>
 		<div className="panel-heading">
 			<strong>{proposal.student.display_name}</strong>: {proposal.title}
 			<span className="pull-right">
@@ -207,7 +233,7 @@ function allComments(data){
 }
 
 function Comments({user, data, addData}) {
-	let i = 0; 
+	let i = 0;
 	let comments = allComments(data);
 	comments = comments.map(c => {
 		let removable = (
@@ -255,7 +281,7 @@ Comment.propTypes = {
 function StarRating(props){
 	return <IconRating
 		{...props}
-		toggledClassName="text-primary glyphicon glyphicon-star" 
+		toggledClassName="text-primary glyphicon glyphicon-star"
 		untoggledClassName="glyphicon glyphicon-star-empty"
 		className="rating"
 		/>;
@@ -276,7 +302,7 @@ function AverageRating({data}){
 			({ratings.length}) &nbsp;
 		</span>
 		<span title={"Ø " + average}>
-			<StarRating 
+			<StarRating
 			currentRating={average}
 			viewOnly={true}
 			/>
@@ -328,10 +354,10 @@ class AddComment extends React.Component {
 		if (this.state.expand) {
 			content = <form className="form" onSubmit={this.submit.bind(this)}>
 				<div className="form-group">
-				<Textarea 
+				<Textarea
 					ref="textarea"
-					className="form-control" 
-					minRows={1} 
+					className="form-control"
+					minRows={1}
 					placeholder="Add Comment"
 				    value={this.state.value}
 				    onChange={e => this.setState({value: e.target.value})}
@@ -339,7 +365,7 @@ class AddComment extends React.Component {
 				</div>
 				<button type="submit" className="btn btn-xs btn-default">Submit</button>
 				&nbsp;
-				<button 
+				<button
 					className="btn btn-xs btn-default"
 					onClick={e => e.preventDefault() & this.setState({expand: false})}>
 					Cancel
@@ -350,7 +376,7 @@ class AddComment extends React.Component {
 				<div className="pull-right">
 					<AddRating user={this.props.user} data={this.props.data} addData={this.props.addData}/>
 				</div>
-				<button 
+				<button
 					className="btn btn-xs btn-default"
 					onClick={() => this.setState({expand: true}, () => this.refs.textarea.focus())}
 				>
@@ -377,7 +403,7 @@ function MelangeLink({proposal}) {
 	)
 	return <a
 		title="Open proposal on GSoC site"
-		href={url} 
+		href={url}
 		target="_blank"
 		className="glyphicon glyphicon-new-window"/>;
 }
