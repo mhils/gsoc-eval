@@ -5,8 +5,7 @@ var parse_basic_auth = require('basic-auth')
 
 var config = require("./data/config")
 
-DATAFILE = "./data/data.json"
-var proposals = jsonfile.readFileSync("./data/proposals.json");
+DATAFILE = "./data/json/data.json"
 var data = jsonfile.readFileSync(DATAFILE);
 
 var app = express();
@@ -22,12 +21,8 @@ app.use((req, res, next) => {
   return next();
 });
 
-app.get('/proposals.json', (req, res) => {
-  res.send(proposals);
-});
-app.get('/data.json', (req, res) => {
-  res.send(data);
-});
+app.use(express.static('data/json'));
+
 app.get('/user.json', (req, res) => {
   /* a bit of a hack: reflect the basic auth username back */
   res.send({user: req.user});

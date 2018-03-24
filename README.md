@@ -14,9 +14,9 @@ A simple application for initial GSoC proposal assessment.
 ### Installation
 
 - Clone this repository
-- Copy contents of https://summerofcode.withgoogle.com/api/om/program/current/proposal/?page_size=1000 to `data/proposals.json` (requires authentication). I am unable to check if page_size > 100 actually works.
+- Copy contents of https://summerofcode.withgoogle.com/api/om/program/current/proposal/?page_size=1000 to `data/json/proposals.json` (requires authentication). I am unable to check if page_size > 100 actually works.
 - Adjust `data/config.js` to your needs.
-- Replace contents of `data/data.json` with `{}`. This will later be filled with your mentors' comments (it also retains deleted ones).
+- Replace contents of `data/json/data.json` with `{}`. This will later be filled with your mentors' comments (it also retains deleted ones).
 
 #### Run using locally installed Node.js
 
