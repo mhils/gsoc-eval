@@ -18,7 +18,8 @@
 		"organization_id": 42,
 		"title": "My Awesome Proposal",
 		"abstract": "Hello, here is my proposal. I am looking forward to read your comments.",
-		"subcategory": "mitmproxy"
+		"subcategory": "mitmproxy",
+		"is_complete": true
 	}, {
 		"id": 44,
 		"student": {
@@ -35,7 +36,8 @@
 		"organization_id": 42,
 		"title": "Make Easy Pizza Delivery System",
 		"abstract": "This is one of the few random spam applications! 🎉",
-		"subcategory": ""
+		"subcategory": "",
+		"is_complete": true
 	}, {
 		"id": 43,
 		"student": {
@@ -52,6 +54,7 @@
 		"organization_id": 42,
 		"title": "Proposal for mitmproxy",
 		"abstract": "I'm interested in networking and security, that's why I would like to work with Honeynet!",
-		"subcategory": "mitmproxy"
+		"subcategory": "mitmproxy",
+		"is_complete": true
 	}]
 }
