@@ -152,7 +152,7 @@ function Proposal({user, data, proposal, addData}) {
 	let weak = meanRating(data) <= 3 ? "weak" : "";
 	return <div className={`panel panel-default ${weak}`}>
 		<div className="panel-heading">
-			<strong>{proposal.student_display_name}</strong>: {proposal.title}
+			<strong>{proposal.student.display_name}</strong>: {proposal.title}
 			<span className="pull-right">
 				<AverageRating data={data} />
 				&nbsp;
