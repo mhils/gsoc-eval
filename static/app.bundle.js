@@ -47596,7 +47596,7 @@ function Proposal(_ref3) {
 			_react2.default.createElement(
 				"strong",
 				null,
-				proposal.student.display_name
+				proposal.student_display_name
 			),
 			": ",
 			proposal.title,
